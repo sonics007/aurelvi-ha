@@ -16,7 +16,7 @@ MQTT must already be configured in Home Assistant. Connect the panel to the same
 
 HACS: add `https://github.com/sonics007/aurelvi-ha` as a custom repository of type **Integration**. This is not a listing in the default HACS catalog.
 
-## Version 0.3.9 — Fan and light settings
+## Version 0.3.10 — Fan and light settings
 
 **Build room** now keeps every available fan wind preset (natural, breeze, sleep, etc.) alongside percentage speeds. It adds oscillation and linked light effect controls when those capabilities are exposed by Home Assistant. Related switches, selects and numeric entities in the selected room are included: every select option is available, and number settings have a confirmed value plus −/+ controls using the entity's current step and limits.
 

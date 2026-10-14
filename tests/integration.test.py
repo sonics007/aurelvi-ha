@@ -173,7 +173,8 @@ class FanSettings(unittest.IsolatedAsyncioTestCase):
   await self.hub.publish_state('test','fan.ceiling')
   topic,doc,flags=self.hass.mqtt[-1];self.assertTrue(topic.endswith('/state/aurelvi_attr_fan_ceiling_oscillating'));self.assertIs(doc['value'],False);self.assertTrue(doc['available']);self.assertTrue(flags['retain'])
   del self.hass.values['fan.ceiling'].attributes['oscillating']
-  await self.hub.publish_state('test','fan.ceiling');self.assertFalse(self.hass.mqtt[-1][1]['available']);self.assertEqual(self.hass.mqtt[-1][1]['value'],'unavailable')
+  await self.hub.publish_state('test','fan.ceiling');self.assertTrue(self.hass.mqtt[-1][1]['available']);self.assertEqual(self.hass.mqtt[-1][1]['value'],'unknown')
+  self.hass.values['fan.ceiling'].state='unavailable';await self.hub.publish_state('test','fan.ceiling');self.assertFalse(self.hass.mqtt[-1][1]['available'])
  async def test_wind_and_oscillation_bindings(self):
   tile={'id':'wind','type':'switcher','entity':'fan.ceiling','bindings':{'state:natural':{'service':'fan.set_preset_mode','target':{'entity_id':'fan.ceiling'},'data':{'preset_mode':'natural'}},'state:false':{'service':'fan.oscillate','target':{'entity_id':'fan.ceiling'},'data':{'oscillating':False}}}}
   page={'tiles':[tile]}

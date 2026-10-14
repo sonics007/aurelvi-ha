@@ -40,6 +40,8 @@ const studio=w.document.createElement('aurelvi-studio');studio.hass={language:'e
   assert(controls.find(b=>b.textContent.includes('natural')).classList.contains('lit'));
   const sent=[];pw.OpenPanelDemo.setClient({publish:(...args)=>sent.push(args)});controls.find(b=>b.textContent.includes('breeze')).click();
   assert(sent.some(args=>JSON.stringify(args).includes('breeze')));assert(controls.find(b=>b.textContent.includes('natural')).classList.contains('lit'));
+  mirrors.aurelvi_attr_fan_ceiling_preset_mode={available:true,value:'unknown'};pw.OpenPanelDemo.set({pages:[modePage]},mirrors);
+  const breeze=Array.from(pw.document.querySelectorAll('#surface .segment')).find(b=>b.textContent.includes('breeze'));assert(!breeze.disabled);assert(!breeze.classList.contains('lit'));breeze.click();assert(sent.length>=2);
   pw.close();
   delete states['fan.ceiling'].attributes.oscillating;delete states['fan.ceiling'].attributes.preset_modes;
   const rebuilt=studio.buildRoomDraft({area_id:'living',name:'Living'},records);

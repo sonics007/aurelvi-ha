@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.10
+
+- Keep wind-mode controls enabled when a fan is in manual speed mode with no active preset (`preset_mode: null`). Clear the active highlight while preserving available choices; disable controls only when the entity is unavailable.
+
 ## 0.3.9
 
 - Discover every fan wind preset alongside manual percentage speeds instead of discarding presets.

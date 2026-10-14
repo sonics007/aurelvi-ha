@@ -215,8 +215,8 @@ class Hub:
                 if tile.get('entity')!=entity or attr not in PROJECTED_ATTRIBUTES or attr in projected:continue
                 projected.add(attr)
                 value=state.attributes.get(attr) if state else None
-                available=doc['available'] and value is not None
-                await self.publish(pid,'state/'+attribute_key(entity,attr),{'available':available,'on':False,'value':value if available else 'unavailable'},True)
+                available=doc['available']
+                await self.publish(pid,'state/'+attribute_key(entity,attr),{'available':available,'on':False,'value':(value if value is not None else 'unknown') if available else 'unavailable'},True)
     @callback
     def state_changed(self,event):
         entity=event.data.get('entity_id')
