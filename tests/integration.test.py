@@ -71,6 +71,19 @@ class Integration(unittest.IsolatedAsyncioTestCase):
  async def event(self,button,value=None,event_id='e1',retain=False):
   await self.hub.receive(types.SimpleNamespace(topic='aurelvi/panel/test/event',payload=json.dumps({'page':'fan','button':button,'action':'press','value':value,'eventId':event_id}),retain=retain))
  def call_data(self):return self.hass.calls[-1][:3]
+ async def test_startup_and_updates_with_nullable_light_attributes(self):
+  self.hass.values['light.ceiling']=State('light.ceiling','off',brightness=None,color_temp_kelvin=None,color_temp=None)
+  self.hub.store.saved={'panels':copy.deepcopy(self.hub.panels)}
+  await self.hub.start()
+  light=[doc for topic,doc,options in self.hass.mqtt if topic.endswith('/state/light_ceiling')]
+  self.assertTrue(light);self.assertNotIn('brightness',light[-1]);self.assertFalse(light[-1]['on'])
+  self.hass.values['light.ceiling']=State('light.ceiling','on',brightness=128,color_temp_kelvin=3000)
+  await self.hub.publish_state('test','light.ceiling')
+  self.assertEqual(self.hass.mqtt[-1][1]['brightness'],.502)
+  self.hass.values['light.ceiling']=State('light.ceiling','unavailable',brightness=None)
+  await self.hub.publish_state('test','light.ceiling')
+  self.assertFalse(self.hass.mqtt[-1][1]['available'])
+  await self.hub.close()
  async def test_speed6(self):
   await self.event('fan.speed.6');self.assertEqual(self.call_data(),('fan','set_percentage',{'percentage':100,'entity_id':'fan.ceiling'}));self.assertTrue(self.hass.mqtt[-1][1]['ok'])
  async def test_direction_reads_real_state(self):

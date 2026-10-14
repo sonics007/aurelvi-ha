@@ -111,14 +111,32 @@ def entities(config):
             for v in value:walk(v)
     walk(config);return out
 
+def finite_attribute(value):
+    """Treat missing/invalid device readings as absent, never as zero."""
+    if value is None or isinstance(value,bool):return None
+    try:value=float(value)
+    except (TypeError,ValueError,OverflowError):return None
+    return value if math.isfinite(value) else None
+
 def mirror(state):
     if state is None:return {'available':False,'on':False,'value':'unavailable'}
     value=state.state;a=state.attributes
     doc={'available':value not in {'unknown','unavailable'},'on':value=='on','value':value}
     for name in ['percentage','percentage_step','direction','preset_mode','preset_modes','oscillating','supported_features','color_temp_kelvin','min_color_temp_kelvin','max_color_temp_kelvin','temperature','current_temperature','unit_of_measurement','friendly_name','humidity','wind_speed','temperature_unit','wind_speed_unit','media_title','volume_level']:
-        if name in a:doc[name]=a[name]
-    if 'brightness' in a:doc['brightness']=round(float(a['brightness'])/255,4)
-    if 'color_temp_kelvin' not in doc and a.get('color_temp'):doc['color_temp_kelvin']=round(1000000/float(a['color_temp']))
+        if a.get(name) is not None:doc[name]=a[name]
+    for name in ['percentage','percentage_step','supported_features','color_temp_kelvin','min_color_temp_kelvin','max_color_temp_kelvin','temperature','current_temperature','humidity','wind_speed','volume_level']:
+        if name in doc:
+            reading=finite_attribute(doc[name])
+            if reading is None:doc.pop(name)
+            else:doc[name]=reading
+    brightness=finite_attribute(a.get('brightness'))
+    if brightness is not None:doc['brightness']=round(max(0,min(255,brightness))/255,4)
+    if doc.get('color_temp_kelvin',0)<=0:doc.pop('color_temp_kelvin',None)
+    if 'color_temp_kelvin' not in doc:
+        mired=finite_attribute(a.get('color_temp'))
+        if mired is not None and mired>0:
+            kelvin=1000000/mired
+            if math.isfinite(kelvin):doc['color_temp_kelvin']=round(kelvin)
     if state.entity_id.startswith('weather.'):doc['condition']=value;doc['attributes']=dict(a)
     return doc
 

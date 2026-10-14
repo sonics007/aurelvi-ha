@@ -1,0 +1,26 @@
+name: Validate state projection and bridge
+on:
+  push:
+    paths:
+      - 'custom_components/aurelvi/**'
+      - 'tests/**'
+      - '.github/workflows/state-validation.yml'
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Nullable device state regression
+        run: python tests/state-projection.test.py
+      - name: Bridge, startup and state updates
+        run: python tests/integration.test.py
+      - name: Settings and migration
+        run: python tests/settings.test.py
+      - name: Health and diagnostics
+        run: python tests/health.test.py
