@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.6
+
+- Fix integration startup and MQTT state updates when lights report `brightness: null`.
+- Omit missing or invalid numeric readings, preserve zero brightness and clamp valid brightness to the supported range.
+- Handle nullable Kelvin/mired color temperature, invalid numeric strings and non-finite readings without crashing.
+- Add state projection and bridge startup regression tests with Python 3.13 CI validation.
+- Existing ADB setup/update remains included; no APK update or configuration reset required.
+
 ## 0.3.5
 
 - Add administrator-only direct TCP ADB setup/update to the Studio header and Manage tab.
