@@ -379,3 +379,45 @@ body.screen-blanked header {visibility:hidden;}
 #clock-alarm-editor input[type=range] {width:100%;}
 #clock-alarm-editor label {font-size:14px;}
 #clock-alarm-editor .row button {min-height:40px;font-size:14px;padding:7px;}
+/* Collection atelier: original ornamental geometry and tactile control treatments. */
+body.aurelvi-ui[data-material="art-deco"]{background-image:repeating-conic-gradient(from 180deg at 50% 115%,transparent 0 8deg,#d6b46b13 8deg 9deg,transparent 9deg 18deg),linear-gradient(160deg,#ffffff08,transparent 50%,#00000022);}
+body[data-material="art-deco"] #main{padding:14px;border:1px solid var(--led);outline:1px solid var(--surface-border);outline-offset:-6px;}
+body[data-material="art-deco"] .tile,body[data-material="art-deco"] .aur-control{border-radius:2px!important;border:1px solid var(--led);outline:1px solid var(--surface-border);outline-offset:-5px;background:linear-gradient(140deg,var(--surface-hi),var(--surface-lo));box-shadow:0 4px 10px #0003;}
+body[data-material="art-deco"] .label,body[data-material="art-deco"] .aur-label{font-family:Georgia,serif;letter-spacing:1.5px;text-transform:uppercase;}
+body[data-material="art-deco"] .tile:before,body[data-material="art-deco"] .aur-control:before{content:'';position:absolute;top:8px;left:8px;width:12px;height:12px;border-left:2px solid var(--led);border-top:2px solid var(--led);pointer-events:none;opacity:.6;}
+body.aurelvi-ui[data-material="hifi"]{background-image:repeating-linear-gradient(0deg,#ffffff0e 0 1px,#0000000b 1px 3px),linear-gradient(100deg,#ffffff1c,transparent 40%,#00000023);}
+body[data-material="hifi"] header{border-bottom:3px double var(--surface-border);letter-spacing:2px;font-family:monospace;}
+body[data-material="hifi"] .tile,body[data-material="hifi"] .aur-control{border-radius:4px;border:2px solid var(--surface-border);background:linear-gradient(var(--surface-hi),var(--surface-lo));box-shadow:inset 0 2px 2px #fff3,0 5px 0 var(--shadow),0 7px 8px #0003;}
+body[data-material="hifi"] .is-on,body[data-material="hifi"] .tile.lit{box-shadow:inset 0 2px 5px #0005,0 1px 0 var(--shadow);text-shadow:0 0 5px var(--led);}
+body[data-material="hifi"] .label,body[data-material="hifi"] .aur-label{font-family:monospace;text-transform:uppercase;letter-spacing:1px;}
+body[data-material="hifi"] .aur-control .glyph,body[data-material="hifi"] .tile>.glyph{border:2px solid var(--surface-border);border-radius:50%;padding:7px;box-shadow:2px 2px 4px #0004,-2px -2px 4px #fff3;}
+body.aurelvi-ui[data-material="ceramic"]{background-image:radial-gradient(ellipse at top left,#ffffff25,transparent 70%);}
+body[data-material="ceramic"] .tile,body[data-material="ceramic"] .aur-control{border-radius:18px;border:1px solid var(--surface-border);background:linear-gradient(150deg,var(--surface-hi),var(--surface-lo));box-shadow:inset 0 3px 3px #fff5,0 6px 0 var(--shadow),0 9px 11px #0003;}
+body[data-material="ceramic"] .is-on,body[data-material="ceramic"] .tile.lit{box-shadow:inset 1px 3px 6px #0003,0 2px 0 var(--shadow);}
+body.aurelvi-ui[data-material="japandi"]{background-image:repeating-linear-gradient(91deg,transparent 0 6px,#563f2310 6px 7px,transparent 7px 17px),linear-gradient(20deg,#ffffff16,transparent);}
+body[data-material="japandi"] .tile,body[data-material="japandi"] .aur-control{border-radius:6px;border:1px solid var(--surface-border);box-shadow:0 3px 5px #0002;background:linear-gradient(110deg,var(--surface-hi),var(--surface-lo));}
+body[data-material="japandi"] .label,body[data-material="japandi"] .aur-label{letter-spacing:1px;font-weight:400;}
+body.aurelvi-ui[data-material="glass"]{background-image:radial-gradient(ellipse at 10% 0,#ffffff35,transparent 55%),radial-gradient(ellipse at 95% 90%,#9aafff33,transparent 60%);}
+body[data-material="glass"] .tile,body[data-material="glass"] .aur-control{border-radius:22px;border:1px solid #ffffff66;background:linear-gradient(135deg,var(--surface-hi),var(--surface-lo));box-shadow:inset 1px 1px 0 #fff5,0 5px 15px #0002;}
+body[data-material="glass"] .is-on,body[data-material="glass"] .tile.lit{box-shadow:inset 1px 1px 0 #fff8,0 0 14px var(--led);}
+body.aurelvi-ui[data-material="neon"]{background-image:linear-gradient(#ffffff04 1px,transparent 1px),linear-gradient(90deg,#ffffff04 1px,transparent 1px);background-size:22px 22px;}
+body[data-material="neon"] .tile,body[data-material="neon"] .aur-control{border-radius:12px;border:1px solid var(--surface-border);box-shadow:inset 0 0 8px #0003;background:var(--surface-lo);}
+body[data-material="neon"] .is-on,body[data-material="neon"] .tile.lit{border-color:var(--led);box-shadow:inset 0 0 13px var(--shadow),0 0 14px var(--led);text-shadow:0 0 5px var(--led);}
+body[data-skin-variant="1"] .aur-control,body[data-skin-variant="5"] .aur-control{border-radius:28px;}
+body[data-skin-variant="3"] #main,body[data-skin-variant="7"] #main{border-top:3px double var(--surface-border);border-bottom:3px double var(--surface-border);}
+body[data-skin-variant="2"] .aur-control .glyph,body[data-skin-variant="6"] .aur-control .glyph{transform:scale(.9);}
+body[data-material="art-deco"] .segments .segment{border-radius:0;border-right:1px solid var(--led);}
+body[data-material="hifi"] .segments .segment{border-radius:3px;box-shadow:inset 0 1px 2px #fff3,0 2px 2px #0003;}
+.aur-vu{display:none;}
+body[data-material="hifi"] .aur-vu{display:block;background:#17201c;border:3px ridge var(--surface-border);border-radius:4px;padding:12px 17px;box-shadow:inset 0 2px 8px #0008;}
+.aur-vu-label{font:10px monospace;letter-spacing:2px;color:#ddcf96;margin-bottom:9px;}
+.aur-vu-track{height:20px;background:repeating-linear-gradient(90deg,#a7975b25 0 8px,transparent 8px 10px);overflow:hidden;}
+.aur-vu-fill{height:100%;background:repeating-linear-gradient(90deg,#b8cd78 0 8px,transparent 8px 10px);filter:drop-shadow(0 0 3px #c6e58c);}
+.aur-vu-scale{font:9px monospace;white-space:pre;color:#b1bd9d;display:block;text-align:center;letter-spacing:3px;margin-top:7px;}
+body[data-material="hifi"] .aur-speeds .aur-control{border-radius:50%;aspect-ratio:1;min-height:0;border:3px ridge var(--surface-border);background:radial-gradient(circle at 35% 30%,var(--surface-hi),var(--surface-lo) 65%,var(--shadow));box-shadow:2px 4px 4px #0005,inset 0 1px 2px #fff6;font-family:monospace;}
+body[data-material="hifi"] .aur-speeds .is-on{border-color:var(--led);box-shadow:0 0 7px var(--led),inset 1px 2px 5px #0003;}
+body[data-material="hifi"][data-skin="walnut-amplifier"] main,body[data-material="hifi"][data-skin="copper-valve"] main{border-left:9px solid #5b3e28;border-right:9px solid #5b3e28;}
+body[data-material="art-deco"] .aur-vu{display:block;border:1px solid var(--led);outline:1px solid var(--surface-border);outline-offset:3px;padding:9px 16px;}
+body[data-material="art-deco"] .aur-vu-track{height:7px;}
+body[data-material="art-deco"] .aur-vu-fill{background:var(--led);}
+body[data-material="art-deco"] .aur-vu-label,body[data-material="art-deco"] .aur-vu-scale{color:var(--led);font-family:Georgia,serif;}

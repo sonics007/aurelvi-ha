@@ -16,6 +16,14 @@ MQTT must already be configured in Home Assistant. Connect the panel to the same
 
 HACS: add `https://github.com/sonics007/aurelvi-ha` as a custom repository of type **Integration**. This is not a listing in the default HACS catalog.
 
+## Version 0.3.7 — Design atelier and room inventories
+
+80 original skins include Art Deco ornamental frames, Hi-Fi rotary controls and a fan-output meter, Ceramic, Japandi, Glass and Neon. The gallery uses actual app captures and is also available on the [Aurelvi website](https://sonics007.github.io/aurelvi-ha/).
+
+**Build room** now lists every entity assigned directly or through a device to the chosen HA area. Choose what to show, group two lights/switches on a shared plate, then review and save. Outdoor covers use their normal cover entity. Remaining domains are safe readouts when no dedicated widget is available. Rebuilding replaces generated drafts for the same room; **Remove room** removes those pages from the panel draft, with Undo, and never deletes HA areas or entities. Manually created unrelated pages remain.
+
+Use APK **0.3.7** for new material treatments and the activation screen in Settings. The HA Manage tab can send a signed licence for native verification. No token is put in a retained MQTT config or a layout backup. Live purchases, renewal and cancellation are not enabled; all 80 skins remain available in open preview. Existing control features stay free.
+
 ## Version 0.3.5 — ADB setup / update
 
 Open **Setup / Update** in the Studio header, including before the first panel is paired. Enter the panel's local IP address and ADB port (usually 5555), enable network debugging on Android, click **Connect / test ADB**, and accept the authorization prompt on the panel. Home Assistant must be able to reach this address.

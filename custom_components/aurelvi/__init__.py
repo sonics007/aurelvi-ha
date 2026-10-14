@@ -51,6 +51,11 @@ async def ws_command(hass,connection,msg):
         if action=='adb':
             from .adb import async_command
             result=await async_command(hub,data)
+        elif action=='licence':
+            token=data.get('token','')
+            import re
+            if not isinstance(token,str) or not re.fullmatch(r'AV1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+',token) or len(token)>10000:raise ValueError('Invalid licence token')
+            await hub.command(pid,'licence',{'token':token});result={'sent':True}
         elif action=='list':result=hub.snapshot()
         elif action=='add':await hub.add(pid,data.get('name'));result=hub.snapshot()
         elif action=='rename':await hub.rename(pid,data.get('name'));result=True

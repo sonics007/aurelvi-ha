@@ -547,7 +547,7 @@
     var doc = {
       v: 1,
       model: "NSPanel Pro / Aurelvi",
-      version: "Aurelvi 0.3.4",
+      version: "Aurelvi 0.3.7",
       deviceId: settings.deviceId,
       ts: Date.now(),
     };
@@ -575,6 +575,7 @@
     return out;
   }
   function publishInfo() {
+    if(window.AurelviLicence && client && client.online)client.publish(client.prefix+"/sys/licence",window.AurelviLicence.info(),false);
     if (client && online) {
       client.publish(client.prefix + "/sys/info", info(), true);
       if (settings.namespace === "aurelvi") {
@@ -676,6 +677,7 @@
     }
     if (topic.indexOf(prefix + "/cmd/") !== 0 || retained) return;
     var cmd = topic.slice((prefix + "/cmd/").length);
+    if(window.AurelviLicence){var licenceResult=window.AurelviLicence.command(cmd,doc);if(licenceResult){client.publish(prefix+"/sys/licence",licenceResult,false);return;}}
     if (A && A.onCommand(cmd, doc)) return;
     if (F && F.onCommand(cmd, doc)) return;
     if (cmd === "ping")

@@ -20,9 +20,11 @@ Reviewed the public [DomoDreams integration](https://github.com/domodreams/home-
 | Camera | MJPEG page and bound PTZ actions; no dedicated HA camera entity for the panel screen |
 | Music Assistant | Native media controls and player integration; Sendspin remains experimental |
 | Siren | APK alarm sound support; no dedicated HA siren entity or verified audio-priority parity |
-| Visual skins | 32 original palettes and CSS materials; visible selection gallery |
+| Visual skins | 80 original palettes and CSS materials; visible selection gallery |
 | Wallpapers | Five procedural backgrounds plus custom image upload and dimming |
 | Alarm tones | Four choices, preview, volume and fade-in in APK 0.3.4 |
 | Licensing/unlock UI | Not applicable to Aurelvi |
 
 This is a scoped comparison, not a claim of complete feature parity. DomoDreams integration code is MIT-licensed; its APK, branding and screenshots have separate proprietary terms. This release uses Aurelvi's own rendering and assets. Preview and protocol tests do not replace a test on an actual NSPanel Pro and Home Assistant installation.
+
+0.3.7 adds tagged room generation/removal, complete selectable area entity inventories, paired control plates, six new material collections and native offline licence verification preparation. Website pricing is a proposal and checkout remains disabled.

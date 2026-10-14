@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.7
+
+- Expand the catalogue to 80 original skins with six new Art Deco, Hi-Fi, Ceramic, Japandi, Glass and Neon collections. Show captured app previews in Studio.
+- Add full room inventories using entity area overrides and device area inheritance. Supported controls, outdoor covers, readouts for all remaining entities and explicit selection are included.
+- Pair two lights/switches on a shared plate. Track generated room pages, rebuild without duplicates, remove room drafts and undo changes without deleting HA areas/entities.
+- Add administrator-only licence delivery and native RSA-SHA256 token application with panel/issuer/expiry/product checks. The catalogue remains open preview and live sales are disabled.
+- Rework the website with a persistent dark/light switch, real panel images, collection filters/search and modular launch pricing.
+
 ## 0.3.6
 
 - Fix integration startup and MQTT state updates when lights report `brightness: null`.

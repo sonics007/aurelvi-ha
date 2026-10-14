@@ -70,6 +70,7 @@
       else{document.body.style.removeProperty("background-image");document.body.style.removeProperty("background-size");document.body.style.removeProperty("background-position");}
       document.body.dataset.skin = name;
       document.body.dataset.material = skin ? skin.material : "soft";
+      document.body.dataset.skinVariant = skin ? String(skin.variant || 0) : "0";
       document.body.classList.toggle("aurelvi-night", skin ? skin.dark : name === "night");
       if (skin) {
         var vars = {"--bg":skin.bg,"--ink":skin.ink,"--led":skin.accent,"--muted":skin.dark ? "#a8b8b0" : "#778078",
@@ -350,6 +351,8 @@
           ),
         );
       box.appendChild(utility);
+      var meter=el("div","aur-vu"),meterLabel=el("div","aur-vu-label","FAN OUTPUT · "+(fan.available===false?"—":Math.round(fan.on?Number(fan.percentage)||0:0)+" %")),track=el("div","aur-vu-track"),fill=el("div","aur-vu-fill");
+      fill.style.width=Math.max(0,Math.min(100,fan.on?Number(fan.percentage)||0:0))+"%";track.appendChild(fill);meter.appendChild(meterLabel);meter.appendChild(track);meter.appendChild(el("div","aur-vu-scale","0     20     40     60     80     100"));box.appendChild(meter);
       if (f.lightEntity && cfg.brightness)
         box.appendChild(
           slider(

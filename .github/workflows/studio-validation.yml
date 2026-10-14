@@ -1,0 +1,26 @@
+name: Validate Studio room controls
+on:
+  push:
+    paths:
+      - 'custom_components/aurelvi/frontend/studio.js'
+      - 'tests/*.cjs'
+      - '.github/workflows/studio-validation.yml'
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  studio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix "$RUNNER_TEMP/aurelvi-checks" jsdom@26
+      - name: Studio and room inventories
+        env:
+          NODE_PATH: ${{ runner.temp }}/aurelvi-checks/node_modules
+        run: |
+          node tests/studio.test.cjs
+          node tests/rooms.test.cjs
+          node tests/adb-ui.test.cjs

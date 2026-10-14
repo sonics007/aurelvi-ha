@@ -4,12 +4,12 @@ import test from 'node:test';
 import service,{checkout,entitlement,signLicence,verifyLicence} from './worker.mjs';
 if(!globalThis.crypto)globalThis.crypto=webcrypto;
 const now=Math.floor(Date.now()/1000);
-const env={STRIPE_SECRET_KEY:'sk_test_fixture',STRIPE_PRICE_ANNUAL:'price_annual',STRIPE_PRICE_LIFETIME:'price_lifetime',SITE_URL:'https://sonics007.github.io/aurelvi-ha',COMMERCE_ENABLED:'true',NATIVE_ACTIVATION_READY:'true'};
+const env={STRIPE_SECRET_KEY:'sk_test_fixture',STRIPE_PRICE_ANNUAL:'price_annual',STRIPE_PRICE_LIFETIME:'price_lifetime',STRIPE_PRICE_PACK:'price_pack',STRIPE_PRICE_SKIN:'price_skin',SITE_URL:'https://sonics007.github.io/aurelvi-ha',COMMERCE_ENABLED:'true',NATIVE_ACTIVATION_READY:'true'};
 const charge={paid:true,status:'succeeded',refunded:false,disputed:false,amount_refunded:0};
-const price={id:'price_lifetime',currency:'eur',unit_amount:2900,active:true};
-const session={id:'cs_test_A12345678901234567890',metadata:{panel_id:'panel-test',plan:'lifetime'},client_reference_id:'panel-test',created:now,status:'complete',currency:'eur',amount_total:2900,payment_status:'paid',line_items:{data:[{price,quantity:1}]},payment_intent:{status:'succeeded',latest_charge:charge}};
-const yearlyPrice={id:'price_annual',currency:'eur',unit_amount:1200,active:true,recurring:{interval:'year',interval_count:1}};
-const yearly={...session,metadata:{panel_id:'panel-test',plan:'annual'},amount_total:1200,line_items:{data:[{price:yearlyPrice,quantity:1}]},subscription:{status:'active',current_period_end:now+3600,items:{data:[{price:yearlyPrice,quantity:1}]},latest_invoice:{created:now,status:'paid',paid:true,currency:'eur',amount_paid:1200,payment_intent:{latest_charge:charge}}}};
+const price={id:'price_lifetime',currency:'eur',unit_amount:3990,active:true};
+const session={id:'cs_test_A12345678901234567890',metadata:{panel_id:'panel-test',plan:'lifetime'},client_reference_id:'panel-test',created:now,status:'complete',currency:'eur',amount_total:3990,payment_status:'paid',line_items:{data:[{price,quantity:1}]},payment_intent:{status:'succeeded',latest_charge:charge}};
+const yearlyPrice={id:'price_annual',currency:'eur',unit_amount:1490,active:true,recurring:{interval:'year',interval_count:1}};
+const yearly={...session,metadata:{panel_id:'panel-test',plan:'annual'},amount_total:1490,line_items:{data:[{price:yearlyPrice,quantity:1}]},subscription:{status:'active',current_period_end:now+3600,items:{data:[{price:yearlyPrice,quantity:1}]},latest_invoice:{created:now,status:'paid',paid:true,currency:'eur',amount_paid:1490,payment_intent:{latest_charge:charge}}}};
 test('real RSA signatures bind licences to one panel and reject modification',async()=>{
  const keys=await crypto.subtle.generateKey({name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['sign','verify']);
  const privateKey=await crypto.subtle.exportKey('jwk',keys.privateKey),publicKey=await crypto.subtle.exportKey('jwk',keys.publicKey);
@@ -52,4 +52,9 @@ test('disabled commerce, incorrect prices and unsupported plans are rejected',as
 test('unexpected web origins are rejected before processing',async()=>{
  const result=await service.fetch(new Request('https://api.example/checkout',{method:'POST',headers:{Origin:'https://attacker.example'},body:'{}'}),env);
  assert.equal(result.status,403);
+});
+
+test('individual skins and packs are scoped, priced and cannot unlock a pass',()=>{
+ for(const [plan,product,amount] of [['pack','pack:hifi',490],['skin','skin:stereo-silver',149]]){const configured={...session,metadata:{panel_id:'panel-test',plan,product},amount_total:amount,line_items:{data:[{price:{id:'price_'+plan,currency:'eur',unit_amount:amount},quantity:1}]}};const result=entitlement(configured,env,now);assert.deepEqual(result.products,[product]);assert.equal(result.exp,null);assert.throws(()=>entitlement({...configured,metadata:{...configured.metadata,product:'plus'}},env,now));}
+ assert.throws(()=>entitlement({...session,metadata:{panel_id:'panel-test',plan:'skin',product:'skin:cream'}},env,now));
 });
