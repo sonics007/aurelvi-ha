@@ -13,3 +13,7 @@ The repository remains public only for integration and website files. Private An
 ## Commerce status
 
 `assets/commerce.json` defaults to disabled. Plus prices (€12/year and €29 lifetime, per panel) are proposals. No real payment is collected. Native licence application, merchant onboarding, policies, subscription cancellation/management and a deployed backend are prerequisites for launch. See `licensing-server/README.md` in the repository for the server preparation and limitations. Do not enable the buttons merely by changing a frontend flag.
+
+## Publishing after first-time setup
+
+In repository Settings → Pages, select **GitHub Actions** as the source. The **Publish Aurelvi website** workflow deploys the `website/` directory when its content changes. The expected public address is `https://sonics007.github.io/aurelvi-ha/`. Future website commits redeploy automatically. Deployment success must be checked in Actions before treating this address as live.
