@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.8
+
+- Include older/manual pages in Remove room with an explicit checkbox selection; no page is guessed or removed automatically.
+- Keep unrelated empty/manual pages when creating a room draft.
+- Works with APK 0.3.7; no new APK is required for this editor refinement.
+
 ## 0.3.7
 
 - Expand the catalogue to 80 original skins with six new Art Deco, Hi-Fi, Ceramic, Japandi, Glass and Neon collections. Show captured app previews in Studio.

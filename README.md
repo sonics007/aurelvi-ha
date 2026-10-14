@@ -16,6 +16,10 @@ MQTT must already be configured in Home Assistant. Connect the panel to the same
 
 HACS: add `https://github.com/sonics007/aurelvi-ha` as a custom repository of type **Integration**. This is not a listing in the default HACS catalog.
 
+## Version 0.3.8 — Older room layouts
+
+Remove room also offers **Older / manually created pages**. Select the exact pages to remove when a layout predates room metadata. Nothing in the HA area/entity registries is removed. Room creation preserves unrelated empty/manual pages. Use with APK 0.3.7.
+
 ## Version 0.3.7 — Design atelier and room inventories
 
 80 original skins include Art Deco ornamental frames, Hi-Fi rotary controls and a fan-output meter, Ceramic, Japandi, Glass and Neon. The gallery uses actual app captures and is also available on the [Aurelvi website](https://sonics007.github.io/aurelvi-ha/).
