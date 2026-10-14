@@ -1,0 +1,31 @@
+name: Check Aurelvi website in Chromium
+on:
+  push:
+    paths:
+      - 'website/**'
+      - 'website-tests/**'
+      - '.github/workflows/website-browser.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Playwright
+        run: npm install --ignore-scripts --prefix website-tests
+      - name: Install Chromium
+        working-directory: website-tests
+        run: npx playwright install --with-deps chromium
+      - name: Test responsive site
+        run: node website-tests/browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aurelvi-website-screenshots
+          path: website-test-results

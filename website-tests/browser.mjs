@@ -1,0 +1,50 @@
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import http from 'node:http';
+import path from 'node:path';
+const root=path.resolve('website');
+const mime={'.html':'text/html; charset=utf-8','.css':'text/css','.js':'application/javascript','.json':'application/json','.svg':'image/svg+xml'};
+const server=http.createServer(async(req,res)=>{try{const target=path.resolve(root,'.'+new URL(req.url,'http://localhost').pathname);if(!target.startsWith(root+path.sep))throw Error();const content=await fs.readFile(target);res.writeHead(200,{'Content-Type':mime[path.extname(target)]||'text/plain'});res.end(content)}catch{res.writeHead(404);res.end('Not found')}});
+await new Promise(resolve=>server.listen(8774,'127.0.0.1',resolve));
+let browser;const errors=[];
+try{
+ await fs.mkdir('website-test-results',{recursive:true});
+ browser=await chromium.launch({headless:true});
+ const page=await browser.newPage({viewport:{width:1440,height:1100}});
+ page.on('pageerror',error=>errors.push(error.message));
+ await page.goto('http://127.0.0.1:8774/index.html');
+ await page.getByRole('heading',{name:/A smarter home/}).waitFor();
+ await page.getByRole('button',{name:'Night',exact:true}).click();
+ assert.equal(await page.locator('[data-theme-name]').textContent(),'Night');
+ await page.locator('[data-speed="6"]').click();
+ assert((await page.locator('[data-speed="6"]').getAttribute('class')).includes('active'));
+ await page.getByRole('button',{name:'Turn demo fan off'}).click();
+ assert.equal(await page.locator('[data-speed].active').count(),0);
+ await page.getByRole('button',{name:'Cream',exact:true}).click();
+ await page.screenshot({path:'website-test-results/home-desktop.png',fullPage:true});
+ await page.goto('http://127.0.0.1:8774/gallery.html');
+ assert.equal(await page.locator('.skin-choice').count(),32);
+ await page.getByRole('button',{name:'Dark',exact:true}).click();
+ const dark=await page.locator('.skin-choice:visible').count();assert(dark>0&&dark<32);
+ await page.getByRole('button',{name:'Jade Library',exact:true}).click();
+ assert.equal(await page.locator('[data-theme-name]').textContent(),'Jade Library');
+ await page.screenshot({path:'website-test-results/gallery-desktop.png',fullPage:true});
+ await page.locator('#language').selectOption('sk');
+ assert.equal(await page.locator('html').getAttribute('lang'),'sk');
+ await page.goto('http://127.0.0.1:8774/setup.html');
+ await page.getByRole('heading',{name:'Panel podľa teba.'}).waitFor();
+ await page.screenshot({path:'website-test-results/setup-slovak.png',fullPage:true});
+ await page.goto('http://127.0.0.1:8774/pricing.html');
+ assert.equal(await page.locator('[data-buy]:disabled').count(),2);
+ await page.goto('http://127.0.0.1:8774/activate.html');
+ assert(await page.locator('#activation-result').isHidden());
+ await page.setViewportSize({width:390,height:844});
+ for(const name of ['index','gallery','setup','pricing']){
+  await page.goto('http://127.0.0.1:8774/'+name+'.html');
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Horizontal overflow: '+name);
+  await page.screenshot({path:'website-test-results/'+name+'-mobile.png',fullPage:true});
+ }
+ assert.deepEqual(errors,[]);
+ console.log('PASS Chromium: home controls, 32-skin gallery, dark filter, theme selection, persisted Slovak language, disabled commerce, activation guard and mobile overflow.');
+}finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve));}
