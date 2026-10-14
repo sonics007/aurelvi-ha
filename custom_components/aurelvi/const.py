@@ -1,5 +1,5 @@
 DOMAIN = "aurelvi"
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 PREFIX = "aurelvi/panel"
 SIGNAL = "aurelvi_changed"
-PLATFORMS = ["sensor", "binary_sensor", "button", "number", "switch", "media_player", "update"]
+PLATFORMS = ["sensor", "binary_sensor", "button", "number", "switch", "media_player", "update", "notify"]

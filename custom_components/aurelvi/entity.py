@@ -7,7 +7,7 @@ class AurelviEntity(Entity):
     _attr_should_poll=False
     _attr_has_entity_name=True
     def __init__(self,hub,pid,key,name):
-        self.hub=hub;self.pid=pid;self._attr_unique_id=pid+'_'+key;self._attr_name=name
+        self.hub=hub;self.pid=pid;self._attr_unique_id=pid+'_'+key;self._attr_translation_key=key
         self._attr_device_info=DeviceInfo(identifiers={(DOMAIN,pid)})
     @property
     def available(self):return mqtt.is_connected(self.hass) and self.hub.status.get(self.pid,{}).get('online',False)

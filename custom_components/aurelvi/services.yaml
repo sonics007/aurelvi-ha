@@ -1,95 +1,125 @@
 push_config:
-  name: Odoslať konfiguráciu
-  description: Znovu odošle uložené stránky a stavy na panel.
+  name: Push configuration
+  description: Resend saved pages and states to the panel.
   fields:
     panel_id:
-      name: ID panela
+      name: Panel ID
       required: true
       example: nspanel-7tmv73
-      selector: {text: {}}
+      selector:
+        text: {}
 wake:
-  name: Prebudiť panel
+  name: Wake panel
   fields:
     panel_id:
-      name: ID panela
+      name: Panel ID
       required: true
-      selector: {text: {}}
+      selector:
+        text: {}
 page:
-  name: Zobraziť stránku
+  name: Show page
   fields:
     panel_id:
-      name: ID panela
+      name: Panel ID
       required: true
-      selector: {text: {}}
+      selector:
+        text: {}
     id:
-      name: ID stránky zo Studia
+      name: Studio page ID
       required: true
-      selector: {text: {}}
+      selector:
+        text: {}
 screen:
-  name: Nastaviť displej
+  name: Set screen
   fields:
     panel_id:
-      name: ID panela
+      name: Panel ID
       required: true
-      selector: {text: {}}
+      selector:
+        text: {}
     action:
-      name: Akcia
+      name: Action
       required: true
       selector:
         select:
-          options: ["on", "off", "dim"]
+          options:
+          - 'on'
+          - 'off'
+          - dim
     brightness:
-      name: Jas (0.05 až 1)
+      name: Brightness (0.05 to 1)
       selector:
-        number: {min: 0.05, max: 1, step: 0.05}
+        number:
+          min: 0.05
+          max: 1
+          step: 0.05
 start_timer:
-  name: Spustiť časovač vypnutia
-  description: Časovač sa ukladá v HA a obnoví sa po jeho reštarte.
+  name: Start shutdown timer
+  description: The timer is stored in Home Assistant and restored after a restart.
   fields:
     panel_id:
-      name: ID panela
+      name: Panel ID
       required: true
-      selector: {text: {}}
+      selector:
+        text: {}
     entity_id:
-      name: Zariadenie na vypnutie
+      name: Device to turn off
       required: true
       selector:
-        entity: {domain: [fan, light]}
+        entity:
+          domain:
+          - fan
+          - light
     seconds:
-      name: Počet sekúnd
+      name: Seconds
       required: true
       selector:
-        number: {min: 5, max: 86400, mode: box}
+        number:
+          min: 5
+          max: 86400
+          mode: box
 cancel_timer:
-  name: Zrušiť časovač
+  name: Cancel timer
   fields:
     panel_id:
-      name: ID panela
+      name: Panel ID
       required: true
-      selector: {text: {}}
+      selector:
+        text: {}
 notify:
-  name: Oznámenie na panel
+  name: Panel notification
   fields:
     panel_id:
-      name: ID panela
+      name: Panel ID
       required: true
-      selector: {text: {}}
+      selector:
+        text: {}
     title:
-      name: Nadpis
-      selector: {text: {}}
+      name: Title
+      selector:
+        text: {}
     message:
-      name: Text oznámenia
+      name: Notification message
       required: true
-      selector: {text: {multiline: true}}
+      selector:
+        text:
+          multiline: true
     priority:
-      name: Priorita
+      name: Priority
       selector:
-        select: {options: [normal, high]}
+        select:
+          options:
+          - normal
+          - high
     timeoutS:
-      name: Čas zobrazenia v sekundách (0 = bez limitu)
+      name: Display duration in seconds (0 = unlimited)
       selector:
-        number: {min: 0, max: 86400, mode: box}
+        number:
+          min: 0
+          max: 86400
+          mode: box
     sound:
-      name: Zvuk alebo HTTPS/HTTP adresa
-      description: ding, alarm_beep, alarm, alarmo, siren, alebo URL zvuku.
-      selector: {text: {}}
+      name: Sound or HTTPS/HTTP URL
+      description: ding, alarm_beep, alarm, alarmo, siren, or a sound URL.
+      selector:
+        text: {}

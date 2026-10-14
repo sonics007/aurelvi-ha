@@ -333,3 +333,39 @@ body.studio-preview header {
 body.studio-preview button:disabled {
   opacity: 1;
 }
+
+/* Original material treatments applied consistently across page types. */
+body.aurelvi-ui { background:var(--bg);color:var(--ink); }
+body.aurelvi-ui[data-material="wood"] {background-image:repeating-linear-gradient(94deg,transparent 0 5px,#9c6d3b12 6px 7px,transparent 8px 18px),repeating-linear-gradient(88deg,transparent 0 33px,#85522e12 34px 36px);}
+body.aurelvi-ui[data-material="linen"] {background-image:repeating-linear-gradient(0deg,#ffffff09 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,#372c2010 0 1px,transparent 1px 4px);}
+body.aurelvi-ui[data-material="carbon"] {background-image:repeating-linear-gradient(45deg,#ffffff05 0 3px,#00000015 3px 6px),repeating-linear-gradient(-45deg,transparent 0 4px,#ffffff04 4px 8px);}
+body.aurelvi-ui[data-material="brushed"],body.aurelvi-ui[data-material="metal"] {background-image:repeating-linear-gradient(0deg,transparent 0 2px,#ffffff10 2px 3px),linear-gradient(115deg,#ffffff12,transparent 45%,#00000018);}
+body.aurelvi-ui[data-material="glow"] .tile,body.aurelvi-ui[data-material="glow"] .aur-control {box-shadow:inset 0 0 0 1px var(--surface-border),0 3px 9px var(--shadow);}
+body.aurelvi-ui[data-material="glow"] .is-on,body.aurelvi-ui[data-material="glow"] .tile.lit {box-shadow:inset 0 0 8px var(--led),0 0 10px var(--led);}
+body.aurelvi-ui[data-material="deco"] .tile,body.aurelvi-ui[data-material="deco"] .aur-control {border-radius:5px;border:1px solid var(--led);outline:1px solid var(--surface-border);outline-offset:3px;}
+body.aurelvi-ui[data-material="paddle"] .tile,body.aurelvi-ui[data-material="paddle"] .aur-control {border-radius:5px;box-shadow:0 4px 1px var(--shadow),inset 0 2px 0 var(--highlight);}
+body.aurelvi-ui[data-material="rocker"] .tile,body.aurelvi-ui[data-material="rocker"] .aur-control {border-radius:7px;background:linear-gradient(180deg,var(--surface-hi) 0 48%,var(--surface-lo) 52% 100%);}
+body.aurelvi-ui[data-material="capsule"] .tile,body.aurelvi-ui[data-material="capsule"] .aur-control {border-radius:40px;}
+body.aurelvi-ui[data-material="flat"] .tile,body.aurelvi-ui[data-material="flat"] .aur-control {border-radius:12px;box-shadow:none;}
+body.aurelvi-ui[data-material="retro"] .tile,body.aurelvi-ui[data-material="retro"] .aur-control {border-radius:8px;border-width:2px;box-shadow:0 3px 0 var(--shadow);}
+body.aurelvi-ui[data-material="pop"] .tile,body.aurelvi-ui[data-material="pop"] .aur-control {border-radius:22px;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);}
+body.aurelvi-ui[data-material="circuit"] {background-image:linear-gradient(#65babb0b 1px,transparent 1px),linear-gradient(90deg,#65babb0b 1px,transparent 1px);background-size:24px 24px;}
+#clock-alarm-editor {gap:16px;justify-content:center;padding:24px;background:var(--bg);color:var(--ink);}
+#clock-alarm-editor input[type=time] {font-size:42px;text-align:center;width:100%;padding:16px;background:var(--surface-hi);color:var(--ink);border:1px solid var(--surface-border);border-radius:14px;}
+#clock-alarm-editor .alarm-enabled {font-size:20px;display:flex;align-items:center;gap:14px;}
+#clock-alarm-editor input[type=checkbox] {width:28px;height:28px;}
+#clock-alarm-editor .row button {min-height:56px;flex:1;}
+
+body.aurelvi-ui .tile .label {font-size:var(--label-size,14px);transform:translateY(var(--label-offset,0px));}
+body.aurelvi-ui .tile .glyph {width:var(--icon-size,40px);height:var(--icon-size,40px);}
+
+.cover-rocker {display:grid;grid-template-rows:auto repeat(3,1fr);gap:5px;padding:8px;}
+
+.clock-date {font-size:var(--clock-date-size,13px);}
+.clock-page {width:100%;height:100%;border-radius:16px;}
+.notification-overlay[data-level="success"] {border-top:6px solid #53b580;}
+.notification-overlay[data-level="warning"] {border-top:6px solid #e1b052;}
+.notification-overlay[data-level="error"] {border-top:6px solid #d96767;}
+.notification-overlay[data-level="info"] {border-top:6px solid #639dde;}
+body.screen-blanked,body.screen-blanked main {background:#000!important;}
+body.screen-blanked header {visibility:hidden;}

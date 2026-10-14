@@ -32,6 +32,7 @@ def actions(value):
     if isinstance(value,dict): value=[value]
     if not isinstance(value,list) or not value or len(value)>10: raise ValueError("Priraď 1 až 10 akcií")
     for action in value:
+        if isinstance(action,dict) and action=={'noop':True}:continue
         if not isinstance(action,dict) or not SERVICE.fullmatch(action.get('service','')): raise ValueError("Akcia má mať service: doména.akcia")
         target=action.get('target',{})
         if not isinstance(target,dict) or set(target)-{'entity_id','area_id','device_id','label_id'}: raise ValueError("Neplatný cieľ akcie")
@@ -129,9 +130,18 @@ def default_config():return {'v':1,'theme':'cream','pages':[{'id':'home','title'
 def validate_device(device,page_count):
     if not isinstance(device,dict) or len(json.dumps(device))>16384:raise ValueError('Neplatné nastavenie displeja')
     d=copy.deepcopy(device)
+    for key,low,high in [('labelSize',8,32),('labelOffsetY',-40,40),('iconSize',16,96)]:
+        if key in d:number(d[key],low,high)
     if 'defaultPage' in d:number(d['defaultPage'],0,page_count-1)
     if 'inactivityTimeout' in d:number(d['inactivityTimeout'],0,86400)
+    for key,low,high in [('clockDateSize',8,32),('sysInfoIntervalS',10,3600)]:
+        if key in d:number(d[key],low,high)
+    if 'clockLanguage' in d and d['clockLanguage'] not in {'en-GB','sk-SK','hu-HU','de-DE','cs-CZ','it-IT'}:raise ValueError('Invalid clock language')
+    for group in ['motion','proximity']:
+        if 'on' in d.get(group,{}):number(d[group]['on'],1,100)
+    if 'clearS' in d.get('motion',{}):number(d['motion']['clearS'],1,600)
     saver=d.get('screensaver',{})
+    if 'nightOffAfter' in saver:number(saver['nightOffAfter'],0,86400)
     if 'after' in saver:number(saver['after'],10,86400)
     if 'dimLevel' in saver:number(saver['dimLevel'],.05,1)
     night=d.get('nightMode',{})
@@ -142,4 +152,5 @@ def validate_device(device,page_count):
     for key in ['dayBrightness','nightBrightness']:
         if key in auto:number(auto[key],5,100)
     if 'nightThresholdLux' in auto:number(auto['nightThresholdLux'],0,100000)
+    if 'screensaverDropPoints' in auto:number(auto['screensaverDropPoints'],0,95)
     return d

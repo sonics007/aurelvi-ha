@@ -72,7 +72,10 @@ async def ws_command(hass,connection,msg):
             if url:
                 u=urlparse(url)
                 if u.scheme not in {'http','https'} or not u.hostname or u.username or u.password:raise ValueError('Neplatná adresa HA')
-            hub.latest={};hub.settings={'githubRepo':repo,'githubAsset':data.get('githubAsset','').strip(),'haUrl':url};await hub.persist();await hub.check_releases();result=True
+            hub.latest={};hub.settings={'githubRepo':repo,'githubAsset':data.get('githubAsset','').strip(),'haUrl':url,'configured':True};await hub.persist();await hub.check_releases()
+            for panel,p in hub.panels.items():
+                if p.get('paired'):await hub.push(panel)
+            result=True
         elif action=='check_update':await hub.check_releases();result=hub.latest
         elif action=='install_update':
             if not hub.latest.get('url'):raise ValueError('Nie je dostupné APK')

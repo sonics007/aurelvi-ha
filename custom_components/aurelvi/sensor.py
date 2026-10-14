@@ -17,4 +17,14 @@ class PanelSensor(AurelviEntity,SensorEntity):
         return None
 
 async def async_setup_entry(hass,entry,async_add_entities):
-    await add_dynamic(hass,entry,async_add_entities,lambda h,p:[PanelSensor(h,p,'version','Verzia'),PanelSensor(h,p,'rssi','Wi-Fi signál','dBm'),PanelSensor(h,p,'freeMemMB','Voľná pamäť','MB'),PanelSensor(h,p,'uptimeS','Čas od štartu','s'),PanelSensor(h,p,'timer','Časovač','s')])
+    await add_dynamic(hass,entry,async_add_entities,lambda h,p:[PanelSensor(h,p,'version','Verzia'),PanelSensor(h,p,'rssi','Wi-Fi signál','dBm'),PanelSensor(h,p,'freeMemMB','Voľná pamäť','MB'),PanelSensor(h,p,'uptimeS','Čas od štartu','s'),PanelSensor(h,p,'timer','Časovač','s'),PanelIlluminance(h,p)])
+
+class PanelIlluminance(AurelviEntity,SensorEntity):
+    _attr_device_class='illuminance'
+    _attr_native_unit_of_measurement='lx'
+    _attr_state_class='measurement'
+    def __init__(self,h,p):super().__init__(h,p,'illuminance','Illuminance')
+    @property
+    def available(self):return super().available and self.status.get('light',{}).get('available',False)
+    @property
+    def native_value(self):return self.status.get('light',{}).get('raw')

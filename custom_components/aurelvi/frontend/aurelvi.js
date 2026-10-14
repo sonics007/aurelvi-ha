@@ -33,6 +33,11 @@
             : hour >= start && hour < end);
       return night ? Number(profile.brightness || 20) / 100 : 1;
     }
+    function mix(a,b,n) {
+      var result="#";
+      for(var i=1;i<7;i+=2) result+=Math.round(parseInt(a.slice(i,i+2),16)*(1-n)+parseInt(b.slice(i,i+2),16)*n).toString(16).padStart(2,"0");
+      return result;
+    }
     function theme() {
       var p = ctx.config() || {},
         d = ctx.device(),
@@ -53,6 +58,21 @@
         name === "night" || name === "scandi-night",
       );
       document.body.classList.add("aurelvi-ui");
+      var skin = (window.AurelviSkins || []).find(function (item) { return item.id === name; });
+      document.body.classList.toggle("dark", skin ? skin.dark : name === "night");
+      document.body.style.setProperty("--label-size",Math.max(8,Math.min(32,Number(d.labelSize)||14))+"px");
+      document.body.style.setProperty("--label-offset",Math.max(-40,Math.min(40,Number(d.labelOffsetY)||0))+"px");
+      document.body.style.setProperty("--icon-size",Math.max(16,Math.min(96,Number(d.iconSize)||40))+"px");
+      document.body.dataset.skin = name;
+      document.body.dataset.material = skin ? skin.material : "soft";
+      document.body.classList.toggle("aurelvi-night", skin ? skin.dark : name === "night");
+      if (skin) {
+        var vars = {"--bg":skin.bg,"--ink":skin.ink,"--led":skin.accent,"--muted":skin.dark ? "#a8b8b0" : "#778078",
+          "--surface-hi":mix(skin.bg,skin.dark ? "#ffffff" : "#ffffff",skin.dark ? .08 : .45),
+          "--surface-lo":mix(skin.bg,"#000000",skin.dark ? .05 : .035),
+          "--surface-border":mix(skin.bg,skin.ink,.18),"--shadow":mix(skin.bg,"#000000",.18),"--highlight":mix(skin.bg,"#ffffff",skin.dark ? .09 : .65)};
+        Object.keys(vars).forEach(function (key) {document.body.style.setProperty(key,vars[key]);});
+      }
       var nowNight = name === "night";
       if (lastNight !== nowNight) {
         lastNight = nowNight;

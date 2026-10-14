@@ -1,6 +1,13 @@
 /* Aurelvi Studio — dependency-free Home Assistant custom panel. MIT. */
 (function () {
   "use strict";
+  const skinChoices = [{"value": "cream", "label": "Cream"}, {"value": "night", "label": "Night"}, {"value": "rose-room", "label": "Rose Room"}, {"value": "sea-breeze", "label": "Sea Breeze"}, {"value": "cream-glow", "label": "Cream Glow"}, {"value": "porcelain", "label": "Porcelain"}, {"value": "silver-audio", "label": "Silver Audio"}, {"value": "silver-desk", "label": "Silver Desk"}, {"value": "zen-linen", "label": "Zen Linen"}, {"value": "northern-ash", "label": "Northern Ash"}, {"value": "ivory-paddle", "label": "Ivory Paddle"}, {"value": "pastel-pop", "label": "Pastel Pop"}, {"value": "pearl-rocker", "label": "Pearl Rocker"}, {"value": "clay-house", "label": "Clay House"}, {"value": "amber-radio", "label": "Amber Radio"}, {"value": "soft-sand", "label": "Soft Sand"}, {"value": "snow", "label": "Snow"}, {"value": "golden-arch", "label": "Golden Arch"}, {"value": "graphite-fiber", "label": "Graphite Fiber"}, {"value": "walnut-library", "label": "Walnut Library"}, {"value": "violet-city", "label": "Violet City"}, {"value": "abyss", "label": "Abyss"}, {"value": "jade-library", "label": "Jade Library"}, {"value": "retro-receiver", "label": "Retro Receiver"}, {"value": "workshop", "label": "Workshop"}, {"value": "velvet-lounge", "label": "Velvet Lounge"}, {"value": "neon-capsule", "label": "Neon Capsule"}, {"value": "polar-glow", "label": "Polar Glow"}, {"value": "carved-cedar", "label": "Carved Cedar"}, {"value": "circuit", "label": "Circuit"}, {"value": "circuit-glow", "label": "Circuit Glow"}, {"value": "urban-loft", "label": "Urban Loft"}];
+  let language = "en";
+  const translations = {"Integrácia nie je dostupná": "Integration is unavailable", "Pripojený": "Connected", "Odpojený": "Disconnected", "Spojenie s HA prerušené": "Connection to Home Assistant lost", "Neuložené zmeny": "Unsaved changes", "Lokálne ovládanie": "Local control", "STUDIO · DOMOV NA DOTYK": "STUDIO · HOME AT A TOUCH", "Nový panel · pridať": "New panel · add", "Opustiť neuložené zmeny?": "Discard unsaved changes?", "+ Pridať panel": "+ Add panel", "Načítavam Aurelvi…": "Loading Aurelvi…", "Pripoj aplikáciu na paneli k rovnakému MQTT brokeru a vyber integráciu Aurelvi. Panel sa tu objaví automaticky. Môžeš ho pridať aj pomocou jeho ID.": "Connect the panel app to the same MQTT broker and select Aurelvi mode. The panel will appear here automatically. You can also add it using its ID.", "Pridať prvý panel": "Add your first panel", "Späť zmenu": "Undo", "Uložiť na panel": "Save to panel", "Nový panel čaká na pridanie. Týmto povolíš jeho ovládacie akcie.": "A new panel is waiting to be added. Adding it enables its control actions.", "Pridať tento panel": "Add this panel", "Stránky": "Pages", "Displej": "Display", "Správa": "Manage", "+ Stránka": "+ Page", "Stránka": "Page", "Názov": "Name", "Duplikovať": "Duplicate", "Odstrániť": "Remove", "Zachovaj aspoň jednu stránku": "Keep at least one page", "Počasie z Home Assistanta": "Weather from Home Assistant", "Počasie posiela integrácia cez MQTT. Token HA na paneli nie je potrebný.": "The integration sends weather over MQTT. No Home Assistant token is required on the panel.", "Vyžadovať PIN pri zapnutí": "Require PIN when arming", "Server a token nastavíš na paneli. Natívny reproduktor je aj samostatná media_player entita v HA. Sendspin zostáva experimentálny.": "Configure the server and token on the panel. Its native speaker is also a separate media_player entity in Home Assistant. Sendspin is experimental.", "Vzhľad hodín, šetrič a nočný režim upravíš v záložke Displej.": "Configure the clock, screensaver and night mode in the Display tab.", "NÁHĽAD PANELA": "PANEL PREVIEW", "Skutočné stavy · ovládanie v náhľade je vizuálne": "Live states · preview controls are visual only", "Náhľad Aurelvi": "Aurelvi preview", "Zmeny odošleš tlačidlom Uložiť na panel. Zelená označuje potvrdený stav zariadenia.": "Use Save to panel to send changes. Green indicates a confirmed device state.", "Ventilátor so svetlom": "Fan and light", "Ventilátor": "Fan", "Svetlo (voliteľné)": "Light (optional)", "Počet rýchlostí": "Number of speeds", "Aktuálne: ": "Current: ", " · režimy: ": " · presets: ", "Vlastné rýchlosti": "Custom speeds", "Rýchlosť ": "Speed ", "Názov tlačidla": "Button label", "Spôsob ovládania": "Control method", "Percentá": "Percentage", "Pomenovaný režim": "Named preset", "Vlastná HA akcia": "Custom Home Assistant action", "Rýchlosť v percentách": "Speed percentage", "Názov režimu": "Preset name", "Entita potvrdeného stavu (voliteľné)": "Confirmed state entity (optional)", "Atribút stavu (prázdne = hlavný stav)": "State attribute (empty = main state)", "Hodnota pri aktívnej rýchlosti": "Value when speed is active", "Zobrazované ovládače": "Visible controls", "Smer": "Direction", "Jas": "Brightness", "Teplota svetla": "Light temperature", "Všetko vypnúť": "Turn everything off", "Časovač": "Timer", "Jas, teplota a smer sú aktívne, keď entita v HA poskytuje príslušné údaje. Nejasné symboly z ovládača priraď cez vlastné tlačidlá.": "Brightness, temperature and direction are available when the Home Assistant entity provides the required data. Use custom buttons for additional controls.", "Vlastné tlačidlá": "Custom buttons", "+ Vlastné tlačidlo": "+ Custom button", "Vlastná akcia": "Custom action", "Akcia Home Assistanta": "Home Assistant action", "Cieľová entita": "Target entity", "Parametre akcie (voliteľné)": "Action parameters (optional)", "Odstrániť akciu": "Remove action", "+ Ďalšia akcia": "+ Another action", "Rozloženie": "Layout", "Stĺpce": "Columns", "Riadky": "Rows", "+ Tlačidlo": "+ Button", "Mriežka je plná. Zväčši rozmery.": "The grid is full. Increase its dimensions.", "Riadok": "Row", "Stĺpec": "Column", "Výška": "Height", "Šírka": "Width", "Správanie": "Behavior", "Položky": "Items", "Prepínače": "Switches", "Vlastná akcia namiesto predvoleného ovládania": "Custom action instead of the default control", "Vlastné akcie podľa udalosti": "Custom actions by event", "Odstrániť prvok": "Remove element", "PTZ akcie podľa smeru": "PTZ actions by direction", "Zostať na kamerovej stránke": "Stay on the camera page", "Držať displej zapnutý": "Keep screen on", "Vzhľad a šetrič": "Appearance and screensaver", "Dizajn": "Theme", "Cream · teplá krémová": "Cream · warm cream", "Night · tmavá zelená": "Night · dark green", "Digitálne": "Digital", "Analógové": "Analog", "24-hodinový formát": "24-hour format", "Šetrič po sekundách": "Screensaver delay in seconds", "Jas šetriča (%)": "Screensaver brightness (%)", "Predvolená stránka": "Default page", "Návrat na predvolenú stránku po sekundách (0 = vypnuté)": "Return to default page after seconds (0 = disabled)", "Automatický nočný vzhľad": "Automatic night theme", "Noc začína o hodine": "Night start hour", "Nočný jas (%)": "Night brightness (%)", "Noc končí o hodine": "Night end hour", "Automatický jas podľa senzora": "Automatic sensor brightness", "Prebudiť pri priblížení": "Wake on proximity", "Publikovať pohyb zo senzora": "Publish sensor motion", "Senzory fungujú iba ak ich Android poskytne. Nočný režim používa čas panela.": "Sensors work only when Android provides them. Night mode uses the panel clock.", "Model čaká na pripojenie": "Waiting for panel model", "Názov panela": "Panel name", "Premenovať panel": "Rename panel", "Názov panela uložený": "Panel name saved", "Kontrola pripojenia": "Connection check", "MQTT, panel aj priradené entity sú dostupné.": "MQTT, the panel and assigned entities are available.", "Našli sa problémy:": "Issues found:", "Posledná správa: ": "Last message: ", "Obnoviť stav": "Refresh status", "Znovu odoslať konfiguráciu": "Resend configuration", "Uložená konfigurácia pripravená pre panel. Rozpracované zmeny sa neposielajú.": "Saved configuration sent to the panel. Unsaved changes are excluded.", "Prebudiť": "Wake", "Informácie": "Information", "Príkaz odoslaný": "Command sent", "Aktuálny displej panela": "Current panel screen", "Záloha a obnova": "Backup and restore", "Exportovať konfiguráciu": "Export configuration", "Importovať konfiguráciu": "Import configuration", "Súbor neobsahuje stránky": "The file does not contain pages", "Import načítaný. Skontroluj entity a ulož.": "Import loaded. Check the entities and save.", "Obnoviť predchádzajúcu konfiguráciu": "Restore previous configuration", "Najprv ulož alebo odlož aktuálne zmeny.": "Save or discard your current changes first.", "Predchádzajúca konfigurácia obnovená": "Previous configuration restored", "Kopírovať na ďalší panel": "Copy to another panel", "Cieľový panel": "Target panel", "Skopírovať stránky": "Copy pages", "Konfigurácia skopírovaná": "Configuration copied", "Aktualizácie z GitHubu": "GitHub updates", "Verejný repozitár": "Public repository", "Názov APK (voliteľné)": "APK filename (optional)", "Lokálna adresa Home Assistanta pre kamery": "Local Home Assistant URL for cameras", "Uložiť a skontrolovať": "Save and check", "Nastavenie aktualizácií uložené": "Update settings saved", "Stiahnuť APK na panel": "Download APK to panel", "Na paneli potvrď inštaláciu v Androide.": "Confirm the Android installation on the panel.", "Releases musia obsahovať APK podpísané rovnakým kľúčom. Inštalácia vyžaduje potvrdenie na paneli.": "Releases must contain an APK signed with the same key. Installation requires confirmation on the panel.", "Oznámenie": "Notification", "Bežná · bez prebudenia": "Normal · do not wake", "Urgentná · prebudiť": "Urgent · wake panel", "Odoslať": "Send", "Oznámenie odoslané": "Notification sent", "Stiahnuť diagnostiku": "Download diagnostics", "Bez zaznamenaných chýb.": "No errors recorded.", "Rozšírené chyby nájdeš aj v Nastavenia → Systém → Protokoly.": "See Settings → System → Logs for more details.", "Uložené v HA. Panel konfiguráciu dostane po obnovení pripojenia.": "Saved in Home Assistant. The panel will receive the configuration when it reconnects.", "Uložené. Konfigurácia bola odoslaná na panel.": "Saved. Configuration sent to the panel.", "Nová stránka": "New page", "Typ stránky": "Page type", "Ventilátor so svetlom · 6 rýchlostí": "Fan and light · 6 speeds", "Vlastná mriežka": "Custom grid", "Počasie": "Weather", "Hodiny": "Clock", "Pridať": "Add", "Pridať panel": "Add panel", "Obývačka": "Living room", "ID z aplikácie panela": "ID from panel app", "Názov miestnosti": "Room name", "Zavrieť": "Close", "Domov": "Home", "PANELY": "PANELS"};
+  const tr = (text) => language.startsWith("sk") ? text : (translations[text] || text);
+
+  Object.assign(translations,{"Ikona Lucide": "Lucide icon", "Jas svetla": "Light brightness", "Segmenty s akciami": "Segments with actions", "TVOJE PANELY": "YOUR PANELS", "Vitaj v Aurelvi": "Welcome to Aurelvi", "Vyber panel": "Select panel", "Vydanie ": "Release ", "Weather entita": "Weather entity", "Zmena smeru": "Change direction", "Kamera": "Camera", "+ Kamera": "+ Camera", "Entita": "Entity"});
+  Object.assign(translations,{"Ikona": "Icon", "Svetlo": "Light", "Priorita": "Priority", "Diagnostika": "Diagnostics"});
   const make = (tag, cls, text) => {
     const n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -27,10 +34,14 @@
       this.tileIndex = 0;
       this.loading = false;
       this.poll = null;
+      this.notificationDraft = null;
       this.boundMessage = this.onMessage.bind(this);
     }
     set hass(value) {
+      const previousLanguage = language;
+      language = (value.locale && value.locale.language) || value.language || "en";
       this._hass = value;
+      if (previousLanguage !== language && this.data) this.render();
       if (this.isConnected && !this.data && !this.loading) this.load();
       else if (this.data) this.preview();
     }
@@ -69,7 +80,7 @@
         this.loadDraft();
         this.render();
       } catch (e) {
-        this.notice(e.message || "Integrácia nie je dostupná", true);
+        this.notice(e.message || tr("Integrácia nie je dostupná"), true);
       } finally {
         this.loading = false;
       }
@@ -85,13 +96,13 @@
           let node = this.shadowRoot.querySelector("#connection");
           let panel = this.current();
           if (node && panel)
-            node.textContent = panel.status.online ? "Pripojený" : "Odpojený";
+            node.textContent = panel.status.online ? tr("Pripojený") : tr("Odpojený");
           // Preserve partially entered management forms during background polling.
           this.preview();
         }
       } catch (e) {
         let node = this.shadowRoot.querySelector("#connection");
-        if (node) node.textContent = "Spojenie s HA prerušené";
+        if (node) node.textContent = tr("Spojenie s HA prerušené");
       }
     }
     current() {
@@ -125,7 +136,7 @@
       if (redraw) this.render();
       else {
         let d = this.shadowRoot.querySelector("#dirty");
-        if (d) d.textContent = "Neuložené zmeny";
+        if (d) d.textContent = tr("Neuložené zmeny");
         this.preview();
       }
     }
@@ -166,7 +177,7 @@
           change(
             input.type === "checkbox"
               ? input.checked
-              : input.type === "number"
+              : (input.type === "number" || input.type === "range")
                 ? Number(input.value)
                 : input.value,
           );
@@ -213,14 +224,14 @@
       top.append(
         logo,
         make("span", "brand", "Aurelvi"),
-        make("span", "sub", "STUDIO · DOMOV NA DOTYK"),
+        make("span", "sub", tr("STUDIO · DOMOV NA DOTYK")),
         make("span", "grow"),
-        make("span", "pill", "Lokálne ovládanie"),
+        make("span", "pill", tr("Lokálne ovládanie")),
       );
       r.append(top);
       let layout = make("div", "layout"),
         aside = make("aside");
-      aside.append(make("div", "overline", "TVOJE PANELY"));
+      aside.append(make("div", "overline", tr("TVOJE PANELY")));
       layout.append(aside);
       r.append(layout);
       if (this.data)
@@ -236,12 +247,12 @@
             make(
               "small",
               "",
-              p.paired ? p.status.info.ip || p.id : "Nový panel · pridať",
+              p.paired ? p.status.info.ip || p.id : tr("Nový panel · pridať"),
             ),
           );
           b.append(dot, text);
           b.onclick = () => {
-            if (this.dirty && !window.confirm("Opustiť neuložené zmeny?"))
+            if (this.dirty && !window.confirm(tr("Opustiť neuložené zmeny?")))
               return;
             this.selected = p.id;
             this.loadDraft();
@@ -249,24 +260,24 @@
           };
           aside.append(b);
         });
-      aside.append(this.btn("+ Pridať panel", () => this.addPanelDialog()));
+      aside.append(this.btn(tr("+ Pridať panel"), () => this.addPanelDialog()));
       let content = make("main", "content");
       layout.append(content);
       if (!this.data) {
-        content.append(make("div", "empty", "Načítavam Aurelvi…"));
+        content.append(make("div", "empty", tr("Načítavam Aurelvi…")));
         return;
       }
       let p = this.current();
       if (!p) {
         let box = make("div", "empty");
         box.append(
-          make("h1", "", "Vitaj v Aurelvi"),
+          make("h1", "", tr("Vitaj v Aurelvi")),
           make(
             "p",
             "",
-            "Pripoj aplikáciu na paneli k rovnakému MQTT brokeru a vyber integráciu Aurelvi. Panel sa tu objaví automaticky. Môžeš ho pridať aj pomocou jeho ID.",
+            tr("Pripoj aplikáciu na paneli k rovnakému MQTT brokeru a vyber integráciu Aurelvi. Panel sa tu objaví automaticky. Môžeš ho pridať aj pomocou jeho ID."),
           ),
-          this.btn("Pridať prvý panel", () => this.addPanelDialog(), true),
+          this.btn(tr("Pridať prvý panel"), () => this.addPanelDialog(), true),
         );
         content.append(box);
         return;
@@ -276,15 +287,15 @@
       let connection = make(
         "span",
         "badge",
-        p.status.online ? "Pripojený" : "Odpojený",
+        p.status.online ? tr("Pripojený") : tr("Odpojený"),
       );
       connection.id = "connection";
       toolbar.append(connection, make("span", "grow"));
-      let dirty = make("span", "dirty", this.dirty ? "Neuložené zmeny" : "");
+      let dirty = make("span", "dirty", this.dirty ? tr("Neuložené zmeny") : "");
       dirty.id = "dirty";
       toolbar.append(
         dirty,
-        this.btn("Späť zmenu", () => {
+        this.btn(tr("Späť zmenu"), () => {
           let old = this.undo.pop();
           if (old) {
             this.draft = old.config;
@@ -293,7 +304,8 @@
             this.render();
           }
         }),
-        this.btn("Uložiť na panel", () => this.save(), true),
+        this.btn(language.startsWith("sk") ? "Vytvoriť miestnosť" : "Build room", () => this.roomWizard()),
+        this.btn(tr("Uložiť na panel"), () => this.save(), true),
       );
       content.append(toolbar);
       let notice = make(
@@ -309,10 +321,10 @@
           make(
             "p",
             "hint",
-            "Nový panel čaká na pridanie. Týmto povolíš jeho ovládacie akcie.",
+            tr("Nový panel čaká na pridanie. Týmto povolíš jeho ovládacie akcie."),
           ),
           this.btn(
-            "Pridať tento panel",
+            tr("Pridať tento panel"),
             async () => {
               try {
                 await this.api("add", { name: p.name });
@@ -328,9 +340,11 @@
       }
       let tabs = make("nav", "tabs");
       [
-        ["pages", "Stránky"],
-        ["display", "Displej"],
-        ["manage", "Správa"],
+        ["pages", tr("Stránky")],
+        ["display", tr("Displej")],
+        ["notify", language.startsWith("sk") ? "Oznámenia" : "Notify"],
+        ["manage", tr("Správa")],
+        ["advanced", language.startsWith("sk") ? "Pokročilé" : "Advanced"],
       ].forEach(([id, label]) => {
         let b = this.btn(label, () => {
           this.tab = id;
@@ -342,6 +356,8 @@
       content.append(tabs);
       if (this.tab === "pages") this.renderPages(content);
       else if (this.tab === "display") this.renderDisplay(content);
+      else if(this.tab === "notify") this.renderNotify(content);
+      else if(this.tab === "advanced") this.renderAdvanced(content);
       else this.renderManage(content);
     }
     renderPages(parent) {
@@ -355,7 +371,7 @@
         b.className = "page" + (i === this.pageIndex ? " active" : "");
         pages.append(b);
       });
-      pages.append(this.btn("+ Stránka", () => this.pageDialog()));
+      pages.append(this.btn(tr("+ Stránka"), () => this.pageDialog()));
       parent.append(pages);
       this.pageIndex = Math.max(
         0,
@@ -367,13 +383,13 @@
         preview = make("div", "preview-wrap");
       editor.append(form, preview);
       parent.append(editor);
-      let info = this.card(form, "Stránka");
-      this.field(info, "Názov", page.title, (v) =>
+      let info = this.card(form, tr("Stránka"));
+      this.field(info, tr("Názov"), page.title, (v) =>
         this.update(() => (page.title = v)),
       );
       let actions = make("div", "row");
       actions.append(
-        this.btn("Duplikovať", () =>
+        this.btn(tr("Duplikovať"), () =>
           this.update(() => {
             let copy = clone(page);
             copy.id = "page_" + Date.now().toString(36);
@@ -385,9 +401,9 @@
         ),
         this.btn("←", () => this.movePage(-1)),
         this.btn("→", () => this.movePage(1)),
-        this.btn("Odstrániť", () => {
+        this.btn(tr("Odstrániť"), () => {
           if (this.draft.pages.length < 2) {
-            this.notice("Zachovaj aspoň jednu stránku", true);
+            this.notice(tr("Zachovaj aspoň jednu stránku"), true);
             return;
           }
           this.update(() => this.draft.pages.splice(this.pageIndex, 1), true);
@@ -397,11 +413,11 @@
       if (page.type === "fan") this.renderFanForm(form, page);
       else if (page.type === "grid") this.renderGridForm(form, page);
       else if (page.type === "weather") {
-        let box = this.card(form, "Počasie z Home Assistanta");
+        let box = this.card(form, tr("Počasie z Home Assistanta"));
         page.weather = page.weather || {};
         this.entity(
           box,
-          "Weather entita",
+          tr("Weather entita"),
           page.weather.entity,
           "weather",
           (v) => this.update(() => (page.weather.entity = v)),
@@ -410,7 +426,7 @@
           make(
             "p",
             "hint",
-            "Počasie posiela integrácia cez MQTT. Token HA na paneli nie je potrebný.",
+            tr("Počasie posiela integrácia cez MQTT. Token HA na paneli nie je potrebný."),
           ),
         );
       } else if (page.type === "camera") this.renderCameraForm(form, page);
@@ -433,7 +449,7 @@
         );
         this.field(
           box,
-          "Vyžadovať PIN pri zapnutí",
+          tr("Vyžadovať PIN pri zapnutí"),
           page.alarm.codeArmRequired !== false,
           (v) => this.update(() => (page.alarm.codeArmRequired = v)),
           { type: "checkbox" },
@@ -443,27 +459,27 @@
           make(
             "p",
             "hint",
-            "Server a token nastavíš na paneli. Natívny reproduktor je aj samostatná media_player entita v HA. Sendspin zostáva experimentálny.",
+            tr("Server a token nastavíš na paneli. Natívny reproduktor je aj samostatná media_player entita v HA. Sendspin zostáva experimentálny."),
           ),
         );
       } else {
-        this.card(form, "Hodiny").append(
+        this.card(form, tr("Hodiny")).append(
           make(
             "p",
             "hint",
-            "Vzhľad hodín, šetrič a nočný režim upravíš v záložke Displej.",
+            tr("Vzhľad hodín, šetrič a nočný režim upravíš v záložke Displej."),
           ),
         );
       }
       let label = make("div", "preview-label");
       label.append(
-        make("span", "", "NÁHĽAD PANELA"),
-        make("span", "", "Skutočné stavy · ovládanie v náhľade je vizuálne"),
+        make("span", "", tr("NÁHĽAD PANELA")),
+        make("span", "", tr("Skutočné stavy · ovládanie v náhľade je vizuálne")),
       );
       let shell = make("div", "preview-shell"),
         iframe = make("iframe");
       iframe.id = "preview";
-      iframe.title = "Náhľad Aurelvi";
+      iframe.title = tr("Náhľad Aurelvi");
       iframe.src = "/aurelvi-static/preview.html?studio=1";
       iframe.onload = () => {
         this.lastPreview = null;
@@ -476,7 +492,7 @@
         make(
           "p",
           "hint",
-          "Zmeny odošleš tlačidlom Uložiť na panel. Zelená označuje potvrdený stav zariadenia.",
+          tr("Zmeny odošleš tlačidlom Uložiť na panel. Zelená označuje potvrdený stav zariadenia."),
         ),
       );
     }
@@ -491,16 +507,16 @@
     }
     renderFanForm(parent, page) {
       let f = page.fan,
-        box = this.card(parent, "Ventilátor so svetlom");
-      this.entity(box, "Ventilátor", f.fanEntity, "fan", (v) =>
+        box = this.card(parent, tr("Ventilátor so svetlom"));
+      this.entity(box, tr("Ventilátor"), f.fanEntity, "fan", (v) =>
         this.update(() => (f.fanEntity = v), true),
       );
-      this.entity(box, "Svetlo (voliteľné)", f.lightEntity, "light", (v) =>
+      this.entity(box, tr("Svetlo (voliteľné)"), f.lightEntity, "light", (v) =>
         this.update(() => (f.lightEntity = v), true),
       );
       this.field(
         box,
-        "Počet rýchlostí",
+        tr("Počet rýchlostí"),
         f.speeds.length,
         (v) =>
           this.update(() => {
@@ -522,22 +538,22 @@
           make(
             "p",
             "hint",
-            "Aktuálne: " +
+            tr("Aktuálne: ") +
               (attrs.percentage !== undefined
                 ? attrs.percentage + " % · "
                 : "") +
               (attrs.direction || "") +
               (attrs.preset_modes
-                ? " · režimy: " + attrs.preset_modes.join(", ")
+                ? tr(" · režimy: ") + attrs.preset_modes.join(", ")
                 : ""),
           ),
         );
       }
-      let speeds = this.card(parent, "Vlastné rýchlosti");
+      let speeds = this.card(parent, tr("Vlastné rýchlosti"));
       f.speeds.forEach((s, i) => {
         let row = make("div", "card");
-        row.append(make("span", "badge", "Rýchlosť " + (i + 1)));
-        this.field(row, "Názov tlačidla", s.label, (v) =>
+        row.append(make("span", "badge", tr("Rýchlosť ") + (i + 1)));
+        this.field(row, tr("Názov tlačidla"), s.label, (v) =>
           this.update(() => (s.label = v)),
         );
         let mode = s.actions
@@ -547,7 +563,7 @@
             : "percent";
         this.field(
           row,
-          "Spôsob ovládania",
+          tr("Spôsob ovládania"),
           mode,
           (v) =>
             this.update(() => {
@@ -569,22 +585,22 @@
             }, true),
           {
             choices: [
-              { value: "percent", label: "Percentá" },
-              { value: "preset", label: "Pomenovaný režim" },
-              { value: "custom", label: "Vlastná HA akcia" },
+              { value: "percent", label: tr("Percentá") },
+              { value: "preset", label: tr("Pomenovaný režim") },
+              { value: "custom", label: tr("Vlastná HA akcia") },
             ],
           },
         );
         if (mode === "percent")
           this.field(
             row,
-            "Rýchlosť v percentách",
+            tr("Rýchlosť v percentách"),
             s.percentage,
             (v) => this.update(() => (s.percentage = v)),
             { type: "number", min: 1, max: 100 },
           );
         else if (mode === "preset")
-          this.field(row, "Názov režimu", s.preset_mode, (v) =>
+          this.field(row, tr("Názov režimu"), s.preset_mode, (v) =>
             this.update(() => (s.preset_mode = v)),
           );
         else {
@@ -594,34 +610,34 @@
           s.match = s.match || {};
           this.entity(
             row,
-            "Entita potvrdeného stavu (voliteľné)",
+            tr("Entita potvrdeného stavu (voliteľné)"),
             s.match.entity || "",
             "",
             (v) => this.update(() => (s.match.entity = v)),
           );
           this.field(
             row,
-            "Atribút stavu (prázdne = hlavný stav)",
+            tr("Atribút stavu (prázdne = hlavný stav)"),
             s.match.attribute || "",
             (v) => this.update(() => (s.match.attribute = v)),
           );
           this.field(
             row,
-            "Hodnota pri aktívnej rýchlosti",
+            tr("Hodnota pri aktívnej rýchlosti"),
             s.match.value === undefined ? "" : s.match.value,
             (v) => this.update(() => (s.match.value = v)),
           );
         }
         speeds.append(row);
       });
-      let controls = this.card(parent, "Zobrazované ovládače");
+      let controls = this.card(parent, tr("Zobrazované ovládače"));
       f.controls = f.controls || {};
       [
-        ["direction", "Zmena smeru"],
-        ["brightness", "Jas svetla"],
-        ["temperature", "Teplota svetla"],
-        ["allOff", "Všetko vypnúť"],
-        ["timer", "Časovač"],
+        ["direction", tr("Zmena smeru")],
+        ["brightness", tr("Jas svetla")],
+        ["temperature", tr("Teplota svetla")],
+        ["allOff", tr("Všetko vypnúť")],
+        ["timer", tr("Časovač")],
       ].forEach(([key, label]) =>
         this.field(
           controls,
@@ -635,36 +651,36 @@
         make(
           "p",
           "hint",
-          "Jas, teplota a smer sú aktívne, keď entita v HA poskytuje príslušné údaje. Nejasné symboly z ovládača priraď cez vlastné tlačidlá.",
+          tr("Jas, teplota a smer sú aktívne, keď entita v HA poskytuje príslušné údaje. Nejasné symboly z ovládača priraď cez vlastné tlačidlá."),
         ),
       );
-      let extras = this.card(parent, "Vlastné tlačidlá");
+      let extras = this.card(parent, tr("Vlastné tlačidlá"));
       f.extras = f.extras || [];
       f.extras.forEach((x, i) => {
         let box = make("div", "card");
-        this.field(box, "Názov", x.label, (v) =>
+        this.field(box, tr("Názov"), x.label, (v) =>
           this.update(() => (x.label = v)),
         );
-        this.field(box, "Ikona Lucide", x.icon, (v) =>
+        this.field(box, tr("Ikona Lucide"), x.icon, (v) =>
           this.update(() => (x.icon = v)),
         );
         this.actionForm(box, x.actions, (v) =>
           this.update(() => (x.actions = v)),
         );
         box.append(
-          this.btn("Odstrániť", () =>
+          this.btn(tr("Odstrániť"), () =>
             this.update(() => f.extras.splice(i, 1), true),
           ),
         );
         extras.append(box);
       });
       extras.append(
-        this.btn("+ Vlastné tlačidlo", () =>
+        this.btn(tr("+ Vlastné tlačidlo"), () =>
           this.update(
             () =>
               f.extras.push({
                 id: "custom_" + Date.now().toString(36),
-                label: "Vlastná akcia",
+                label: tr("Vlastná akcia"),
                 icon: "sparkles",
                 actions: [
                   {
@@ -705,7 +721,7 @@
           options.unshift({ value: action.service, label: action.service });
         this.field(
           row,
-          "Akcia Home Assistanta",
+          tr("Akcia Home Assistanta"),
           action.service,
           (v) => {
             let next = clone(list);
@@ -717,7 +733,7 @@
         );
         this.entity(
           row,
-          "Cieľová entita",
+          tr("Cieľová entita"),
           (action.target || {}).entity_id || action.entity_id || "",
           "",
           (v) => {
@@ -730,7 +746,7 @@
         );
         this.jsonField(
           row,
-          "Parametre akcie (voliteľné)",
+          tr("Parametre akcie (voliteľné)"),
           action.data || {},
           (v) => {
             let next = clone(list);
@@ -741,7 +757,7 @@
         );
         if (list.length > 1)
           row.append(
-            this.btn("Odstrániť akciu", () => {
+            this.btn(tr("Odstrániť akciu"), () => {
               let next = clone(list);
               next.splice(i, 1);
               list = next;
@@ -752,7 +768,7 @@
         parent.append(row);
       });
       parent.append(
-        this.btn("+ Ďalšia akcia", () => {
+        this.btn(tr("+ Ďalšia akcia"), () => {
           let next = clone(list);
           next.push({
             service: "script.turn_on",
@@ -775,17 +791,17 @@
       if (hint) parent.append(make("p", "hint", hint));
     }
     renderGridForm(parent, page) {
-      let box = this.card(parent, "Rozloženie");
+      let box = this.card(parent, tr("Rozloženie"));
       this.field(
         box,
-        "Stĺpce",
+        tr("Stĺpce"),
         page.grid.columns,
         (v) => this.update(() => (page.grid.columns = v), true),
         { type: "number", min: 1, max: 12 },
       );
       this.field(
         box,
-        "Riadky",
+        tr("Riadky"),
         page.grid.rows,
         (v) => this.update(() => (page.grid.rows = v), true),
         { type: "number", min: 1, max: 12 },
@@ -842,7 +858,7 @@
       });
       box.append(
         list,
-        this.btn("+ Tlačidlo", () => {
+        this.btn(tr("+ Tlačidlo"), () => {
           let occupied = new Set();
           page.tiles.forEach((t) => {
             for (let y = t.row; y < t.row + (t.rowSpan || 1); y++)
@@ -855,7 +871,7 @@
               if (!position && !occupied.has(x + "," + y))
                 position = { row: y, col: x };
           if (!position) {
-            this.notice("Mriežka je plná. Zväčši rozmery.", true);
+            this.notice(tr("Mriežka je plná. Zväčši rozmery."), true);
             return;
           }
           this.update(() => {
@@ -863,7 +879,7 @@
               id: "tile_" + Date.now().toString(36),
               type: "button",
               behavior: "toggle",
-              label: "Svetlo",
+              label: tr("Svetlo"),
               icon: "lightbulb",
               ...position,
             });
@@ -894,19 +910,19 @@
           ],
         },
       );
-      this.field(edit, "Názov", tile.label, (v) =>
+      this.field(edit, tr("Názov"), tile.label, (v) =>
         this.update(() => (tile.label = v)),
       );
-      this.field(edit, "Ikona", tile.icon, (v) =>
+      this.field(edit, tr("Ikona"), tile.icon, (v) =>
         this.update(() => (tile.icon = v)),
       );
-      this.entity(edit, "Entita", tile.entity, "", (v) =>
+      this.entity(edit, tr("Entita"), tile.entity, "", (v) =>
         this.update(() => (tile.entity = v)),
       );
       ["row", "col", "rowSpan", "colSpan"].forEach((k) =>
         this.field(
           edit,
-          { row: "Riadok", col: "Stĺpec", rowSpan: "Výška", colSpan: "Šírka" }[
+          { row: tr("Riadok"), col: tr("Stĺpec"), rowSpan: tr("Výška"), colSpan: tr("Šírka") }[
             k
           ],
           tile[k] || 1,
@@ -917,21 +933,21 @@
       if (tile.type === "button")
         this.field(
           edit,
-          "Správanie",
+          tr("Správanie"),
           tile.behavior || "toggle",
           (v) => this.update(() => (tile.behavior = v)),
           { choices: ["toggle", "push", "state"] },
         );
       if (tile.type === "split")
-        this.jsonField(edit, "Segmenty s akciami", tile.buttons || [], (v) =>
+        this.jsonField(edit, tr("Segmenty s akciami"), tile.buttons || [], (v) =>
           this.update(() => (tile.buttons = v)),
         );
       if (tile.type === "switcher")
-        this.jsonField(edit, "Položky", tile.items || [], (v) =>
+        this.jsonField(edit, tr("Položky"), tile.items || [], (v) =>
           this.update(() => (tile.items = v)),
         );
       if (tile.type === "rocker")
-        this.jsonField(edit, "Prepínače", tile.rockers || [], (v) =>
+        this.jsonField(edit, tr("Prepínače"), tile.rockers || [], (v) =>
           this.update(() => (tile.rockers = v)),
         );
       if (["button", "dimmer"].includes(tile.type)) {
@@ -946,7 +962,7 @@
         tile.bindings = tile.bindings || {};
         this.field(
           edit,
-          "Vlastná akcia namiesto predvoleného ovládania",
+          tr("Vlastná akcia namiesto predvoleného ovládania"),
           !!tile.bindings[event],
           (v) =>
             this.update(() => {
@@ -968,13 +984,13 @@
       }
       this.jsonField(
         edit,
-        "Vlastné akcie podľa udalosti",
+        tr("Vlastné akcie podľa udalosti"),
         tile.bindings || {},
         (v) => this.update(() => (tile.bindings = v)),
         'Napríklad {"press":[{"service":"scene.turn_on","target":{"entity_id":"scene.vecer"}}]}',
       );
       edit.append(
-        this.btn("Odstrániť prvok", () =>
+        this.btn(tr("Odstrániť prvok"), () =>
           this.update(() => page.tiles.splice(this.tileIndex, 1), true),
         ),
       );
@@ -984,24 +1000,24 @@
       let box = this.card(parent, "Kamery");
       page.camera.cameras.forEach((cam, i) => {
         let card = make("div", "card");
-        this.entity(card, "Kamera", cam.entity, "camera", (v) =>
+        this.entity(card, tr("Kamera"), cam.entity, "camera", (v) =>
           this.update(() => (cam.entity = v)),
         );
-        this.field(card, "Názov", cam.name, (v) =>
+        this.field(card, tr("Názov"), cam.name, (v) =>
           this.update(() => (cam.name = v)),
         );
-        this.jsonField(card, "PTZ akcie podľa smeru", cam.ptz || {}, (v) =>
+        this.jsonField(card, tr("PTZ akcie podľa smeru"), cam.ptz || {}, (v) =>
           this.update(() => (cam.ptz = v)),
         );
         card.append(
-          this.btn("Odstrániť", () =>
+          this.btn(tr("Odstrániť"), () =>
             this.update(() => page.camera.cameras.splice(i, 1), true),
           ),
         );
         box.append(card);
       });
       box.append(
-        this.btn("+ Kamera", () =>
+        this.btn(tr("+ Kamera"), () =>
           this.update(
             () =>
               page.camera.cameras.push({
@@ -1014,24 +1030,24 @@
       );
       this.field(
         box,
-        "Zostať na kamerovej stránke",
+        tr("Zostať na kamerovej stránke"),
         page.camera.keepOnPage !== false,
         (v) => this.update(() => (page.camera.keepOnPage = v)),
         { type: "checkbox" },
       );
       this.field(
         box,
-        "Držať displej zapnutý",
+        tr("Držať displej zapnutý"),
         !!page.camera.keepAwake,
         (v) => this.update(() => (page.camera.keepAwake = v)),
         { type: "checkbox" },
       );
     }
     renderDisplay(parent) {
-      let box = this.card(parent, "Vzhľad a šetrič");
+      let box = this.card(parent, tr("Vzhľad a šetrič"));
       this.field(
         box,
-        "Dizajn",
+        tr("Dizajn"),
         this.draft.theme || "cream",
         (v) =>
           this.update(() => {
@@ -1039,27 +1055,34 @@
             this.device.theme = v;
           }),
         {
-          choices: [
-            { value: "cream", label: "Cream · teplá krémová" },
-            { value: "night", label: "Night · tmavá zelená" },
-          ],
+          choices: skinChoices,
         },
       );
+      [["labelSize", "Veľkosť textu", "Label text size", 14, 8, 32],
+       ["labelOffsetY", "Zvislý posun popisov", "Label vertical offset", 0, -40, 40],
+       ["iconSize", "Veľkosť ikon", "Icon size", 40, 16, 96]].forEach(([key,sk,en,fallback,min,max]) => {
+        const current=this.device[key] === undefined ? fallback : this.device[key];
+        const input=this.field(box, (language.startsWith("sk") ? sk : en)+" (px)", current,
+          (value)=>this.update(()=>{this.device[key]=value;}), {type:"range",min,max});
+        const output=make("output", "hint", String(current)+" px");
+        input.parentNode.append(output);
+        input.addEventListener("input",()=>{output.textContent=input.value+" px";this.device[key]=Number(input.value);this.dirty=true;this.preview();});
+      });
       this.field(
         box,
-        "Hodiny",
+        tr("Hodiny"),
         this.device.clockFace || "digital",
         (v) => this.update(() => (this.device.clockFace = v)),
         {
           choices: [
-            { value: "digital", label: "Digitálne" },
-            { value: "analog", label: "Analógové" },
+            { value: "digital", label: tr("Digitálne") },
+            { value: "analog", label: tr("Analógové") },
           ],
         },
       );
       this.field(
         box,
-        "24-hodinový formát",
+        tr("24-hodinový formát"),
         this.device.clockFormat24h !== false,
         (v) => this.update(() => (this.device.clockFormat24h = v)),
         { type: "checkbox" },
@@ -1067,21 +1090,21 @@
       this.device.screensaver = this.device.screensaver || {};
       this.field(
         box,
-        "Šetrič po sekundách",
+        tr("Šetrič po sekundách"),
         this.device.screensaver.after || 180,
         (v) => this.update(() => (this.device.screensaver.after = v)),
         { type: "number", min: 10, max: 3600 },
       );
       this.field(
         box,
-        "Jas šetriča (%)",
+        tr("Jas šetriča (%)"),
         Math.round((this.device.screensaver.dimLevel || 0.15) * 100),
         (v) => this.update(() => (this.device.screensaver.dimLevel = v / 100)),
         { type: "number", min: 5, max: 100 },
       );
       this.field(
         box,
-        "Predvolená stránka",
+        tr("Predvolená stránka"),
         this.device.defaultPage || 0,
         (v) => this.update(() => (this.device.defaultPage = Number(v))),
         {
@@ -1093,7 +1116,7 @@
       );
       this.field(
         box,
-        "Návrat na predvolenú stránku po sekundách (0 = vypnuté)",
+        tr("Návrat na predvolenú stránku po sekundách (0 = vypnuté)"),
         this.device.inactivityTimeout || 0,
         (v) => this.update(() => (this.device.inactivityTimeout = v)),
         { type: "number", min: 0, max: 3600 },
@@ -1101,14 +1124,14 @@
       this.device.nightMode = this.device.nightMode || {};
       this.field(
         box,
-        "Automatický nočný vzhľad",
+        tr("Automatický nočný vzhľad"),
         !!this.device.nightMode.enabled,
         (v) => this.update(() => (this.device.nightMode.enabled = v)),
         { type: "checkbox" },
       );
       this.field(
         box,
-        "Noc začína o hodine",
+        tr("Noc začína o hodine"),
         this.device.nightMode.start === undefined
           ? 22
           : this.device.nightMode.start,
@@ -1117,14 +1140,14 @@
       );
       this.field(
         box,
-        "Nočný jas (%)",
+        tr("Nočný jas (%)"),
         this.device.nightMode.brightness || 20,
         (v) => this.update(() => (this.device.nightMode.brightness = v)),
         { type: "number", min: 5, max: 100 },
       );
       this.field(
         box,
-        "Noc končí o hodine",
+        tr("Noc končí o hodine"),
         this.device.nightMode.end === undefined ? 7 : this.device.nightMode.end,
         (v) => this.update(() => (this.device.nightMode.end = v)),
         { type: "number", min: 0, max: 23 },
@@ -1132,14 +1155,14 @@
       this.device.autoBrightness = this.device.autoBrightness || {};
       this.field(
         box,
-        "Automatický jas podľa senzora",
+        tr("Automatický jas podľa senzora"),
         !!this.device.autoBrightness.enabled,
         (v) => this.update(() => (this.device.autoBrightness.enabled = v)),
         { type: "checkbox" },
       );
       this.field(
         box,
-        "Prebudiť pri priblížení",
+        tr("Prebudiť pri priblížení"),
         this.device.screensaver.wakeOnProximity !== false,
         (v) => this.update(() => (this.device.screensaver.wakeOnProximity = v)),
         { type: "checkbox" },
@@ -1147,7 +1170,7 @@
       this.device.motion = this.device.motion || {};
       this.field(
         box,
-        "Publikovať pohyb zo senzora",
+        tr("Publikovať pohyb zo senzora"),
         !!this.device.motion.enabled,
         (v) => this.update(() => (this.device.motion.enabled = v)),
         { type: "checkbox" },
@@ -1156,9 +1179,108 @@
         make(
           "p",
           "hint",
-          "Senzory fungujú iba ak ich Android poskytne. Nočný režim používa čas panela.",
+          tr("Senzory fungujú iba ak ich Android poskytne. Nočný režim používa čas panela."),
         ),
       );
+      const sk=language.startsWith("sk");
+      this.device.autoBrightness=this.device.autoBrightness||{};this.device.motion=this.device.motion||{};this.device.proximity=this.device.proximity||{};
+      const extra=this.card(parent,sk ? "Podrobné nastavenia panela" : "Detailed panel settings");
+      const options=[[this.device,"sysInfoIntervalS",sk ? "Obnoviť diagnostiku (s)" : "Diagnostics interval (s)",60,10,3600],
+        [this.device.autoBrightness,"nightThresholdLux",sk ? "Hranica noci (lx)" : "Night threshold (lx)",130,0,100000],
+        [this.device.autoBrightness,"dayBrightness",sk ? "Denný jas (%)" : "Day brightness (%)",100,5,100],
+        [this.device.autoBrightness,"nightBrightness",sk ? "Nočný jas senzora (%)" : "Sensor night brightness (%)",30,5,100],
+        [this.device.autoBrightness,"screensaverDropPoints",sk ? "Stlmenie šetriča navyše (%)" : "Additional screensaver dimming (%)",10,0,95],
+        [this.device.motion,"clearS",sk ? "Vypnúť prítomnosť po (s)" : "Presence clear delay (s)",15,1,600],
+        [this.device.motion,"on",sk ? "Prah detekcie (% rozsahu senzora)" : "Detection threshold (% of sensor range)",40,1,100],
+        [this.device.proximity,"on",sk ? "Prah prebudenia (% rozsahu senzora)" : "Wake threshold (% of sensor range)",40,1,100],
+        [this.device.screensaver,"nightOffAfter",sk ? "V noci zhasnúť po (s; 0 = nikdy)" : "Night screen off after (s; 0 = never)",0,0,86400],
+        [this.device,"clockDateSize",sk ? "Veľkosť dátumu (px)" : "Date size (px)",13,8,32]];
+      options.forEach(([object,key,label,fallback,min,max])=>this.field(extra,label,object[key]===undefined?fallback:object[key],v=>this.update(()=>object[key]=v),{type:"number",min,max}));
+      this.field(extra,sk ? "Jazyk hodín" : "Clock language",this.device.clockLanguage||"en-GB",v=>this.update(()=>this.device.clockLanguage=v),{choices:["en-GB","sk-SK","hu-HU","de-DE","cs-CZ","it-IT"]});
+      this.field(extra,sk ? "Farba hodín" : "Clock accent",this.device.clockAccent||"#318743",v=>this.update(()=>this.device.clockAccent=v),{type:"color"});
+      const clockThemes=[{value:"match-app",label:sk ? "Podľa panela" : "Match panel"},{value:"custom",label:sk ? "Vlastná farba" : "Custom accent"},...skinChoices];
+      this.field(extra,sk ? "Vzhľad stránky hodín" : "Clock page theme",this.device.clockTheme||"match-app",v=>this.update(()=>this.device.clockTheme=v),{choices:clockThemes});
+      this.field(extra,sk ? "Vzhľad šetriča" : "Screensaver theme",this.device.screensaverTheme||"match-app",v=>this.update(()=>this.device.screensaverTheme=v),{choices:clockThemes});
+    }
+    buildRoomDraft(area, records) {
+      const sk=language.startsWith("sk"), pages=[], tiles=[];
+      
+      const states=this._hass.states || {};
+      const stamp=Date.now().toString(36);let sequence=0;
+      const id=(prefix)=>prefix+"_"+stamp+"_"+(sequence++);
+      for(const record of records){
+        const entity=record.entity_id,state=states[entity];
+        if(!state || record.disabled_by || record.hidden_by)continue;
+        const domain=entity.split(".")[0],attrs=state.attributes || {},name=attrs.friendly_name || entity;
+        if(domain==='fan'){
+          const presets=attrs.preset_modes || [],step=Number(attrs.percentage_step),count=step>0?Math.max(1,Math.min(12,Math.round(100/step))):6;
+          const speeds=presets.length && !('percentage' in attrs) ? presets.slice(0,12).map(mode=>({label:mode,preset_mode:mode})) : Array.from({length:count},(_,i)=>({label:String(i+1),percentage:Math.round((i+1)*100/count)}));
+          const light=record.device_id && records.find(r=>r.device_id===record.device_id && r.entity_id.startsWith('light.') && !r.disabled_by && !r.hidden_by && states[r.entity_id]);
+          const la=light ? states[light.entity_id].attributes || {} : {};
+          const fan={fanEntity:entity,speeds,controls:{direction:['forward','reverse'].includes(attrs.direction),brightness:'brightness' in la,temperature:'color_temp_kelvin' in la || (la.supported_color_modes || []).includes('color_temp'),allOff:!!light,timer:true},extras:[]};
+          if(light)fan.lightEntity=light.entity_id;
+          pages.push({id:id('fan'),type:'fan',title:name,fan});
+        }else if(['light','switch','input_boolean','scene','script','cover','sensor','binary_sensor'].includes(domain)){
+          const type=domain==='cover'?'rocker':['sensor','binary_sensor'].includes(domain)?'readout':domain==='light' && 'brightness' in attrs?'dimmer':'button';
+          tiles.push({id:id('tile'),entity,type,label:name,icon:domain==='cover'?'blinds':domain==='light'?'lightbulb':domain==='sensor'?'activity':'power',behavior:['scene','script'].includes(domain)?'push':'toggle',row:1,col:1,rowSpan:1,colSpan:1});
+        }else if(domain==='weather')pages.push({id:id('weather'),type:'weather',title:name,weather:{entity}});
+      }
+      for(let start=0;start<tiles.length;start+=9){const chunk=tiles.slice(start,start+9);chunk.forEach((t,i)=>{t.row=Math.floor(i/3)+1;t.col=i%3+1;});pages.push({id:id('room'),type:'grid',title:area.name+(start?' '+(Math.floor(start/9)+1):''),grid:{rows:Math.ceil(chunk.length/3),columns:3},tiles:chunk});}
+      if(!pages.length)throw Error(sk ? "Miestnosť nemá podporované entity." : "This room has no supported entities.");
+      const existing=this.draft.pages.filter(p=>!(p.type==='grid' && !(p.tiles || []).length));
+      if(existing.length+pages.length>30)throw Error(sk ? "Najviac 30 stránok." : "Up to 30 pages.");
+      this.update(()=>{this.draft.pages=[...existing,...pages];this.pageIndex=existing.length;},true);
+      this.notice(sk ? "Návrh miestnosti pripravený. Skontroluj stránky a ulož na panel." : "Room draft created. Review the pages and save to panel.");
+      return pages;
+    }
+    async roomWizard() {
+      const sk=language.startsWith("sk");
+      try{
+        const [areas,entities,devices]=await Promise.all([
+          this._hass.callWS({type:"config/area_registry/list"}),this._hass.callWS({type:"config/entity_registry/list"}),this._hass.callWS({type:"config/device_registry/list"})]);
+        if(!Array.isArray(areas)||!Array.isArray(entities)||!Array.isArray(devices))throw Error(sk ? "Nepodarilo sa načítať miestnosti HA." : "Could not load Home Assistant rooms.");
+        if(!areas.length)throw Error(sk ? "Najprv vytvor miestnosti v HA a priraď im zariadenia." : "Create rooms in Home Assistant and assign devices first.");
+        let selected=areas[0].area_id;
+        this.dialog(sk ? "Vytvoriť ovládanie miestnosti" : "Build room controls",box=>{
+          this.field(box,sk ? "Miestnosť" : "Room",selected,v=>selected=v,{choices:areas.map(a=>({value:a.area_id,label:a.name}))});
+          box.append(make("p","hint",sk ? "Vytvorí návrh zo svetiel, ventilátorov, žalúzií a senzorov. Existujúce stránky zostanú zachované. Pred uložením skontroluj priradenia." : "Creates a draft from lights, fans, covers and sensors. Existing pages are preserved. Review the assignments before saving."));
+          box.append(this.btn(sk ? "Vytvoriť návrh" : "Create draft",()=>{
+            try{
+              const area=areas.find(a=>a.area_id===selected),deviceAreas=new Map(devices.map(d=>[d.id,d.area_id]));
+              const records=entities.filter(e=>(e.area_id || deviceAreas.get(e.device_id))===selected);
+              const modal=box.closest('.modal');this.buildRoomDraft(area,records);if(modal)modal.remove();
+            }catch(e){this.notice(e.message,true);}
+          },true));
+        });
+      }catch(e){this.notice(e.message,true);}
+    }
+    renderAdvanced(parent) {
+      const sk=language.startsWith("sk"),box=this.card(parent,sk ? "Pokročilá konfigurácia JSON" : "Advanced JSON configuration");
+      box.append(make("p","hint",sk ? "Zmeny sa najprv načítajú do editora. Na odoslanie použi Uložiť na panel." : "Changes are applied to the draft first. Use Save to panel to publish them."));
+      const input=make("textarea");input.style.cssText="width:100%;min-height:450px;font:13px monospace";
+      input.value=JSON.stringify({config:this.draft,device:this.device},null,2);box.append(input);
+      box.append(this.btn(sk ? "Použiť do editora" : "Apply to editor",()=>{
+        try{const doc=JSON.parse(input.value);if(!doc.config || !Array.isArray(doc.config.pages) || !doc.config.pages.length || !doc.device || Array.isArray(doc.device) || typeof doc.device!=="object")throw Error(sk ? "Neplatný dokument" : "Invalid document");
+          this.update(()=>{this.draft=doc.config;this.device=doc.device;},true);this.notice(sk ? "Načítané do editora. Skontroluj a ulož." : "Applied to editor. Review and save.");
+        }catch(e){this.notice(e.message,true);}
+      },true),this.btn(sk ? "Vrátiť text" : "Revert text",()=>{input.value=JSON.stringify({config:this.draft,device:this.device},null,2);}),this.btn(sk ? "Stiahnuť JSON" : "Download JSON",()=>this.download("aurelvi-config.json",{config:this.draft,device:this.device})));
+    }
+    renderNotify(parent) {
+      const sk=language.startsWith("sk"),form=this.card(parent,sk ? "Oznámenie na panel" : "Panel notification");
+      const data=this.notificationDraft || (this.notificationDraft={id:"",title:"Aurelvi",message:"",level:"info",priority:"normal",timeoutS:30,icon:"bell",image:"",sound:"",speak:"",actions:[]});
+      const preview=this.card(parent,sk ? "Náhľad a akcia pre HA" : "Preview and Home Assistant action");
+      const previewContent=make("div");preview.append(previewContent);
+      const updatePreview=()=>{previewContent.textContent="";previewContent.append(make("h2","",data.title || "Aurelvi"),make("p","",data.message));for(const a of data.actions)previewContent.append(make("span","badge",a.label || a.id));previewContent.append(make("pre","log",JSON.stringify({action:"aurelvi.notify",data:{panel_id:this.selected,...data}},null,2)));};
+      const fields=[["id",sk ? "ID oznámenia" : "Notification ID"],["title",sk ? "Nadpis" : "Title"],["message",sk ? "Správa" : "Message"],["icon",sk ? "Ikona Lucide" : "Lucide icon"],["image",sk ? "Adresa obrázka" : "Image URL"],["sound",sk ? "Zvuk alebo URL" : "Sound or URL"],["speak",sk ? "Prečítať nahlas" : "Speak aloud"]];
+      fields.forEach(([key,label])=>this.field(form,label,data[key],v=>{data[key]=v;updatePreview();},{rows:key==='message' || key==='speak' ? 3 : undefined}));
+      this.field(form,sk ? "Úroveň" : "Level",data.level,v=>{data.level=v;updatePreview();},{choices:["info","success","warning","error"]});
+      this.field(form,tr("Priorita"),data.priority,v=>{data.priority=v;updatePreview();},{choices:["normal","high"]});
+      this.field(form,sk ? "Čas zobrazenia (s; 0 = bez limitu)" : "Timeout (seconds; 0 = unlimited)",data.timeoutS,v=>{data.timeoutS=v;updatePreview();},{type:"number",min:0,max:86400});
+      this.jsonField(form,sk ? "Tlačidlá (najviac 3)" : "Buttons (up to 3)",data.actions,v=>{if(!Array.isArray(v)||v.length>3)throw Error(sk ? "Najviac 3 tlačidlá" : "Up to 3 buttons");data.actions=v;updatePreview();},'[{"id":"ok","label":"OK","on_press":[{"service":"light.turn_on","target":{"entity_id":"light.room"}}]}]');
+      form.append(make("p","hint",sk ? "Hlas vyžaduje dostupný Android TTS engine. Tlačidlá môžu spúšťať vlastné HA akcie." : "Speech requires an available Android TTS engine. Buttons can run custom Home Assistant actions."));
+      form.append(this.btn(sk ? "Odoslať teraz" : "Send now",async()=>{try{await this.api("notify",data);this.notice(sk ? "Odoslané" : "Sent");}catch(e){this.notice(e.message,true);}},true),this.btn(sk ? "Vymazať oznámenia" : "Clear notifications",async()=>{try{await this.api("command",{name:"notify_clear",payload:{}});}catch(e){this.notice(e.message,true);}}),this.btn(sk ? "Resetovať formulár" : "Reset form",()=>{this.notificationDraft=null;this.render();}));
+      preview.append(this.btn(sk ? "Kopírovať akciu" : "Copy action",async()=>{try{await navigator.clipboard.writeText(JSON.stringify({action:"aurelvi.notify",data:{panel_id:this.selected,...data}},null,2));}catch(e){this.notice(e.message,true);}}));
+      updatePreview();
     }
     renderManage(parent) {
       let p = this.current();
@@ -1169,7 +1291,7 @@
           "hint",
           p.id +
             " · " +
-            (p.status.info.model || "Model čaká na pripojenie") +
+            (p.status.info.model || tr("Model čaká na pripojenie")) +
             " · " +
             (p.status.info.version || "") +
             " · " +
@@ -1177,20 +1299,20 @@
         ),
       );
       let panelName = p.name;
-      this.field(box, "Názov panela", panelName, (v) => (panelName = v));
+      this.field(box, tr("Názov panela"), panelName, (v) => (panelName = v));
       box.append(
-        this.btn("Premenovať panel", async () => {
+        this.btn(tr("Premenovať panel"), async () => {
           try {
             await this.api("rename", { name: panelName });
             await this.refreshStatus();
             this.render();
-            this.notice("Názov panela uložený");
+            this.notice(tr("Názov panela uložený"));
           } catch (e) {
             this.notice(e.message, true);
           }
         }),
       );
-      let healthBox = this.card(parent, "Kontrola pripojenia");
+      let healthBox = this.card(parent, tr("Kontrola pripojenia"));
       let health = p.health;
       if (health) {
         healthBox.append(
@@ -1198,8 +1320,8 @@
             "p",
             "hint",
             health.ok
-              ? "MQTT, panel aj priradené entity sú dostupné."
-              : "Našli sa problémy:",
+              ? tr("MQTT, panel aj priradené entity sú dostupné.")
+              : tr("Našli sa problémy:"),
           ),
         );
         for (let issue of health.issues) {
@@ -1217,20 +1339,20 @@
             make(
               "p",
               "hint",
-              "Posledná správa: " + new Date(health.lastSeen).toLocaleString(),
+              tr("Posledná správa: ") + new Date(health.lastSeen).toLocaleString(),
             ),
           );
       }
       healthBox.append(
-        this.btn("Obnoviť stav", async () => {
+        this.btn(tr("Obnoviť stav"), async () => {
           await this.refreshStatus();
           this.render();
         }),
-        this.btn("Znovu odoslať konfiguráciu", async () => {
+        this.btn(tr("Znovu odoslať konfiguráciu"), async () => {
           try {
             await this.api("push");
             this.notice(
-              "Uložená konfigurácia pripravená pre panel. Rozpracované zmeny sa neposielajú.",
+              tr("Uložená konfigurácia pripravená pre panel. Rozpracované zmeny sa neposielajú."),
             );
           } catch (e) {
             this.notice(e.message, true);
@@ -1239,8 +1361,8 @@
       );
       let row = make("div", "row");
       [
-        ["Prebudiť", "wake"],
-        ["Informácie", "info"],
+        [tr("Prebudiť"), "wake"],
+        [tr("Informácie"), "info"],
         ["Screenshot", "screenshot"],
       ].forEach(([label, name]) =>
         row.append(
@@ -1250,7 +1372,7 @@
                 name,
                 payload: { id: Date.now().toString() },
               });
-              this.notice("Príkaz odoslaný");
+              this.notice(tr("Príkaz odoslaný"));
             } catch (e) {
               this.notice(e.message, true);
             }
@@ -1260,13 +1382,13 @@
       box.append(row);
       if (p.status.screenshot) {
         let image = make("img", "screenshot");
-        image.alt = "Aktuálny displej panela";
+        image.alt = tr("Aktuálny displej panela");
         image.src = "data:image/png;base64," + p.status.screenshot;
         box.append(image);
       }
-      let backup = this.card(parent, "Záloha a obnova");
+      let backup = this.card(parent, tr("Záloha a obnova"));
       backup.append(
-        this.btn("Exportovať konfiguráciu", () =>
+        this.btn(tr("Exportovať konfiguráciu"), () =>
           this.download(p.name + "-aurelvi.json", {
             format: "aurelvi",
             version: 1,
@@ -1274,7 +1396,7 @@
             device: this.device,
           }),
         ),
-        this.btn("Importovať konfiguráciu", () => {
+        this.btn(tr("Importovať konfiguráciu"), () => {
           let input = make("input");
           input.type = "file";
           input.accept = ".json,application/json";
@@ -1283,44 +1405,44 @@
               let imported = JSON.parse(await input.files[0].text());
               let config = imported.config || imported;
               if (!Array.isArray(config.pages))
-                throw Error("Súbor neobsahuje stránky");
+                throw Error(tr("Súbor neobsahuje stránky"));
               this.update(() => {
                 this.draft = config;
                 this.device = imported.device || {};
               }, true);
-              this.notice("Import načítaný. Skontroluj entity a ulož.");
+              this.notice(tr("Import načítaný. Skontroluj entity a ulož."));
             } catch (e) {
               this.notice(e.message, true);
             }
           };
           input.click();
         }),
-        this.btn("Obnoviť predchádzajúcu konfiguráciu", async () => {
+        this.btn(tr("Obnoviť predchádzajúcu konfiguráciu"), async () => {
           if (this.dirty) {
-            this.notice("Najprv ulož alebo odlož aktuálne zmeny.", true);
+            this.notice(tr("Najprv ulož alebo odlož aktuálne zmeny."), true);
             return;
           }
           try {
             await this.api("restore", { revision: this.revision });
             await this.load();
-            this.notice("Predchádzajúca konfigurácia obnovená");
+            this.notice(tr("Predchádzajúca konfigurácia obnovená"));
           } catch (e) {
             this.notice(e.message, true);
           }
         }),
       );
-      let copy = this.card(parent, "Kopírovať na ďalší panel");
+      let copy = this.card(parent, tr("Kopírovať na ďalší panel"));
       let target = "";
-      this.field(copy, "Cieľový panel", "", (v) => (target = v), {
+      this.field(copy, tr("Cieľový panel"), "", (v) => (target = v), {
         choices: [
-          { value: "", label: "Vyber panel" },
+          { value: "", label: tr("Vyber panel") },
           ...this.data.panels
             .filter((x) => x.paired && x.id !== p.id)
             .map((x) => ({ value: x.id, label: x.name })),
         ],
       });
       copy.append(
-        this.btn("Skopírovať stránky", async () => {
+        this.btn(tr("Skopírovať stránky"), async () => {
           let t = this.data.panels.find((x) => x.id === target);
           if (!t) return;
           try {
@@ -1329,38 +1451,41 @@
               { config: this.draft, device: this.device, revision: t.revision },
               target,
             );
-            this.notice("Konfigurácia skopírovaná");
+            this.notice(tr("Konfigurácia skopírovaná"));
           } catch (e) {
             this.notice(e.message, true);
           }
         }),
       );
-      let update = this.card(parent, "Aktualizácie z GitHubu");
+      let local = this.card(parent, language.startsWith("sk") ? "Nastavenia z panela" : "Settings reported by panel");
+      local.append(make("p", "hint", language.startsWith("sk") ? "Heslá a tokeny zostávajú na paneli. Aktualizácia APK je potrebná na prvý prenos." : "Passwords and tokens stay on the panel. Update the APK to enable the initial transfer."));
+      local.append(make("pre", "log", JSON.stringify(p.localSettings || {}, null, 2)));
+      let update = this.card(parent, tr("Aktualizácie z GitHubu"));
       let settings = clone(this.data.settings || {});
       this.field(
         update,
-        "Verejný repozitár",
+        tr("Verejný repozitár"),
         settings.githubRepo || "",
         (v) => (settings.githubRepo = v),
       );
       this.field(
         update,
-        "Názov APK (voliteľné)",
+        tr("Názov APK (voliteľné)"),
         settings.githubAsset || "",
         (v) => (settings.githubAsset = v),
       );
       this.field(
         update,
-        "Lokálna adresa Home Assistanta pre kamery",
+        tr("Lokálna adresa Home Assistanta pre kamery"),
         settings.haUrl || "",
         (v) => (settings.haUrl = v),
       );
       update.append(
-        this.btn("Uložiť a skontrolovať", async () => {
+        this.btn(tr("Uložiť a skontrolovať"), async () => {
           try {
             await this.api("settings", settings, null);
             await this.refreshStatus();
-            this.notice("Nastavenie aktualizácií uložené");
+            this.notice(tr("Nastavenie aktualizácií uložené"));
           } catch (e) {
             this.notice(e.message, true);
           }
@@ -1371,17 +1496,17 @@
           make(
             "p",
             "hint",
-            "Vydanie " +
+            tr("Vydanie ") +
               this.data.latest.version +
               " · " +
               this.data.latest.asset,
           ),
           this.btn(
-            "Stiahnuť APK na panel",
+            tr("Stiahnuť APK na panel"),
             async () => {
               try {
                 await this.api("install_update");
-                this.notice("Na paneli potvrď inštaláciu v Androide.");
+                this.notice(tr("Na paneli potvrď inštaláciu v Androide."));
               } catch (e) {
                 this.notice(e.message, true);
               }
@@ -1394,10 +1519,10 @@
         make(
           "p",
           "hint",
-          "Releases musia obsahovať APK podpísané rovnakým kľúčom. Inštalácia vyžaduje potvrdenie na paneli.",
+          tr("Releases musia obsahovať APK podpísané rovnakým kľúčom. Inštalácia vyžaduje potvrdenie na paneli."),
         ),
       );
-      let notify = this.card(parent, "Oznámenie");
+      let notify = this.card(parent, tr("Oznámenie"));
       let data = {
         title: "Aurelvi",
         message: "",
@@ -1407,29 +1532,29 @@
       this.field(notify, "Text", data.message, (v) => (data.message = v));
       this.field(
         notify,
-        "Priorita",
+        tr("Priorita"),
         data.priority,
         (v) => (data.priority = v),
         {
           choices: [
-            { value: "normal", label: "Bežná · bez prebudenia" },
-            { value: "high", label: "Urgentná · prebudiť" },
+            { value: "normal", label: tr("Bežná · bez prebudenia") },
+            { value: "high", label: tr("Urgentná · prebudiť") },
           ],
         },
       );
       notify.append(
-        this.btn("Odoslať", async () => {
+        this.btn(tr("Odoslať"), async () => {
           try {
             await this.api("notify", data);
-            this.notice("Oznámenie odoslané");
+            this.notice(tr("Oznámenie odoslané"));
           } catch (e) {
             this.notice(e.message, true);
           }
         }),
       );
-      let log = this.card(parent, "Diagnostika");
+      let log = this.card(parent, tr("Diagnostika"));
       log.append(
-        this.btn("Stiahnuť diagnostiku", async () => {
+        this.btn(tr("Stiahnuť diagnostiku"), async () => {
           try {
             this.download(
               "aurelvi-diagnostika.json",
@@ -1442,7 +1567,7 @@
       );
       let logs = this.data.logs.filter((x) => !x.panel || x.panel === p.id);
       if (!logs.length)
-        log.append(make("p", "hint", "Bez zaznamenaných chýb."));
+        log.append(make("p", "hint", tr("Bez zaznamenaných chýb.")));
       logs
         .slice(-12)
         .reverse()
@@ -1459,7 +1584,7 @@
         make(
           "p",
           "hint",
-          "Rozšírené chyby nájdeš aj v Nastavenia → Systém → Protokoly.",
+          tr("Rozšírené chyby nájdeš aj v Nastavenia → Systém → Protokoly."),
         ),
       );
     }
@@ -1476,41 +1601,41 @@
         let health = this.current().health;
         this.notice(
           health && (!health.mqttConnected || !health.panelOnline)
-            ? "Uložené v HA. Panel konfiguráciu dostane po obnovení pripojenia."
-            : "Uložené. Konfigurácia bola odoslaná na panel.",
+            ? tr("Uložené v HA. Panel konfiguráciu dostane po obnovení pripojenia.")
+            : tr("Uložené. Konfigurácia bola odoslaná na panel."),
         );
       } catch (e) {
         this.notice(e.message, true);
       }
     }
     pageDialog() {
-      this.dialog("Nová stránka", (box) => {
+      this.dialog(tr("Nová stránka"), (box) => {
         let type = "fan";
-        this.field(box, "Typ stránky", type, (v) => (type = v), {
+        this.field(box, tr("Typ stránky"), type, (v) => (type = v), {
           choices: [
-            { value: "fan", label: "Ventilátor so svetlom · 6 rýchlostí" },
-            { value: "grid", label: "Vlastná mriežka" },
-            { value: "clock", label: "Hodiny" },
-            { value: "weather", label: "Počasie" },
-            { value: "camera", label: "Kamera" },
+            { value: "fan", label: tr("Ventilátor so svetlom · 6 rýchlostí") },
+            { value: "grid", label: tr("Vlastná mriežka") },
+            { value: "clock", label: tr("Hodiny") },
+            { value: "weather", label: tr("Počasie") },
+            { value: "camera", label: tr("Kamera") },
             { value: "alarm", label: "Alarmo" },
             { value: "music", label: "Hudba" },
           ],
         });
         box.append(
           this.btn(
-            "Pridať",
+            tr("Pridať"),
             () => {
               this.update(() => {
                 let id = "page_" + Date.now().toString(36),
                   page = {
                     id,
                     title: {
-                      fan: "Ventilátor",
-                      grid: "Domov",
-                      clock: "Hodiny",
-                      weather: "Počasie",
-                      camera: "Kamera",
+                      fan: tr("Ventilátor"),
+                      grid: tr("Domov"),
+                      clock: tr("Hodiny"),
+                      weather: tr("Počasie"),
+                      camera: tr("Kamera"),
                       alarm: "Alarm",
                       music: "Hudba",
                     }[type],
@@ -1553,14 +1678,14 @@
       });
     }
     addPanelDialog() {
-      this.dialog("Pridať panel", (box) => {
+      this.dialog(tr("Pridať panel"), (box) => {
         let id = "nspanel-7tmv73",
-          name = "Obývačka";
-        this.field(box, "ID z aplikácie panela", id, (v) => (id = v));
-        this.field(box, "Názov miestnosti", name, (v) => (name = v));
+          name = tr("Obývačka");
+        this.field(box, tr("ID z aplikácie panela"), id, (v) => (id = v));
+        this.field(box, tr("Názov miestnosti"), name, (v) => (name = v));
         box.append(
           this.btn(
-            "Pridať",
+            tr("Pridať"),
             async () => {
               try {
                 await this.api("add", { name }, id);
@@ -1580,7 +1705,7 @@
         box = make("div", "card");
       box.append(make("h2", "", title));
       render(box);
-      box.append(this.btn("Zavrieť", () => overlay.remove()));
+      box.append(this.btn(tr("Zavrieť"), () => overlay.remove()));
       overlay.append(box);
       this.shadowRoot.append(overlay);
     }

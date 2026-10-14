@@ -30,6 +30,11 @@ def panel_health(hub, pid):
     for code, values, message in [('missing_entities', missing, 'Niektoré entity neexistujú.'), ('unavailable_entities', unavailable, 'Niektoré entity nemajú dostupný stav.')]:
         if values:
             issues.append({'code': code, 'level': 'warning', 'message': message, 'entities': values, 'hint': 'Skontroluj priradenie v Stránky a stav entít v HA.'})
+    if not str(getattr(getattr(hub.hass,'config',None),'language','en')).startswith('sk'):
+        translations={'Home Assistant nie je pripojený k MQTT.': 'Home Assistant is not connected to MQTT.', 'Skontroluj MQTT integráciu a dostupnosť brokera.': 'Check the MQTT integration and broker availability.', 'Panel čaká na pridanie.': 'The panel is waiting to be added.', 'V Studio zvoľ Pridať tento panel.': 'Select Add this panel in Studio.', 'Panel je odpojený.': 'The panel is offline.', 'Na paneli skontroluj Wi-Fi, MQTT WebSocket adresu a režim Aurelvi.': 'Check the panel Wi-Fi, MQTT WebSocket URL and Aurelvi mode.', 'Niektoré entity neexistujú.': 'Some entities do not exist.', 'Niektoré entity nemajú dostupný stav.': 'Some entities are unavailable.', 'Skontroluj priradenie v Stránky a stav entít v HA.': 'Check the assignments in Pages and entity states in Home Assistant.'}
+        for issue in issues:
+            for key in ['message','hint']:
+                issue[key]=translations.get(issue.get(key),issue.get(key))
     return {'mqttConnected': connected, 'panelOnline': bool(status.get('online')), 'paired': bool(panel.get('paired')), 'lastSeen': status.get('lastSeen'), 'entityCount': len(referenced), 'missingCount': len(missing), 'unavailableCount': len(unavailable), 'ok': not issues, 'issues': issues}
 
 

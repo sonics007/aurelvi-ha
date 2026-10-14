@@ -1,40 +1,44 @@
-# Aurelvi — Home Assistant integration
+<p align="center"><img src="custom_components/aurelvi/brand/logo.png" alt="Aurelvi" width="384"></p>
 
-Verejná integrácia a Aurelvi Studio pre nástenné Android panely. APK a jeho zdroje sú samostatné projekty.
+# Aurelvi for Home Assistant
 
-## Inštalácia
+Local MQTT integration and Aurelvi Studio for Android wall panels. The interface follows your Home Assistant language: Slovak for `sk`, English for every other language. Android source code is maintained in a separate private repository.
 
-1. Z [najnovšieho vydania](https://github.com/sonics007/aurelvi-ha/releases/latest) stiahni `aurelvi.zip` a rozbaľ ho.
-2. Skopíruj priečinok `aurelvi` do `/config/custom_components/aurelvi`. Názov priečinka zostáva rovnaký pri každej verzii; číslo verzie patrí do `manifest.json` a označenia vydania.
+## Install or update
 
-Pri stiahnutí cez Code → Download ZIP kopíruj vnútorný priečinok `custom_components/aurelvi`, nie celý obalový priečinok repozitára.
+1. Download **aurelvi.zip** from [the latest release](https://github.com/sonics007/aurelvi-ha/releases/latest).
+2. Extract it and copy the **aurelvi** folder to **/config/custom_components/aurelvi**. Always keep this folder name; version numbers belong in the manifest and release tag.
+3. Restart Home Assistant. For an update, keep the existing integration entry.
+4. For a first installation, use Settings → Devices & services → Add integration → Aurelvi.
+5. Open Aurelvi Studio in the sidebar.
 
-3. Reštartuj Home Assistant.
-4. Nastavenia → Zariadenia a služby → Pridať integráciu → Aurelvi.
-5. Otvor Aurelvi Studio v bočnom paneli a nastav entity a stránky.
+MQTT must already be configured in Home Assistant. Connect the panel to the same broker using WebSockets and select **Aurelvi** mode. Local integration icons/logos require Home Assistant **2026.3 or newer**.
 
-Potrebuješ nakonfigurovanú integráciu MQTT. Android panel potrebuje pripojenie k rovnakému brokeru cez WebSocket a režim Aurelvi. Pri aktualizácii nahraď existujúci priečinok a reštartuj HA; integráciu nepridávaj druhýkrát. Skript `sh Install-HA.sh /config` vytvorí zálohu existujúceho priečinka a skopíruje integráciu.
+HACS: add `https://github.com/sonics007/aurelvi-ha` as a custom repository of type **Integration**. This is not a listing in the default HACS catalog.
 
-Repozitár obsahuje `hacs.json` a štandardný priečinok `custom_components`. Možno ho pridať ako vlastný repozitár typu Integration v HACS; toto nie je zaradenie do predvoleného katalógu HACS.
+## Version 0.3.2
 
-## Funkcie
+- Local integration icons and light/dark logos, included directly in the integration.
+- English default setup, service descriptions, entity names and Studio; Slovak translations follow HA language.
+- Initial import of panel pages, display settings and public application settings. Requires **APK 0.3.2**. Credentials remain on the panel.
+- Adding a panel waits for its settings snapshot instead of immediately overwriting it with an empty layout. Later Studio revisions remain authoritative.
+- **Build room** wizard: generate a draft from a Home Assistant area, infer fan controls and link a light only when it shares the fan device. Review and save before publishing.
+- Dedicated notification tab, advanced JSON draft editor and detailed clock/sensor controls.
+- 32 original Aurelvi skins, with light/dark palettes and procedural material treatments.
+- Label size, vertical label offset and icon size controls with preview.
+- Cover rocker with open/stop/close controls; standard notification entity and illuminance sensor.
+- `aurelvi_notification` events for `shown`, `dismissed`, `expired` and `action` status.
 
-Studio, šesť rýchlostí ventilátora, ovládanie svetla, vlastné akcie, Cream/Night, časovače riadené HA, zálohy, diagnostika, kontrola pripojenia a entít, premenovanie panelov a opätovné odoslanie konfigurácie.
+APK: [public signed releases](https://github.com/sonics007/aurelvi-apk/releases/latest).
 
-## APK
+## Moving from compatibility mode
 
-[Stiahnuť Aurelvi Panel](https://github.com/sonics007/aurelvi-apk/releases/latest). Aktuálne APK 0.3.0 je kompatibilné s integráciou 0.3.1. Android zdroje sú v súkromnom repozitári.
+Install APK 0.3.2 with `adb install -r` and keep the same device ID. In the panel settings, select **Aurelvi**, save and reconnect. Switching mode with the same ID now preserves the local layout cache. In Studio, add the discovered panel. Public GitHub settings seed empty HA update settings; existing HA choices and later Studio edits are preserved. Passwords, HA tokens, Music Assistant tokens and broker credentials are not imported.
 
-## Overenie
+If an older version has already overwritten a layout, restore a saved backup; the new snapshot cannot recreate data that no longer exists. Existing Studio revisions are never silently replaced by a panel snapshot.
 
-```sh
-python3 tests/health.test.py
-python3 tests/integration.test.py
-python3 tests/lifecycle.test.py
-npm install --no-save jsdom@26
-node tests/studio.test.cjs
-```
+## Validation
 
-Testy používajú izolované adaptéry HA. Funkčnosť na skutočnom HA a NSPanel Pro ešte vyžaduje overenie. Prehľad pôvodných kontrol je v TEST-REPORT.md.
+Run `tests/integration.test.py`, `tests/settings.test.py`, `tests/health.test.py` and `tests/lifecycle.test.py` with Python, plus `tests/studio.test.cjs` with Node and jsdom. These use isolated Home Assistant adapters; installation and behavior on real hardware still require verification.
 
-Licencie vlastného kódu sú v LICENSE a LICENSE-source; cudzie komponenty majú priložené licencie. Projekt je nezávislý od SONOFF, eWeLink a DomoDreams.
+See [FEATURES.md](FEATURES.md) for the feature comparison and scope. The project is independent of SONOFF, eWeLink and DomoDreams. Own-code and third-party licenses are included in this repository.

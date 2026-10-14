@@ -50,7 +50,7 @@
     }
   }
   var settings = loadSettings();
-  settings.url = settings.url || "ws://homeassistant.local:1884";
+  settings.url = settings.url || "ws://10.10.40.4:1884";
   settings.deviceId = settings.deviceId || "nspanel-7tmv73";
   settings.username = settings.username || "";
   settings.password = settings.password || "";
@@ -309,6 +309,17 @@
     return box;
   }
   function rockerTile(tile) {
+    if (/^cover\./.test(tile.entity || "")) {
+      var cover = document.createElement("div");cover.className="tile cover-rocker";
+      label(cover,tile.label || tile.entity);
+      [ ["↑","open"], ["■","stop"], ["↓","close"] ].forEach(function(item){
+        var control=document.createElement("button");control.type="button";control.textContent=item[0];
+        control.className="aur-control";control.setAttribute("aria-label",item[1]);
+        control.disabled=!online || stateOf(tile).available===false;
+        control.addEventListener("click",function(){sendEvent(tile.id,item[1]);});cover.appendChild(control);
+      });
+      return cover;
+    }
     var box = segmentBox({ orientation: "vertical" });
     var rockers = tile.rockers || [
       { entity: tile.entity, label: tile.label, icon: tile.icon },
@@ -536,7 +547,7 @@
     var doc = {
       v: 1,
       model: "NSPanel Pro / Aurelvi",
-      version: "Aurelvi 0.3.0",
+      version: "Aurelvi 0.3.2",
       deviceId: settings.deviceId,
       ts: Date.now(),
     };
@@ -550,9 +561,29 @@
     } catch (e) {}
     return doc;
   }
+  function safeAppSettings() {
+    var out = {};
+    ["githubRepo", "githubAsset", "githubAutoCheck", "haUrl", "maUrl", "weatherEntity"].forEach(function (key) {
+      var value = settings[key];
+      if (value === undefined) return;
+      if (/Url$/.test(key)) {
+        try { var u = new URL(value); if (u.username || u.password || u.search || u.hash || !/^https?:$/.test(u.protocol)) return; }
+        catch (e) { return; }
+      }
+      out[key] = value;
+    });
+    return out;
+  }
   function publishInfo() {
     if (client && online) {
       client.publish(client.prefix + "/sys/info", info(), true);
+      if (settings.namespace === "aurelvi") {
+        var device = {};
+        ["theme", "defaultPage", "inactivityTimeout", "screensaver", "nightMode", "autoBrightness", "motion", "sysInfoIntervalS", "clock", "clockFace", "clockFormat24h", "clockTheme", "clockAccent", "clockLanguage", "clockDateSize", "screensaverTheme", "proximity", "labelSize", "labelOffsetY", "iconSize"].forEach(function (key) {
+          if (deviceCfg[key] !== undefined) device[key] = deviceCfg[key];
+        });
+        client.publish(client.prefix + "/sys/settings", {v: 1, settings: safeAppSettings(), config: config, device: device}, false);
+      }
       client.publish(
         client.prefix + "/sys/awake",
         { awake: !sleeping, ts: Date.now() },
@@ -565,6 +596,7 @@
     if (sleeping) {
       sleeping = false;
       blanked = false;
+      document.body.classList.remove("screen-blanked");
       brightness(A ? A.defaultBrightness() : 1);
       render();
       publishInfo();
@@ -572,6 +604,18 @@
   }
   function applyDevice(doc) {
     deviceCfg = doc || {};
+    var imported = deviceCfg.appSettings;
+    if (imported && settings.namespace === "aurelvi") {
+      var before = JSON.stringify(settings);
+      ["githubRepo", "githubAsset", "githubAutoCheck", "haUrl"].forEach(function (key) {
+        if (Object.prototype.hasOwnProperty.call(imported, key)) settings[key] = imported[key];
+      });
+      if (JSON.stringify(settings) !== before) {
+        if (N) N.saveSettings(JSON.stringify(settings));
+        else localStorage.setItem("openpanel-settings", JSON.stringify(settings));
+        if (F) F.onSettingsSaved();
+      }
+    }
     document.body.classList.toggle(
       "dark",
       /dark|night|carbon|deep|emerald/.test(
@@ -765,7 +809,7 @@
       toast("Nastavenie sa nepodarilo uložiť");
       return;
     }
-    if (oldId !== id || oldNamespace !== settings.namespace) {
+    if (oldId !== id) {
       config = null;
       deviceCfg = {};
       cache("panels", null);
@@ -864,6 +908,9 @@
       brightness(Number((deviceCfg.screensaver || {}).dimLevel) || 0.15);
       publishInfo();
     } else if (sleeping && !blanked) {
+      var nightAfter=Number((deviceCfg.screensaver || {}).nightOffAfter || 0),hour=new Date().getHours(),night=deviceCfg.nightMode || {},start=Number(night.start===undefined?22:night.start),end=Number(night.end===undefined?7:night.end);
+      var inNight=start>end ? hour>=start || hour<end : hour>=start && hour<end;
+      if(nightAfter>0 && inNight && idle>after+nightAfter){blanked=true;$("surface").textContent="";document.body.classList.add("screen-blanked");brightness(.05);return;}
       $("surface").textContent = "";
       clock($("surface"));
     } else if (!sleeping && config.pages[pageIndex].type === "clock") render();

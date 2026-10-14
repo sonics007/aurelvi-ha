@@ -26,12 +26,12 @@ class Health(unittest.IsolatedAsyncioTestCase):
   self.hub.panels['room']['paired']=False;self.assertEqual(panel_health(self.hub,'room')['issues'][0]['code'],'not_paired')
  async def test_private_diagnostics(self):
   self.hub.settings={'haUrl':'http://private-secret:8123','githubRepo':'secret-owner/repo'}
-  self.hub.status['room']['screenshot']='secret-photo';self.hub.status['room']['info']['ip']='192.0.2.10'
+  self.hub.status['room']['screenshot']='secret-photo';self.hub.status['room']['info']['ip']='10.10.40.4'
   self.hub.status['room']['info']['version']='secret-version';self.hub.logs=[{'panel':'room','level':'error','message':'secret-pin:1234'}]
   self.hub.panels['room']['history']=[{'password':'secret-password'}]
   self.hub.panels['room']['config']['pages'][0]['fan']['extras']=[{'id':'arm','actions':[{'service':'script.turn_on','data':{'code':'secret-code'}}]}]
   raw=json.dumps(await async_get_config_entry_diagnostics(self.hass,self.entry))
-  for secret in ['secret','Personal room','fan.room','light.room','192.0.2.10']:self.assertNotIn(secret,raw)
+  for secret in ['secret','Personal room','fan.room','light.room','10.10.40.4']:self.assertNotIn(secret,raw)
   self.assertIsNone(diagnostics(self.hub)['panels'][0]['app_version'])
  async def test_device_scope_and_unknown_device(self):
   self.hub.panels['second']=dict(self.hub.panels['room']);d=await async_get_device_diagnostics(self.hass,self.entry,types.SimpleNamespace(identifiers={('aurelvi','room')}));self.assertEqual(d['panel_count'],1)

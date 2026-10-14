@@ -366,16 +366,21 @@
         box = node("div", "clock-page"),
         now = new Date();
       surface.appendChild(box);
-      var clockTheme = d.clockTheme;
+      var clockTheme = ctx.sleeping() ? (d.screensaverTheme || d.clockTheme) : d.clockTheme;
+      var locale = d.clockLanguage || "en-GB";
+      if (!/^[a-z]{2}(?:-[A-Z]{2})?$/.test(locale)) locale="en-GB";
+      var clockSkin=(window.AurelviSkins || []).find(function(item){return item.id===clockTheme;});
+      if(clockSkin){box.style.background=clockSkin.bg;box.style.color=clockSkin.ink;box.style.setProperty("--ink",clockSkin.ink);box.style.setProperty("--bg",clockSkin.bg);}
+      box.style.setProperty("--clock-date-size",Math.max(8,Math.min(32,Number(d.clockDateSize)||13))+"px");
       if (clockTheme && clockTheme !== "match-app" && clockTheme !== "custom")
-        applyTheme(clockTheme);
+        box.dataset.clockTheme=clockTheme;
       if (d.clockAppearance === "dark") box.classList.add("clock-dark");
       box.style.setProperty("--clock-accent", color(d.clockAccent, "#318743"));
       if (d.clockFace === "analog") {
         var svg = svgElement("svg", {
           viewBox: "0 0 240 240",
           class: "analog-clock",
-          "aria-label": now.toLocaleTimeString("sk-SK", {
+          "aria-label": now.toLocaleTimeString(locale, {
             hour: "2-digit",
             minute: "2-digit",
           }),
@@ -436,7 +441,7 @@
           node(
             "div",
             "clock-time",
-            now.toLocaleTimeString("sk-SK", {
+            now.toLocaleTimeString(locale, {
               hour: "2-digit",
               minute: "2-digit",
               hour12: d.clockFormat24h === false,
@@ -447,7 +452,7 @@
         node(
           "div",
           "clock-date",
-          now.toLocaleDateString("sk-SK", {
+          now.toLocaleDateString(locale, {
             weekday: "long",
             day: "numeric",
             month: "long",
@@ -462,10 +467,38 @@
                 ":" +
                 String(clockAlarm.minute).padStart(2, "0")
             : "Nastaviť budík",
-          ctx.openSettings,
+          openAlarmEditor,
           "feature-button clock-alarm-button",
         ),
       );
+    }
+    function openAlarmEditor() {
+      var old = document.getElementById("clock-alarm-editor");
+      if (old) old.remove();
+      var box = node("section", "feature-overlay");
+      box.id = "clock-alarm-editor";
+      box.setAttribute("role", "dialog");
+      box.setAttribute("aria-modal", "true");
+      box.setAttribute("aria-label", "Budík");
+      box.appendChild(node("h1", "", "Budík"));
+      var time = node("input");time.type = "time";time.id = "alarm-editor-time";
+      time.value = String(clockAlarm.hour === undefined ? 7 : clockAlarm.hour).padStart(2,"0")+":"+String(clockAlarm.minute || 0).padStart(2,"0");
+      time.setAttribute("aria-label", "Čas budíka");box.appendChild(time);
+      var label = node("label", "alarm-enabled"), enabled = node("input");
+      enabled.type = "checkbox";enabled.checked = !!clockAlarm.enabled;enabled.id="alarm-editor-enabled";
+      label.appendChild(enabled);label.appendChild(node("span", "", "Budík zapnutý"));box.appendChild(label);
+      var row = node("div", "row");
+      row.appendChild(button("Späť", function(){box.remove();}));
+      row.appendChild(button("Uložiť budík", function(){
+        if (!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time.value)) {ctx.toast("Zadaj platný čas");return;}
+        var parts=time.value.split(":"), cfg={enabled:enabled.checked,hour:Number(parts[0]),minute:Number(parts[1])};
+        if (N && N.setAlarmClock) {
+          var result=N.setAlarmClock(JSON.stringify(cfg));
+          if(result!=="OK"){ctx.toast(result);return;}
+        }
+        clockAlarm=cfg;publish("sys/alarm",cfg,true);box.remove();ctx.render();ctx.toast("Budík uložený");
+      }));
+      box.appendChild(row);document.body.appendChild(box);
     }
     function currentCamera(page) {
       var cameras = (page.camera || {}).cameras || [],
@@ -748,6 +781,7 @@
           (priority(doc) ? "" : " notification-banner"),
       );
       overlay.id = "notification-overlay";
+      overlay.dataset.level = ["info","success","warning","error"].indexOf(doc.level)>=0 ? doc.level : "info";
       overlay.setAttribute("role", "dialog");
       overlay.setAttribute("aria-label", doc.title || "Oznámenie");
       var close = button(
@@ -789,7 +823,8 @@
       notificationState(
         Object.assign({}, doc, { status: "shown", ts: Date.now() }),
       );
-      if (doc.sound)
+      if (doc.speak && N && N.speak) N.speak(String(doc.speak).slice(0,2000));
+      else if (doc.sound)
         playMedia({
           action: "play",
           url: httpUrl(doc.sound) || undefined,
@@ -1629,8 +1664,14 @@
       }
       if (data.hasProximity && data.proximity !== undefined) {
         var near = data.near === true;
-        if (near) {
-          if (screen.wakeOnProximity !== false) ctx.wake();
+        var max=Number(data.proximityMax), value=Number(data.proximity);
+        var wakeNear=near, motionNear=near;
+        if(max>0 && isFinite(value)) {
+          if((d.proximity || {}).on!==undefined)wakeNear=value<=max*Number(d.proximity.on)/100;
+          if((d.motion || {}).on!==undefined)motionNear=value<=max*Number(d.motion.on)/100;
+        }
+        if (wakeNear && screen.wakeOnProximity !== false) ctx.wake();
+        if (motionNear) {
           if ((d.motion || {}).enabled === true) {
             motion = true;
             publish(
@@ -1696,7 +1737,8 @@
               : "Home Assistant: " + (data.status || "spojenie zlyhalo"),
           );
         }
-      } else if (type === "sensors") sensorUpdate(data);
+      } else if (type === "speech" && data.error) ctx.toast(data.error);
+      else if (type === "sensors") sensorUpdate(data);
       else if (type === "media") {
         media = data;
         publish("sys/media", data, true);

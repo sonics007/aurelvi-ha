@@ -14,5 +14,162 @@
     "abort": {
       "single_instance_allowed": "Integrácia Aurelvi je už pridaná."
     }
+  },
+  "services": {
+    "push_config": {
+      "name": "Odoslať konfiguráciu",
+      "description": "Znovu odošle uložené stránky a stavy na panel.",
+      "fields": {
+        "panel_id": {
+          "name": "ID panela"
+        }
+      }
+    },
+    "wake": {
+      "name": "Prebudiť panel",
+      "fields": {
+        "panel_id": {
+          "name": "ID panela"
+        }
+      }
+    },
+    "page": {
+      "name": "Zobraziť stránku",
+      "fields": {
+        "panel_id": {
+          "name": "ID panela"
+        },
+        "id": {
+          "name": "ID stránky zo Studia"
+        }
+      }
+    },
+    "screen": {
+      "name": "Nastaviť displej",
+      "fields": {
+        "panel_id": {
+          "name": "ID panela"
+        },
+        "action": {
+          "name": "Akcia"
+        },
+        "brightness": {
+          "name": "Jas (0.05 až 1)"
+        }
+      }
+    },
+    "start_timer": {
+      "name": "Spustiť časovač vypnutia",
+      "description": "Časovač sa ukladá v HA a obnoví sa po jeho reštarte.",
+      "fields": {
+        "panel_id": {
+          "name": "ID panela"
+        },
+        "entity_id": {
+          "name": "Zariadenie na vypnutie"
+        },
+        "seconds": {
+          "name": "Počet sekúnd"
+        }
+      }
+    },
+    "cancel_timer": {
+      "name": "Zrušiť časovač",
+      "fields": {
+        "panel_id": {
+          "name": "ID panela"
+        }
+      }
+    },
+    "notify": {
+      "name": "Oznámenie na panel",
+      "fields": {
+        "panel_id": {
+          "name": "ID panela"
+        },
+        "title": {
+          "name": "Nadpis"
+        },
+        "message": {
+          "name": "Text oznámenia"
+        },
+        "priority": {
+          "name": "Priorita"
+        },
+        "timeoutS": {
+          "name": "Čas zobrazenia v sekundách (0 = bez limitu)"
+        },
+        "sound": {
+          "name": "Zvuk alebo HTTPS/HTTP adresa",
+          "description": "ding, alarm_beep, alarm, alarmo, siren, alebo URL zvuku."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "version": {
+        "name": "Verzia"
+      },
+      "rssi": {
+        "name": "Wi-Fi signál"
+      },
+      "freeMemMB": {
+        "name": "Voľná pamäť"
+      },
+      "uptimeS": {
+        "name": "Čas od štartu"
+      },
+      "timer": {
+        "name": "Časovač"
+      },
+      "illuminance": {
+        "name": "Osvetlenosť"
+      }
+    },
+    "binary_sensor": {
+      "online": {
+        "name": "Pripojenie"
+      },
+      "motion": {
+        "name": "Pohyb"
+      }
+    },
+    "button": {
+      "wake": {
+        "name": "Prebudiť"
+      },
+      "info": {
+        "name": "Obnoviť informácie"
+      },
+      "cancel_timer": {
+        "name": "Zrušiť časovač"
+      }
+    },
+    "number": {
+      "brightness": {
+        "name": "Jas displeja"
+      }
+    },
+    "switch": {
+      "screen": {
+        "name": "Obrazovka"
+      }
+    },
+    "media_player": {
+      "speaker": {
+        "name": "Reproduktor"
+      }
+    },
+    "update": {
+      "update": {
+        "name": "Aktualizácia aplikácie"
+      }
+    },
+    "notify": {
+      "notification": {
+        "name": "Oznámenie"
+      }
+    }
   }
 }

@@ -18,6 +18,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_track_time_interval, async_call_later
 from homeassistant.helpers.network import get_url
 from homeassistant.helpers.storage import Store
+from .panel_settings import public_settings, public_device, normalize_panel_config
 from .const import DOMAIN, PREFIX, SIGNAL, VERSION
 from .models import actions, default_config, entities, entity_id, entity_key, mirror, number, panel_id, validate_config, validate_device
 
@@ -39,7 +40,9 @@ class Hub:
         self.unsubs.append(async_track_time_interval(self.hass,self.check_releases,timedelta(hours=6)))
         for pid,p in self.panels.items():
             self.status[pid]={'online':False,'info':{},'sys':{}}
-            if p.get('paired'):await self.push(pid)
+            if p.get('paired'):
+                await self.publish(pid,'cmd/info',{})
+                if p.get('configSource')!='pending':await self.push(pid)
         for key in list(self.timers):self.schedule_timer(key)
         if self.settings.get('githubRepo'):await self.check_releases()
     async def close(self):
@@ -77,15 +80,22 @@ class Hub:
             status['lastSeen']=int(time.time()*1000)
             if suffix=='avail':
                 status['online']=msg.payload=='online';self.changed()
-                if status['online'] and self.panels[pid].get('paired'):await self.push(pid)
+                if status['online']:
+                    await self.publish(pid,'cmd/info',{})
+                    if self.panels[pid].get('paired') and self.panels[pid].get('configSource')!='pending':await self.push(pid)
                 return
             data=json.loads(msg.payload)
             if not isinstance(data,dict):return
             if suffix=='sys/info':
                 status['info']={k:data[k] for k in ['model','version','ip','rssi','uptimeS','freeMemMB','android','sensors','package'] if k in data}
                 if self.panels[pid].get('paired'):self.register_device(pid)
+            elif suffix=='sys/settings':
+                await self.import_panel_settings(pid,data)
             elif suffix.startswith('sys/'):
                 name=suffix[4:]
+                if name=='notification' and not msg.retain and self.panels[pid].get('paired') and data.get('status') in {'shown','dismissed','expired','action'}:
+                    self.hass.bus.async_fire('aurelvi_notification',{'panel_id':pid,'id':str(data.get('id',''))[:128],'status':data['status'],'action_id':str(data.get('actionId',''))[:128]})
+
                 if name=='screenshot':
                     try:
                         if len(data.get('data',''))>1500000:return
@@ -116,7 +126,15 @@ class Hub:
             p['name']=str(name or pid)[:80];p['paired']=True
             self.status.setdefault(pid,{'online':False,'info':{},'sys':{}})
             await self.persist()
-        self.register_device(pid);await self.push(pid);self.changed()
+        self.register_device(pid)
+        local=p.get('localSettings',{})
+        if not self.settings.get('githubRepo') and not self.settings.get('configured') and local.get('githubRepo'):
+            self.settings.update({k:local[k] for k in ['githubRepo','githubAsset','haUrl'] if k in local});await self.persist();await self.check_releases()
+        if not p.get('revision') and not p.get('configSource'):
+            p['configSource']='pending';await self.persist()
+        await self.publish(pid,'cmd/info',{})
+        if p.get('configSource')!='pending':await self.push(pid)
+        self.changed()
     async def rename(self,pid,name):
         panel_id(pid)
         if not isinstance(name,str) or not name.strip() or len(name.strip())>80:
@@ -135,7 +153,7 @@ class Hub:
             p=self.panels[pid]
             if p['revision']!=expected:raise ValueError('Konfiguráciu medzitým zmenil iný editor. Obnov stránku.')
             p['history']=(p.get('history',[])+[{'config':p['config'],'device':p['device']}])[-5:]
-            p['config']=config;p['device']=copy.deepcopy(device);p['revision']+=1
+            p['config']=config;p['device']=copy.deepcopy(device);p['revision']+=1;p['configSource']='studio'
             await self.persist()
         await self.push(pid);self.changed();return p['revision']
     async def restore(self,pid,expected):
@@ -147,11 +165,37 @@ class Hub:
         p=self.panels[pid]
         if not p.get('paired'):return
         await self.publish(pid,'config/panels',p['config'],True)
-        await self.publish(pid,'config/device',p['device'],True)
+        device=copy.deepcopy(p['device'])
+        app=public_settings(self.settings)
+        if app:device['appSettings']=app
+        await self.publish(pid,'config/device',device,True)
         for entity in entities(p['config']):await self.publish_state(pid,entity)
         for page in p['config']['pages']:
             if page['type']=='weather':self.weather_at.pop(pid+':'+page.get('weather',{}).get('entity',''),None);await self.weather(pid,page)
         await self.publish_timer(pid)
+    async def import_panel_settings(self,pid,data):
+        """Adopt the initial panel snapshot without replacing later Studio edits."""
+        if len(json.dumps(data))>262144:raise ValueError('Panel snapshot is too large')
+        p=self.panels[pid]
+        safe=public_settings(data.get('settings'))
+        p['localSettings']=safe
+        initial=not p.get('revision') and p.get('configSource') in {None,'pending'}
+        if initial:
+            if data.get('config') is not None:
+                config=normalize_panel_config(data['config'])
+                p['config']=config
+                p['device']=public_device(data.get('device',{}),len(config['pages']))
+            p['configSource']='panel'
+        # Global update configuration is seeded once. Later panels cannot overwrite it.
+        seeded=False
+        if p.get('paired') and not self.settings.get('githubRepo') and safe.get('githubRepo') and not self.settings.get('configured'):
+            self.settings.update({k:safe[k] for k in ['githubRepo','githubAsset','haUrl'] if k in safe})
+            seeded=True
+        await self.persist()
+        if p.get('paired'):
+            if seeded:await self.check_releases()
+            if initial or seeded:await self.push(pid)
+        self.changed()
     async def publish_state(self,pid,entity):
         state=self.hass.states.get(entity);doc=mirror(state)
         if entity.startswith('camera.') and state:
@@ -170,6 +214,7 @@ class Hub:
             if p.get('paired') and entity in entities(p['config']):self.hass.async_create_task(self.publish_state(pid,entity))
     async def execute(self,spec):
         for action in actions(spec):
+            if action.get('noop') is True:continue
             domain,service=action['service'].split('.')
             data=copy.deepcopy(action.get('data',{}));target=action.get('target',{})
             if action.get('entity_id'):target=dict(target,entity_id=action['entity_id'])
@@ -235,10 +280,18 @@ class Hub:
             segment=next((s for s in tile.get('buttons',[]) if bid==tile['id']+'.'+s['id']),None)
             if not segment:raise ValueError('Neznámy segment')
             binding=segment.get('bindings',{}).get('press:'+str(event.get('state')),segment.get('bindings',{}).get(action));entity=segment.get('entity') or entity
+        elif tile.get('type')=='rocker' and entity and entity.startswith('cover.'):
+            if action not in {'open','close','stop'}:raise ValueError('Invalid cover action')
+            await self.call('cover.'+{'open':'open_cover','close':'close_cover','stop':'stop_cover'}[action],entity);return
         elif tile.get('type')=='rocker':
             index=int(bid.rsplit('.',1)[1]);rocker=tile.get('rockers',[])[index];entity=rocker.get('entity')
         else:binding=tile.get('bindings',{}).get(action+':'+str(event.get('value')),tile.get('bindings',{}).get(action))
-        if binding:await self.execute(binding)
+        if binding:
+            binding=copy.deepcopy(binding)
+            for action in binding if isinstance(binding,list) else [binding]:
+                if action.get('dynamic')=='brightness_pct':
+                    action.setdefault('data',{})['brightness_pct']=round(number(event.get('value'),0,1)*100)
+            await self.execute(binding)
         elif action=='dim' and entity:await self.call('light.turn_on',entity,{'brightness_pct':round(number(event.get('value'),0,1)*100)})
         elif action=='state' and entity and entity.startswith(('select.','input_select.')):await self.call(entity.split('.')[0]+'.select_option',entity,{'option':str(event.get('value'))})
         elif action=='toggle' and entity:await self.call('homeassistant.toggle',entity)
