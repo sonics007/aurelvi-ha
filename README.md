@@ -1,11 +1,14 @@
-# Aurelvi — Home Assistant integration 0.3.1
+# Aurelvi — Home Assistant integration
 
 Verejná integrácia a Aurelvi Studio pre nástenné Android panely. APK a jeho zdroje sú samostatné projekty.
 
 ## Inštalácia
 
-1. Stiahni tento repozitár (Code → Download ZIP) a rozbaľ ho.
-2. Skopíruj `custom_components/aurelvi` do `/config/custom_components/aurelvi`.
+1. Z [najnovšieho vydania](https://github.com/sonics007/aurelvi-ha/releases/latest) stiahni `aurelvi.zip` a rozbaľ ho.
+2. Skopíruj priečinok `aurelvi` do `/config/custom_components/aurelvi`. Názov priečinka zostáva rovnaký pri každej verzii; číslo verzie patrí do `manifest.json` a označenia vydania.
+
+Pri stiahnutí cez Code → Download ZIP kopíruj vnútorný priečinok `custom_components/aurelvi`, nie celý obalový priečinok repozitára.
+
 3. Reštartuj Home Assistant.
 4. Nastavenia → Zariadenia a služby → Pridať integráciu → Aurelvi.
 5. Otvor Aurelvi Studio v bočnom paneli a nastav entity a stránky.
