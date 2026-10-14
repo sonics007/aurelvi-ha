@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.4
+
+- Rebuild Studio as a page sidebar, central preview and right inspector; show the loaded Studio version.
+- Make Build room prominent and expose all 32 skins as selectable preview cards.
+- Add five procedural wallpapers, no-wallpaper mode, local image upload and wallpaper dimming.
+- Add real panel screenshot refresh beside the page list.
+- Ship APK alarm tone controls in the preview: four choices, audition, volume and optional 30-second fade-in.
+- Restore complete integration manifest metadata.
+
 ## 0.3.2
 
 - Add bundled HA brand images and English/Slovak setup, entities, services and Studio.

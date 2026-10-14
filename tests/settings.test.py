@@ -45,4 +45,8 @@ class Settings(unittest.IsolatedAsyncioTestCase):
  async def test_legacy_none_does_not_fall_back_to_toggle(self):
   doc=self.snapshot();doc['config']={'pages':[{'id':'home','type':'grid','grid':{'rows':1,'columns':1},'tiles':[{'id':'lamp','type':'button','entity':'light.room','row':1,'col':1,'bindings':{'press':{'action':'none'}}}]}]}
   await self.hub.import_panel_settings('test',doc);await self.hub.grid_event('test',self.hub.panels['test']['config']['pages'][0],{'button':'lamp','action':'toggle'});self.assertFalse(self.hass.calls)
+ def test_wallpaper_rejects_urls_and_accepts_inline_image(self):
+  self.assertEqual(public_device({'wallpaper':{'id':'custom','image':'data:image/jpeg;base64,YWJj','dim':20}},1)['wallpaper']['id'],'custom')
+  for image in ['javascript:alert(1)','https://host/image.png','data:image/svg+xml;base64,YWJj']:
+   with self.assertRaises(ValueError):public_device({'wallpaper':{'id':'custom','image':image}},1)
 if __name__=='__main__':unittest.main(verbosity=2)

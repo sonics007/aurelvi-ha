@@ -1,4 +1,4 @@
-# Feature review for 0.3.2
+# Feature review for 0.3.4
 
 Reviewed the public [DomoDreams integration](https://github.com/domodreams/home-assistant-nspanel-pro), [feature overview](https://nspanel.domodreams.it/features.html), [gallery](https://nspanel.domodreams.it/gallery.html), and the supplied Studio screenshot on 2026-10-14.
 
@@ -20,7 +20,9 @@ Reviewed the public [DomoDreams integration](https://github.com/domodreams/home-
 | Camera | MJPEG page and bound PTZ actions; no dedicated HA camera entity for the panel screen |
 | Music Assistant | Native media controls and player integration; Sendspin remains experimental |
 | Siren | APK alarm sound support; no dedicated HA siren entity or verified audio-priority parity |
-| Visual skins | 32 original palettes and CSS materials; not the proprietary DomoDreams bitmap skins |
+| Visual skins | 32 original palettes and CSS materials; visible selection gallery |
+| Wallpapers | Five procedural backgrounds plus custom image upload and dimming |
+| Alarm tones | Four choices, preview, volume and fade-in in APK 0.3.4 |
 | Licensing/unlock UI | Not applicable to Aurelvi |
 
 This is a scoped comparison, not a claim of complete feature parity. DomoDreams integration code is MIT-licensed; its APK, branding and screenshots have separate proprietary terms. This release uses Aurelvi's own rendering and assets. Preview and protocol tests do not replace a test on an actual NSPanel Pro and Home Assistant installation.

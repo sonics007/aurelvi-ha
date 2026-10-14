@@ -369,3 +369,13 @@ body.aurelvi-ui .tile .glyph {width:var(--icon-size,40px);height:var(--icon-size
 .notification-overlay[data-level="info"] {border-top:6px solid #639dde;}
 body.screen-blanked,body.screen-blanked main {background:#000!important;}
 body.screen-blanked header {visibility:hidden;}
+
+#clock-alarm-editor {overflow-y:auto;justify-content:flex-start;align-items:stretch;gap:7px;padding:12px 18px;}
+#clock-alarm-editor h1 {font-size:23px;margin:0;}
+#clock-alarm-editor input[type=time] {font-size:30px;padding:7px;}
+#clock-alarm-editor .alarm-enabled {font-size:15px;gap:10px;}
+#clock-alarm-editor input[type=checkbox] {width:22px;height:22px;}
+#clock-alarm-editor select {width:100%;min-height:36px;padding:6px;background:var(--surface-hi);color:var(--ink);border:1px solid var(--surface-border);border-radius:9px;}
+#clock-alarm-editor input[type=range] {width:100%;}
+#clock-alarm-editor label {font-size:14px;}
+#clock-alarm-editor .row button {min-height:40px;font-size:14px;padding:7px;}

@@ -547,7 +547,7 @@
     var doc = {
       v: 1,
       model: "NSPanel Pro / Aurelvi",
-      version: "Aurelvi 0.3.2",
+      version: "Aurelvi 0.3.4",
       deviceId: settings.deviceId,
       ts: Date.now(),
     };
@@ -579,7 +579,7 @@
       client.publish(client.prefix + "/sys/info", info(), true);
       if (settings.namespace === "aurelvi") {
         var device = {};
-        ["theme", "defaultPage", "inactivityTimeout", "screensaver", "nightMode", "autoBrightness", "motion", "sysInfoIntervalS", "clock", "clockFace", "clockFormat24h", "clockTheme", "clockAccent", "clockLanguage", "clockDateSize", "screensaverTheme", "proximity", "labelSize", "labelOffsetY", "iconSize"].forEach(function (key) {
+        ["theme", "defaultPage", "inactivityTimeout", "screensaver", "nightMode", "autoBrightness", "motion", "sysInfoIntervalS", "clock", "clockFace", "clockFormat24h", "clockTheme", "wallpaper", "clockAccent", "clockLanguage", "clockDateSize", "screensaverTheme", "proximity", "labelSize", "labelOffsetY", "iconSize"].forEach(function (key) {
           if (deviceCfg[key] !== undefined) device[key] = deviceCfg[key];
         });
         client.publish(client.prefix + "/sys/settings", {v: 1, settings: safeAppSettings(), config: config, device: device}, false);

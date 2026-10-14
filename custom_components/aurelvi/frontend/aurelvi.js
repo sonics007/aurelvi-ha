@@ -63,6 +63,11 @@
       document.body.style.setProperty("--label-size",Math.max(8,Math.min(32,Number(d.labelSize)||14))+"px");
       document.body.style.setProperty("--label-offset",Math.max(-40,Math.min(40,Number(d.labelOffsetY)||0))+"px");
       document.body.style.setProperty("--icon-size",Math.max(16,Math.min(96,Number(d.iconSize)||40))+"px");
+      var wallpaper=d.wallpaper || {}, backgrounds={morning:"linear-gradient(150deg,#598ac1,#e6bdd1 60%,#ffe1b0)",forest:"radial-gradient(ellipse at 20% 0,#679f83,transparent 60%),linear-gradient(135deg,#173a38,#091c22)",sea:"linear-gradient(155deg,#72d3dc,#18779f 55%,#102e5e)",sunset:"linear-gradient(145deg,#e9b079,#bd6b8f 50%,#413563)",graphite:"repeating-linear-gradient(135deg,#29323a 0 3px,#252b34 3px 6px)"};
+      var wall=backgrounds[wallpaper.id];
+      if(wallpaper.id==="custom" && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/.test(wallpaper.image || ""))wall='url("'+wallpaper.image+'")';
+      if(wall){var opacity=Math.max(0,Math.min(.8,Number(wallpaper.dim || 0)/100));document.body.style.backgroundImage="linear-gradient(rgba(0,0,0,"+opacity+"),rgba(0,0,0,"+opacity+")),"+wall;document.body.style.backgroundSize="cover";document.body.style.backgroundPosition="center";}
+      else{document.body.style.removeProperty("background-image");document.body.style.removeProperty("background-size");document.body.style.removeProperty("background-position");}
       document.body.dataset.skin = name;
       document.body.dataset.material = skin ? skin.material : "soft";
       document.body.classList.toggle("aurelvi-night", skin ? skin.dark : name === "night");

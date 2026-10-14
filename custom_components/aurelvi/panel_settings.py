@@ -35,7 +35,7 @@ def public_device(raw, page_count):
     from .models import validate_device
     if not isinstance(raw, dict):
         return {}
-    keys = {'theme','defaultPage','inactivityTimeout','screensaver','nightMode','autoBrightness','motion','sysInfoIntervalS','clock','clockFace','clockFormat24h','clockTheme','clockAccent','clockLanguage','clockDateSize','screensaverTheme','proximity','labelSize','labelOffsetY','iconSize'}
+    keys = {'wallpaper','theme','defaultPage','inactivityTimeout','screensaver','nightMode','autoBrightness','motion','sysInfoIntervalS','clock','clockFace','clockFormat24h','clockTheme','clockAccent','clockLanguage','clockDateSize','screensaverTheme','proximity','labelSize','labelOffsetY','iconSize'}
     # Nested device values may contain arbitrary keys; drop sensitive names recursively.
     def clean(value):
         if isinstance(value, dict):

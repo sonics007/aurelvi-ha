@@ -146,7 +146,7 @@ class Hub:
         self.changed()
     async def save(self,pid,config,device,expected):
         config=validate_config(config);device=validate_device(device,len(config['pages']))
-        if not isinstance(device,dict) or len(json.dumps(device))>16384:raise ValueError('Neplatné nastavenia panela')
+        if not isinstance(device,dict) or len(json.dumps(device))>262144:raise ValueError('Neplatné nastavenia panela')
         # Credentials belong on the panel, never in page configuration or backups.
         if any(k in device for k in ['haToken','maToken','password','username']):raise ValueError('Heslá nepatria do konfigurácie stránok')
         async with self.lock:
@@ -175,7 +175,7 @@ class Hub:
         await self.publish_timer(pid)
     async def import_panel_settings(self,pid,data):
         """Adopt the initial panel snapshot without replacing later Studio edits."""
-        if len(json.dumps(data))>262144:raise ValueError('Panel snapshot is too large')
+        if len(json.dumps(data))>524288:raise ValueError('Panel snapshot is too large')
         p=self.panels[pid]
         safe=public_settings(data.get('settings'))
         p['localSettings']=safe

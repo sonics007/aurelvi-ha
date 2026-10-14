@@ -128,8 +128,16 @@ def fan_page(fan='fan.stropny_ventilator',light='light.stropne_svetlo',count=6):
 def default_config():return {'v':1,'theme':'cream','pages':[{'id':'home','title':'Domov','type':'grid','grid':{'columns':2,'rows':2},'tiles':[]},{'id':'clock','title':'Hodiny','type':'clock'}]}
 
 def validate_device(device,page_count):
-    if not isinstance(device,dict) or len(json.dumps(device))>16384:raise ValueError('Neplatné nastavenie displeja')
+    if not isinstance(device,dict) or len(json.dumps(device))>262144:raise ValueError('Neplatné nastavenie displeja')
     d=copy.deepcopy(device)
+    if 'wallpaper' in d:
+        wall=d['wallpaper']
+        if not isinstance(wall,dict) or wall.get('id') not in {'none','morning','forest','sea','sunset','graphite','custom'}:raise ValueError('Invalid wallpaper')
+        if 'dim' in wall:number(wall['dim'],0,80)
+        if wall.get('id')=='custom':
+            image=wall.get('image','')
+            if not isinstance(image,str) or len(image)>180000 or not re.fullmatch(r'data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*',image):raise ValueError('Invalid wallpaper image')
+        elif 'image' in wall:wall.pop('image')
     for key,low,high in [('labelSize',8,32),('labelOffsetY',-40,40),('iconSize',16,96)]:
         if key in d:number(d[key],low,high)
     if 'defaultPage' in d:number(d['defaultPage'],0,page_count-1)

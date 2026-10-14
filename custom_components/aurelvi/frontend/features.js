@@ -472,7 +472,13 @@
         ),
       );
     }
+    var alarmPreviewAudio=null;
+    function stopAlarmPreview(){
+      if(N && N.stopAlarmPreview)N.stopAlarmPreview();
+      if(alarmPreviewAudio){alarmPreviewAudio.pause();alarmPreviewAudio=null;}
+    }
     function openAlarmEditor() {
+      stopAlarmPreview();
       var old = document.getElementById("clock-alarm-editor");
       if (old) old.remove();
       var box = node("section", "feature-overlay");
@@ -487,16 +493,26 @@
       var label = node("label", "alarm-enabled"), enabled = node("input");
       enabled.type = "checkbox";enabled.checked = !!clockAlarm.enabled;enabled.id="alarm-editor-enabled";
       label.appendChild(enabled);label.appendChild(node("span", "", "Budík zapnutý"));box.appendChild(label);
+      var toneLabel=node("label","", "Tón budíka"),tone=node("select","feature-input");tone.id="alarm-editor-tone";
+      [["birds","Ranné vtáčiky"],["dawn","Pokojné ráno"],["chimes","Jemné zvončeky"],["classic","Klasické pípanie"]].forEach(function(item){var option=node("option","",item[1]);option.value=item[0];tone.appendChild(option);});
+      tone.value=clockAlarm.tone || "classic";toneLabel.appendChild(tone);box.appendChild(toneLabel);
+      var volumeLabel=node("label","", "Hlasitosť tónu"),volume=node("input");volume.type="range";volume.min="0";volume.max="100";volume.id="alarm-editor-volume";volume.value=clockAlarm.volume===undefined?80:clockAlarm.volume;
+      var volumeValue=node("span","",volume.value+" %");volumeLabel.appendChild(volumeValue);volumeLabel.appendChild(volume);volume.addEventListener("input",function(){volumeValue.textContent=volume.value+" %";});box.appendChild(volumeLabel);
+      var fadeLabel=node("label","alarm-enabled"),fade=node("input");fade.type="checkbox";fade.id="alarm-editor-fade";fade.checked=!!clockAlarm.fadeIn;fadeLabel.appendChild(fade);fadeLabel.appendChild(node("span","","Postupné zosilnenie (30 s)"));box.appendChild(fadeLabel);
+      var previewRow=node("div","row");
+      previewRow.appendChild(button("Vypočuť tón",function(){stopAlarmPreview();if(N && N.previewAlarm)N.previewAlarm(tone.value,Number(volume.value));else{var file={birds:"alarm-birds.wav",dawn:"alarm-dawn.wav",chimes:"alarm-chimes.wav",classic:"alarm_beep.wav"}[tone.value];alarmPreviewAudio=new Audio("sounds/"+file);alarmPreviewAudio.volume=Number(volume.value)/100;var result=alarmPreviewAudio.play();if(result && result.catch)result.catch(function(){ctx.toast("Ukážku sa nepodarilo prehrať");});}}));
+      previewRow.appendChild(button("Zastaviť ukážku",stopAlarmPreview));box.appendChild(previewRow);
+      tone.addEventListener("change",stopAlarmPreview);
       var row = node("div", "row");
-      row.appendChild(button("Späť", function(){box.remove();}));
+      row.appendChild(button("Späť", function(){stopAlarmPreview();box.remove();}));
       row.appendChild(button("Uložiť budík", function(){
         if (!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time.value)) {ctx.toast("Zadaj platný čas");return;}
-        var parts=time.value.split(":"), cfg={enabled:enabled.checked,hour:Number(parts[0]),minute:Number(parts[1])};
+        var parts=time.value.split(":"), cfg={enabled:enabled.checked,hour:Number(parts[0]),minute:Number(parts[1]),tone:tone.value,volume:Number(volume.value),fadeIn:fade.checked};
         if (N && N.setAlarmClock) {
           var result=N.setAlarmClock(JSON.stringify(cfg));
           if(result!=="OK"){ctx.toast(result);return;}
         }
-        clockAlarm=cfg;publish("sys/alarm",cfg,true);box.remove();ctx.render();ctx.toast("Budík uložený");
+        stopAlarmPreview();clockAlarm=cfg;publish("sys/alarm",cfg,true);box.remove();ctx.render();ctx.toast("Budík uložený");
       }));
       box.appendChild(row);document.body.appendChild(box);
     }
@@ -1486,11 +1502,11 @@
       group.appendChild(
         button("Uložiť budík", function () {
           var time = ctx.$("clock-alarm-time").value.split(":"),
-            cfg = {
+            cfg = Object.assign({},clockAlarm,{
               enabled: ctx.$("clock-alarm-enabled").checked,
               hour: Number(time[0] || 7),
               minute: Number(time[1] || 0),
-            };
+            });
           clockAlarm = cfg;
           if (N && N.setAlarmClock) {
             var result = N.setAlarmClock(JSON.stringify(cfg));
@@ -1500,6 +1516,7 @@
           ctx.toast("Budík uložený");
         }),
       );
+      group.appendChild(button("Tón a hlasitosť budíka",openAlarmEditor));
       if (N && N.openDateSettings)
         group.appendChild(
           button("Systémový dátum a čas", function () {
@@ -1981,6 +1998,7 @@
       },
       nativeEvent: nativeEvent,
       close: function () {
+        stopAlarmPreview();
         clearInterval(githubTimer);
         stopCamera();
         closeMA();

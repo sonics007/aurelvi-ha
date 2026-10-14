@@ -16,6 +16,14 @@ MQTT must already be configured in Home Assistant. Connect the panel to the same
 
 HACS: add `https://github.com/sonics007/aurelvi-ha` as a custom repository of type **Integration**. This is not a listing in the default HACS catalog.
 
+## Version 0.3.4
+
+Studio now has a left page list, central preview and right inspector. The **Build room** helper is shown prominently. **Appearance and wallpaper** includes 32 skin cards, five procedural backgrounds, no-wallpaper mode and a custom image upload. Images are resized in your browser and stored in your HA panel configuration, not uploaded to GitHub.
+
+After updating the integration, restart HA and open **Aurelvi Studio** from the sidebar. Check **Studio 0.3.4** in its header. If the old editor remains, hard-refresh the browser.
+
+APK 0.3.4 adds four alarm tones, preview, volume and optional fade-in. Its bird tone is an original Aurelvi recording generated in code, not an Apple audio asset.
+
 ## Version 0.3.2
 
 - Local integration icons and light/dark logos, included directly in the integration.
