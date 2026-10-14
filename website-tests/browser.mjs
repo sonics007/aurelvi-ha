@@ -22,6 +22,7 @@ try{
  await page.getByRole('button',{name:'Turn demo fan off'}).click();
  assert.equal(await page.locator('[data-speed].active').count(),0);
  await page.getByRole('button',{name:'Cream',exact:true}).click();
+ await page.locator('.studio-image img').evaluate(image=>image.decode());
  await page.screenshot({path:'website-test-results/home-desktop.png',fullPage:true});
  await page.goto('http://127.0.0.1:8774/gallery.html');
  assert.equal(await page.locator('.skin-choice').count(),32);
