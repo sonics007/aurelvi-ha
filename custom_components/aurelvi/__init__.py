@@ -48,7 +48,10 @@ async def ws_command(hass,connection,msg):
     action=msg['action'];pid=msg.get('panel_id');data=msg['data']
     try:
         if pid:panel_id(pid)
-        if action=='list':result=hub.snapshot()
+        if action=='adb':
+            from .adb import async_command
+            result=await async_command(hub,data)
+        elif action=='list':result=hub.snapshot()
         elif action=='add':await hub.add(pid,data.get('name'));result=hub.snapshot()
         elif action=='rename':await hub.rename(pid,data.get('name'));result=True
         elif action=='diagnostics':

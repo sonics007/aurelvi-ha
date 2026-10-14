@@ -12,3 +12,9 @@ APK 0.3.2 / versionCode 6 compiled with pinned official Android tools. Signature
 Bridge 35, lifecycle 6, health 10, settings/migration 13, Studio 20, APK UI 18, general feature UI 18, and alarm-tone policy 10 checks passed (130 checks). Rebuilt APK and verified unchanged signing certificate and byte-identical packaged source/audio assets.
 
 Chromium browser QA rendered the new three-column Studio workspace, opened the room wizard, uploaded a custom image and verified it appeared in the iframe preview. No browser script errors were reported. The visual screenshot was reviewed. Native playback/fade-in and hardware volume remain to be verified on an actual panel.
+
+## 0.3.5 validation — 2026-10-14
+
+11 ADB tests cover private key creation/persistence, local endpoint validation, text injection rejection, transport closure, alternate launcher resolution, successful and failed install, checksum failure, unknown operations and concurrency. DOM tests cover setup before pairing, busy installation, changed targets, failure recovery and Slovak localization. Existing bridge 35, lifecycle 6, health 10, settings 13 and Studio 20 checks pass. ADB uses the real adb-shell 0.4.4 key generator/signer with a fake device transport. Live authorization, Android package installation and OEM launcher commands require a real panel; no access to the user's network is available.
+
+Chromium visual QA opened the ADB dialog before first pairing, entered a panel IP, completed a mocked connection and rendered the enabled controls without script errors. Screenshot reviewed at desktop size.

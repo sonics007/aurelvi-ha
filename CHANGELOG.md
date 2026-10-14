@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.5
+
+- Add administrator-only direct TCP ADB setup/update to the Studio header and Manage tab.
+- Install the latest stable official Aurelvi APK with size and SHA-256 validation, preserve app data and launch after installation.
+- Set Aurelvi as Home or restore an installed alternate Android launcher.
+- Add wake, sleep/power, navigation, notification shade, memory, reboot and safe basic text input.
+- Persist the private RSA key in HA storage, serialize operations and close transports after each action.
+- English default and Slovak UI; no APK update required.
+
 ## 0.3.4
 
 - Rebuild Studio as a page sidebar, central preview and right inspector; show the loaded Studio version.

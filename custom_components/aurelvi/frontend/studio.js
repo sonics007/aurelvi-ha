@@ -217,7 +217,7 @@
       let r = this.shadowRoot;
       r.textContent = "";
       let css = make("style");
-      css.textContent = style + "\n/* Studio 0.3.4: pages / preview / inspector workspace. */\n:host{background:#f1f3f5;--line:#dce2e4;--muted:#75828a;color:#293c43}\n.top{background:#f7f9fa;padding:12px 28px;height:72px}.top .sub{display:none}.top select{min-width:190px;max-width:300px;border:1px solid var(--line);background:white;padding:10px;border-radius:12px;font-size:13px;color:inherit}\n.layout{display:block;height:calc(100% - 72px);overflow:auto}.layout>aside{display:none}.content{max-width:1480px;margin:auto;padding:22px 28px;overflow:visible}.toolbar{margin-bottom:14px}.toolbar h1{font-size:24px}.tabs{border-bottom:1px solid var(--line);border-radius:0;padding-bottom:6px}.tabs button.active{background:#e1efea}\n.workspace{display:grid;grid-template-columns:185px minmax(0,1fr);gap:18px;align-items:start}.workspace>.pages{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px;gap:8px;position:sticky;top:0}.workspace>.pages .page{text-align:left;width:100%;min-height:48px}.workspace>.editor{grid-template-columns:minmax(280px,480px) minmax(280px,1fr);gap:20px}.workspace>.editor>.preview-wrap{grid-column:1;grid-row:1;position:sticky;top:0}.workspace>.editor>.inspector{grid-column:2;min-width:0}\n.card{background:#fff;border-radius:15px;padding:18px}.preview-shell{border-radius:30px;padding:14px;background:linear-gradient(140deg,#31383c,#171c20);box-shadow:0 18px 30px #1a252b24}.preview-shell iframe{border-radius:18px}.studio-hero{background:linear-gradient(120deg,#e1eee9,#f9fbfa);border:1px solid #c6dcd0;border-radius:15px;padding:18px 20px;display:flex;gap:20px;align-items:center;margin-bottom:18px}.studio-hero h2{font-size:18px;margin:0 0 5px}.studio-hero p{font-size:13px;color:#657a70;margin:0;line-height:1.5}.studio-hero button{white-space:nowrap}\n.theme-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.theme-swatch{min-height:64px;border:2px solid transparent;border-radius:10px;padding:7px;text-align:left;font-size:10px;cursor:pointer;box-shadow:inset 0 0 0 1px #0001}.theme-swatch.selected{outline:2px solid var(--green);outline-offset:1px}.theme-swatch i{display:block;border-radius:5px;height:18px;width:65%;margin-bottom:4px;box-shadow:1px 2px 3px #0003}.wallpaper-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.wallpaper-swatch{height:65px;border:2px solid transparent;border-radius:10px;font-size:10px;color:white;text-shadow:0 1px 3px #000b;cursor:pointer}.wallpaper-swatch.selected{outline:2px solid var(--green)}.device-grid{display:grid;grid-template-columns:repeat(3,minmax(240px,1fr));gap:16px;align-items:start}.device-grid .card{margin-bottom:0}.wallpaper-thumb{width:100%;max-height:140px;object-fit:cover;border-radius:10px;margin-top:8px}.panel-screenshot{width:100%;border-radius:10px;background:#111;min-height:120px;object-fit:contain}.version-pill{font-size:11px;color:#58766b}\n@media(max-width:1150px){.workspace{grid-template-columns:155px 1fr}.workspace>.editor{grid-template-columns:1fr}.workspace>.editor>.preview-wrap{position:static;max-width:430px;grid-column:1}.workspace>.editor>.inspector{grid-column:1;grid-row:2}.device-grid{grid-template-columns:repeat(2,minmax(230px,1fr))}}\n@media(max-width:700px){.top{padding:10px;height:auto;flex-wrap:wrap}.top select{min-width:120px;max-width:190px}.content{padding:14px}.workspace{display:block}.workspace>.pages{position:static;display:flex;flex-direction:row;overflow:auto;margin-bottom:14px}.workspace>.pages .page{min-width:110px}.device-grid{display:block}.device-grid .card{margin-bottom:14px}.studio-hero{display:block}.studio-hero button{margin-top:12px}.theme-grid{grid-template-columns:repeat(4,1fr)}}\n";
+      css.textContent = style + "\n/* Studio 0.3.5: pages / preview / inspector workspace. */\n:host{background:#f1f3f5;--line:#dce2e4;--muted:#75828a;color:#293c43}\n.top{background:#f7f9fa;padding:12px 28px;height:72px}.top .sub{display:none}.top select{min-width:190px;max-width:300px;border:1px solid var(--line);background:white;padding:10px;border-radius:12px;font-size:13px;color:inherit}\n.layout{display:block;height:calc(100% - 72px);overflow:auto}.layout>aside{display:none}.content{max-width:1480px;margin:auto;padding:22px 28px;overflow:visible}.toolbar{margin-bottom:14px}.toolbar h1{font-size:24px}.tabs{border-bottom:1px solid var(--line);border-radius:0;padding-bottom:6px}.tabs button.active{background:#e1efea}\n.workspace{display:grid;grid-template-columns:185px minmax(0,1fr);gap:18px;align-items:start}.workspace>.pages{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px;gap:8px;position:sticky;top:0}.workspace>.pages .page{text-align:left;width:100%;min-height:48px}.workspace>.editor{grid-template-columns:minmax(280px,480px) minmax(280px,1fr);gap:20px}.workspace>.editor>.preview-wrap{grid-column:1;grid-row:1;position:sticky;top:0}.workspace>.editor>.inspector{grid-column:2;min-width:0}\n.card{background:#fff;border-radius:15px;padding:18px}.preview-shell{border-radius:30px;padding:14px;background:linear-gradient(140deg,#31383c,#171c20);box-shadow:0 18px 30px #1a252b24}.preview-shell iframe{border-radius:18px}.studio-hero{background:linear-gradient(120deg,#e1eee9,#f9fbfa);border:1px solid #c6dcd0;border-radius:15px;padding:18px 20px;display:flex;gap:20px;align-items:center;margin-bottom:18px}.studio-hero h2{font-size:18px;margin:0 0 5px}.studio-hero p{font-size:13px;color:#657a70;margin:0;line-height:1.5}.studio-hero button{white-space:nowrap}\n.theme-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.theme-swatch{min-height:64px;border:2px solid transparent;border-radius:10px;padding:7px;text-align:left;font-size:10px;cursor:pointer;box-shadow:inset 0 0 0 1px #0001}.theme-swatch.selected{outline:2px solid var(--green);outline-offset:1px}.theme-swatch i{display:block;border-radius:5px;height:18px;width:65%;margin-bottom:4px;box-shadow:1px 2px 3px #0003}.wallpaper-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.wallpaper-swatch{height:65px;border:2px solid transparent;border-radius:10px;font-size:10px;color:white;text-shadow:0 1px 3px #000b;cursor:pointer}.wallpaper-swatch.selected{outline:2px solid var(--green)}.device-grid{display:grid;grid-template-columns:repeat(3,minmax(240px,1fr));gap:16px;align-items:start}.device-grid .card{margin-bottom:0}.wallpaper-thumb{width:100%;max-height:140px;object-fit:cover;border-radius:10px;margin-top:8px}.panel-screenshot{width:100%;border-radius:10px;background:#111;min-height:120px;object-fit:contain}.version-pill{font-size:11px;color:#58766b}\n@media(max-width:1150px){.workspace{grid-template-columns:155px 1fr}.workspace>.editor{grid-template-columns:1fr}.workspace>.editor>.preview-wrap{position:static;max-width:430px;grid-column:1}.workspace>.editor>.inspector{grid-column:1;grid-row:2}.device-grid{grid-template-columns:repeat(2,minmax(230px,1fr))}}\n@media(max-width:700px){.top{padding:10px;height:auto;flex-wrap:wrap}.top select{min-width:120px;max-width:190px}.content{padding:14px}.workspace{display:block}.workspace>.pages{position:static;display:flex;flex-direction:row;overflow:auto;margin-bottom:14px}.workspace>.pages .page{min-width:110px}.device-grid{display:block}.device-grid .card{margin-bottom:14px}.studio-hero{display:block}.studio-hero button{margin-top:12px}.theme-grid{grid-template-columns:repeat(4,1fr)}}\n";
       r.append(css);
       let top = make("header", "top");
       let logo = make("img", "mark");
@@ -230,7 +230,8 @@
         make("span", "grow"),
         make("span", "pill", tr("Lokálne ovládanie")),
       );
-      top.append(make("span","version-pill","Studio "+((this.data || {}).version || "0.3.4")));
+      top.append(this.btn(language.startsWith("sk") ? "Nastavenie / Aktualizácia" : "Setup / Update", () => this.adbDialog()));
+      top.append(make("span","version-pill","Studio "+((this.data || {}).version || "0.3.5")));
       if(this.data && this.data.panels.length){
         const selector=make("select");selector.setAttribute("aria-label",language.startsWith("sk")?"Panel":"Panel");
         this.data.panels.forEach(p=>{const option=make("option","",p.name+" · "+(p.status.online?tr("Pripojený"):tr("Odpojený")));option.value=p.id;selector.append(option);});selector.value=this.selected;
@@ -1315,8 +1316,48 @@
       preview.append(this.btn(sk ? "Kopírovať akciu" : "Copy action",async()=>{try{await navigator.clipboard.writeText(JSON.stringify({action:"aurelvi.notify",data:{panel_id:this.selected,...data}},null,2));}catch(e){this.notice(e.message,true);}}));
       updatePreview();
     }
+    adbDialog() {
+      const sk=language.startsWith("sk"), label=(en,local)=>sk?local:en;
+      const pid=this.selected, panel=this.current();
+      let host=(panel?.status?.info?.ip || ""),port="5555",text="",connected=false;
+      this.dialog(label("Device setup / update · ADB","Nastavenie / Aktualizácia panela · ADB"), box=>{
+        box.setAttribute("role","dialog");box.setAttribute("aria-label","ADB");
+        box.append(make("p","hint",label("Home Assistant connects directly to the panel. Enable network ADB debugging and accept the authorization prompt on its screen. No ADB add-on is needed.","Home Assistant sa pripája priamo k panelu. Zapni sieťové ladenie ADB a na obrazovke panela povoľ pripojenie. ADB doplnok nie je potrebný.")));
+        this.field(box,label("Panel IP address","IP adresa panela"),host,v=>{host=v;connected=false;update();});
+        this.field(box,label("ADB port","ADB port"),port,v=>{port=v;connected=false;update();},{type:"number",min:1,max:65535});
+        const status=make("p","notice",label("Not tested","Pripojenie neoverené"));box.append(status);
+        const actions=make("div","fields");actions.style.gridTemplateColumns="repeat(2,minmax(0,1fr))";box.append(actions);
+        const output=make("pre","log");output.style.whiteSpace="pre-wrap";output.setAttribute("aria-live","polite");
+        const buttons=[];let busy=false;
+        const update=()=>{for(const [button,op] of buttons)button.disabled=busy || (op!=="connect"&&!connected);};
+        const run=async operation=>{
+          if(busy)return;
+          busy=true;update();status.textContent=label("Working… Accept any authorization prompt on the panel. Installation may take a few minutes.","Pracujem… Na paneli potvrď prípadnú výzvu. Inštalácia môže trvať niekoľko minút.");
+          status.className="notice";output.textContent="";
+          try{
+            const result=await this.api("adb",{host,port:Number(port),operation,text},pid);
+            connected=operation!=="reboot";
+            status.textContent=operation==="reboot"?label("Reconnect after restart","Po reštarte sa pripoj znova"):label("ADB command completed","ADB príkaz dokončený");
+            output.textContent=result.output;
+          }catch(err){connected=false;status.className="notice error";status.textContent=label("Operation failed. Check the address, ADB debugging and authorization on the panel.","Operácia zlyhala. Skontroluj adresu, ADB ladenie a povolenie na paneli.");output.textContent=err.message||String(err);}
+          finally{busy=false;update();}
+        };
+        const add=(op,en,local,primary=false)=>{const button=this.btn(label(en,local),()=>run(op),primary);buttons.push([button,op]);actions.append(button);};
+        add("connect","Connect / test ADB","Pripojiť / overiť ADB",true);
+        add("install","Install latest Aurelvi APK","Nainštalovať najnovšiu Aurelvi APK",true);
+        add("launch","Open Aurelvi","Otvoriť Aurelvi");
+        add("set_home","Set Aurelvi as Home","Nastaviť Aurelvi ako domovskú aplikáciu");
+        add("unset_home","Restore Android Home","Obnoviť domovskú aplikáciu Androidu");
+        for(const item of [["wake","Wake","Prebudiť"],["power","Power / sleep","Zapnutie / uspatie"],["back","Back","Späť"],["home","Home","Domov"],["notifications","Notifications","Oznámenia"],["memory","Memory","Pamäť"],["reboot","Reboot","Reštartovať"]])add(...item);
+        this.field(box,label("Type on panel (basic Latin characters)","Napísať na paneli (bez diakritiky)"),text,v=>text=v);
+        const send=this.btn(label("Send text","Odoslať text"),()=>run("text"));buttons.push([send,"text"]);box.append(send,output);
+        box.append(make("p","hint",label("Each action opens and closes its own ADB connection. APK installation preserves app data and opens Aurelvi afterwards. The APK version may differ from the integration version.","Každá akcia otvorí a zatvorí vlastné ADB spojenie. Inštalácia APK zachová údaje a následne otvorí Aurelvi. Verzia APK sa môže líšiť od verzie integrácie.")));
+        update();
+      });
+    }
     renderManage(parent) {
       let p = this.current();
+      parent.append(this.btn(language.startsWith("sk") ? "Nastavenie / Aktualizácia cez ADB" : "Setup / Update via ADB", () => this.adbDialog(), true));
       let box = this.card(parent, "Panel");
       box.append(
         make(
