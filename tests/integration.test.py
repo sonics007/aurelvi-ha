@@ -163,4 +163,35 @@ class Releases(unittest.IsolatedAsyncioTestCase):
   self.doc['draft']=True;await self.hub.check_releases();self.assertFalse(self.hub.latest);self.doc.pop('draft');self.doc['tag_name']='nightly';await self.hub.check_releases();self.assertFalse(self.hub.latest)
  async def test_github_missing_release(self):
   self.code=404;await self.hub.check_releases();self.assertFalse(self.hub.latest);self.assertIn('404',self.hub.logs[-1]['message'])
+class FanSettings(unittest.IsolatedAsyncioTestCase):
+ asyncSetUp=Integration.asyncSetUp
+ async def test_attribute_projection_keeps_false_and_clears_missing(self):
+  tile={'id':'wind','type':'switcher','entity':'fan.ceiling','stateAttribute':'oscillating','stateKey':'aurelvi_attr_fan_ceiling_oscillating','row':1,'col':1}
+  self.hub.panels['test']['config']['pages'].append({'id':'settings','type':'grid','grid':{'columns':1,'rows':1},'tiles':[tile]})
+  validate_config(self.hub.panels['test']['config'])
+  self.hass.values['fan.ceiling'].attributes['oscillating']=False
+  await self.hub.publish_state('test','fan.ceiling')
+  topic,doc,flags=self.hass.mqtt[-1];self.assertTrue(topic.endswith('/state/aurelvi_attr_fan_ceiling_oscillating'));self.assertIs(doc['value'],False);self.assertTrue(doc['available']);self.assertTrue(flags['retain'])
+  del self.hass.values['fan.ceiling'].attributes['oscillating']
+  await self.hub.publish_state('test','fan.ceiling');self.assertFalse(self.hass.mqtt[-1][1]['available']);self.assertEqual(self.hass.mqtt[-1][1]['value'],'unavailable')
+ async def test_wind_and_oscillation_bindings(self):
+  tile={'id':'wind','type':'switcher','entity':'fan.ceiling','bindings':{'state:natural':{'service':'fan.set_preset_mode','target':{'entity_id':'fan.ceiling'},'data':{'preset_mode':'natural'}},'state:false':{'service':'fan.oscillate','target':{'entity_id':'fan.ceiling'},'data':{'oscillating':False}}}}
+  page={'tiles':[tile]}
+  await self.hub.grid_event('test',page,{'button':'wind','action':'state','value':'natural'})
+  self.assertEqual(self.hass.calls[-1][:3],('fan','set_preset_mode',{'entity_id':'fan.ceiling','preset_mode':'natural'}))
+  await self.hub.grid_event('test',page,{'button':'wind','action':'state','value':False})
+  self.assertIs(self.hass.calls[-1][2]['oscillating'],False)
+ async def test_number_step_reads_current_state_and_limits(self):
+  action={'service':'number.set_value','target':{'entity_id':'number.timer'},'dynamic':'number_step','delta':1}
+  self.hass.values['number.timer']=State('number.timer','0.5',min=0,max=1,step=.5)
+  await self.hub.execute(action);self.assertEqual(self.hass.calls[-1][2]['value'],1)
+  self.hass.values['number.timer'].state='1';await self.hub.execute(action);self.assertEqual(self.hass.calls[-1][2]['value'],1)
+  action['delta']=-1;await self.hub.execute(action);self.assertEqual(self.hass.calls[-1][2]['value'],.5)
+  self.hass.values['number.timer'].state='unavailable'
+  with self.assertRaises(ValueError):await self.hub.execute(action)
+  self.hass.values['number.timer'].state='nan'
+  with self.assertRaises(ValueError):await self.hub.execute(action)
+ async def test_projection_rejects_arbitrary_topic(self):
+  config={'pages':[{'id':'settings','type':'grid','grid':{'columns':1,'rows':1},'tiles':[{'id':'x','type':'switcher','entity':'fan.ceiling','stateAttribute':'preset_mode','stateKey':'arbitrary','row':1,'col':1}]}]}
+  with self.assertRaises(ValueError):validate_config(config)
 if __name__=='__main__':unittest.main(verbosity=2)

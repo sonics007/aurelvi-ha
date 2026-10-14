@@ -20,7 +20,7 @@ from homeassistant.helpers.network import get_url
 from homeassistant.helpers.storage import Store
 from .panel_settings import public_settings, public_device, normalize_panel_config
 from .const import DOMAIN, PREFIX, SIGNAL, VERSION
-from .models import actions, default_config, entities, entity_id, entity_key, mirror, number, panel_id, validate_config, validate_device
+from .models import actions, attribute_key, PROJECTED_ATTRIBUTES, finite_attribute, default_config, entities, entity_id, entity_key, mirror, number, panel_id, validate_config, validate_device
 
 _LOGGER=logging.getLogger(__name__)
 
@@ -207,6 +207,16 @@ class Hub:
             if token and base:
                 doc['stream']=base.rstrip('/')+'/api/camera_proxy_stream/'+entity+'?token='+token
         await self.publish(pid,'state/'+entity_key(entity),doc,True)
+        # Separate MQTT keys let existing APK switchers display confirmed attributes.
+        projected=set()
+        for page in self.panels[pid]['config']['pages']:
+            for tile in page.get('tiles',[]):
+                attr=tile.get('stateAttribute')
+                if tile.get('entity')!=entity or attr not in PROJECTED_ATTRIBUTES or attr in projected:continue
+                projected.add(attr)
+                value=state.attributes.get(attr) if state else None
+                available=doc['available'] and value is not None
+                await self.publish(pid,'state/'+attribute_key(entity,attr),{'available':available,'on':False,'value':value if available else 'unavailable'},True)
     @callback
     def state_changed(self,event):
         entity=event.data.get('entity_id')
@@ -218,6 +228,15 @@ class Hub:
             domain,service=action['service'].split('.')
             data=copy.deepcopy(action.get('data',{}));target=action.get('target',{})
             if action.get('entity_id'):target=dict(target,entity_id=action['entity_id'])
+            if action.get('dynamic')=='number_step':
+                entity=target.get('entity_id');entity_id(entity)
+                if domain not in {'number','input_number'} or service!='set_value' or not entity.startswith(domain+'.') or action.get('delta') not in {-1,1}:raise ValueError('Invalid number adjustment')
+                state=self.hass.states.get(entity)
+                if not state or state.state in {'unknown','unavailable'}:raise ValueError('Number is unavailable')
+                current=finite_attribute(state.state);a=state.attributes
+                low=finite_attribute(a.get('min'));high=finite_attribute(a.get('max'));step=finite_attribute(a.get('step'))
+                if None in (current,low,high,step) or step<=0 or low>high:raise ValueError('Number has invalid limits')
+                data['value']=round(max(low,min(high,current+action['delta']*step)),10)
             data.update(target)
             await self.hass.services.async_call(domain,service,data,blocking=True)
     async def call(self,service,entity,data=None):await self.execute({'service':service,'target':{'entity_id':entity},'data':data or {}})
@@ -285,7 +304,9 @@ class Hub:
             await self.call('cover.'+{'open':'open_cover','close':'close_cover','stop':'stop_cover'}[action],entity);return
         elif tile.get('type')=='rocker':
             index=int(bid.rsplit('.',1)[1]);rocker=tile.get('rockers',[])[index];entity=rocker.get('entity')
-        else:binding=tile.get('bindings',{}).get(action+':'+str(event.get('value')),tile.get('bindings',{}).get(action))
+        else:
+            value=event.get('value');key=str(value).lower() if isinstance(value,bool) else str(value)
+            binding=tile.get('bindings',{}).get(action+':'+key,tile.get('bindings',{}).get(action))
         if binding:
             binding=copy.deepcopy(binding)
             for action in binding if isinstance(binding,list) else [binding]:

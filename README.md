@@ -16,6 +16,12 @@ MQTT must already be configured in Home Assistant. Connect the panel to the same
 
 HACS: add `https://github.com/sonics007/aurelvi-ha` as a custom repository of type **Integration**. This is not a listing in the default HACS catalog.
 
+## Version 0.3.9 — Fan and light settings
+
+**Build room** now keeps every available fan wind preset (natural, breeze, sleep, etc.) alongside percentage speeds. It adds oscillation and linked light effect controls when those capabilities are exposed by Home Assistant. Related switches, selects and numeric entities in the selected room are included: every select option is available, and number settings have a confirmed value plus −/+ controls using the entity's current step and limits.
+
+After updating, restart HA, refresh Studio, **Build room** again and **Save to panel**. Existing APK **0.3.7** works; no APK update is required. Only capabilities actually exposed by the device integration can be detected. Enable disabled entities in HA first, and select hidden settings in the room inventory if needed. Room generation changes the draft only; check its controls before saving.
+
 ## Version 0.3.8 — Older room layouts
 
 Remove room also offers **Older / manually created pages**. Select the exact pages to remove when a layout predates room metadata. Nothing in the HA area/entity registries is removed. Room creation preserves unrelated empty/manual pages. Use with APK 0.3.7.

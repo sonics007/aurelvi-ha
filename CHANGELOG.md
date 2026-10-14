@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.9
+
+- Discover every fan wind preset alongside manual percentage speeds instead of discarding presets.
+- Generate confirmed-state controls for oscillation and linked light effects, including more than six modes.
+- Include all select options in groups of four, and number/input_number readouts with bounded step adjustments for timers and other device settings.
+- Keep physical device values authoritative; no optimistic mode highlighting. Existing APK 0.3.7 is supported.
+- Update the integration, restart HA, rebuild the room draft and Save to panel to add the new controls. Disabled entities must first be enabled in HA.
+
 ## 0.3.8
 
 - Include older/manual pages in Remove room with an explicit checkbox selection; no page is guessed or removed automatically.

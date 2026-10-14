@@ -9,6 +9,10 @@ ID = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 ENTITY = re.compile(r"^[a-z_][a-z0-9_]*\.[a-z0-9_]+$")
 SERVICE = re.compile(r"^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$")
 TYPES = {"grid", "fan", "clock", "weather", "camera", "alarm", "music"}
+PROJECTED_ATTRIBUTES = {'preset_mode','oscillating','effect'}
+
+def attribute_key(entity, attribute):
+    return 'aurelvi_attr_'+entity_key(entity)+'_'+attribute
 
 def panel_id(value):
     if not isinstance(value, str) or not ID.fullmatch(value) or value == "discover":
@@ -87,6 +91,9 @@ def validate_config(doc):
                         if (c,r) in occupied:raise ValueError("Tlačidlá sa prekrývajú")
                         occupied.add((c,r))
                 if tile.get('entity'):entity_id(tile['entity'])
+                if 'stateAttribute' in tile:
+                    if tile['stateAttribute'] not in PROJECTED_ATTRIBUTES or not tile.get('entity') or tile.get('stateKey')!=attribute_key(tile['entity'],tile['stateAttribute']):
+                        raise ValueError('Invalid attribute projection')
                 for binding in tile.get('bindings',{}).values():actions(binding)
                 for segment in tile.get('buttons',[]):
                     for binding in segment.get('bindings',{}).values():actions(binding)

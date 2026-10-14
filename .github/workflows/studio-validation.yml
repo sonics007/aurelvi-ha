@@ -23,4 +23,5 @@ jobs:
         run: |
           node tests/studio.test.cjs
           node tests/rooms.test.cjs
+          node tests/fan-room.test.cjs
           node tests/adb-ui.test.cjs
