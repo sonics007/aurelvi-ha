@@ -1,0 +1,90 @@
+{
+  "v": 1,
+  "theme": "cream",
+  "pages": [
+    {
+      "id": "fan",
+      "title": "Svetlo a ventilátor",
+      "type": "fan",
+      "fan": {
+        "fanEntity": "fan.stropny_ventilator",
+        "lightEntity": "light.stropne_svetlo",
+        "speeds": [
+          {
+            "label": "1",
+            "percentage": 17
+          },
+          {
+            "label": "2",
+            "percentage": 33
+          },
+          {
+            "label": "3",
+            "percentage": 50
+          },
+          {
+            "label": "4",
+            "percentage": 67
+          },
+          {
+            "label": "5",
+            "percentage": 83
+          },
+          {
+            "label": "6",
+            "percentage": 100
+          }
+        ],
+        "controls": {
+          "direction": true,
+          "brightness": true,
+          "temperature": true,
+          "allOff": true,
+          "timer": true
+        },
+        "extras": []
+      }
+    },
+    {
+      "id": "clock",
+      "title": "Hodiny",
+      "type": "clock"
+    },
+    {
+      "id": "weather",
+      "title": "Počasie",
+      "type": "weather",
+      "weather": {
+        "entity": "weather.forecast_home"
+      }
+    },
+    {
+      "id": "camera",
+      "title": "Kamera",
+      "type": "camera",
+      "camera": {
+        "cameras": [
+          {
+            "entity": "camera.vchod",
+            "name": "Vchod"
+          }
+        ]
+      }
+    },
+    {
+      "id": "alarm",
+      "title": "Alarm",
+      "type": "alarm",
+      "alarm": {
+        "stateTopic": "alarmo/state",
+        "commandTopic": "alarmo/command",
+        "eventTopic": "alarmo/event"
+      }
+    },
+    {
+      "id": "music",
+      "title": "Hudba",
+      "type": "music"
+    }
+  ]
+}

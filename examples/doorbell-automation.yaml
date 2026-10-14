@@ -1,0 +1,24 @@
+# Paste as one automation in HA's automation YAML editor.
+# Replace binary_sensor.zvoncek and camera page id according to your setup.
+alias: Aurelvi - zvoncek a kamera
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.zvoncek
+    to: "on"
+actions:
+  - action: aurelvi.wake
+    data:
+      panel_id: nspanel-7tmv73
+  - action: aurelvi.page
+    data:
+      panel_id: nspanel-7tmv73
+      id: camera
+  - action: aurelvi.notify
+    data:
+      panel_id: nspanel-7tmv73
+      title: Niekto zvoni
+      message: Kamera pri vchode
+      priority: normal
+      timeoutS: 8
+      sound: ding
+mode: single

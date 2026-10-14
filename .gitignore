@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+node_modules/
+build/
+dist/
+signing/
+*.keystore
+*.jks
+*.p12
+.env
+.env.*
+.DS_Store

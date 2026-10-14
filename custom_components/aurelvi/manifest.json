@@ -1,0 +1,21 @@
+{
+  "domain": "aurelvi",
+  "name": "Aurelvi",
+  "version": "0.3.1",
+  "config_flow": true,
+  "single_config_entry": true,
+  "dependencies": [
+    "mqtt",
+    "http",
+    "frontend",
+    "panel_custom"
+  ],
+  "iot_class": "local_push",
+  "integration_type": "hub",
+  "requirements": [],
+  "codeowners": [
+    "@sonics007"
+  ],
+  "documentation": "https://github.com/sonics007/aurelvi-ha",
+  "issue_tracker": "https://github.com/sonics007/aurelvi-ha/issues"
+}

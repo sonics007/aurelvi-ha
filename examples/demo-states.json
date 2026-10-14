@@ -1,0 +1,27 @@
+{
+  "fan_stropny_ventilator": {
+    "available": true,
+    "on": true,
+    "value": "on",
+    "percentage": 50,
+    "direction": "forward"
+  },
+  "light_stropne_svetlo": {
+    "available": true,
+    "on": true,
+    "value": "on",
+    "brightness": 0.7,
+    "color_temp_kelvin": 3000,
+    "min_color_temp_kelvin": 2200,
+    "max_color_temp_kelvin": 6500
+  },
+  "weather_forecast_home": {
+    "available": true,
+    "value": "partlycloudy",
+    "temperature": 21,
+    "temperature_unit": "°C",
+    "humidity": 55,
+    "wind_speed": 8,
+    "wind_speed_unit": "km/h"
+  }
+}

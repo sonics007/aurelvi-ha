@@ -1,0 +1,95 @@
+push_config:
+  name: Odoslať konfiguráciu
+  description: Znovu odošle uložené stránky a stavy na panel.
+  fields:
+    panel_id:
+      name: ID panela
+      required: true
+      example: nspanel-7tmv73
+      selector: {text: {}}
+wake:
+  name: Prebudiť panel
+  fields:
+    panel_id:
+      name: ID panela
+      required: true
+      selector: {text: {}}
+page:
+  name: Zobraziť stránku
+  fields:
+    panel_id:
+      name: ID panela
+      required: true
+      selector: {text: {}}
+    id:
+      name: ID stránky zo Studia
+      required: true
+      selector: {text: {}}
+screen:
+  name: Nastaviť displej
+  fields:
+    panel_id:
+      name: ID panela
+      required: true
+      selector: {text: {}}
+    action:
+      name: Akcia
+      required: true
+      selector:
+        select:
+          options: ["on", "off", "dim"]
+    brightness:
+      name: Jas (0.05 až 1)
+      selector:
+        number: {min: 0.05, max: 1, step: 0.05}
+start_timer:
+  name: Spustiť časovač vypnutia
+  description: Časovač sa ukladá v HA a obnoví sa po jeho reštarte.
+  fields:
+    panel_id:
+      name: ID panela
+      required: true
+      selector: {text: {}}
+    entity_id:
+      name: Zariadenie na vypnutie
+      required: true
+      selector:
+        entity: {domain: [fan, light]}
+    seconds:
+      name: Počet sekúnd
+      required: true
+      selector:
+        number: {min: 5, max: 86400, mode: box}
+cancel_timer:
+  name: Zrušiť časovač
+  fields:
+    panel_id:
+      name: ID panela
+      required: true
+      selector: {text: {}}
+notify:
+  name: Oznámenie na panel
+  fields:
+    panel_id:
+      name: ID panela
+      required: true
+      selector: {text: {}}
+    title:
+      name: Nadpis
+      selector: {text: {}}
+    message:
+      name: Text oznámenia
+      required: true
+      selector: {text: {multiline: true}}
+    priority:
+      name: Priorita
+      selector:
+        select: {options: [normal, high]}
+    timeoutS:
+      name: Čas zobrazenia v sekundách (0 = bez limitu)
+      selector:
+        number: {min: 0, max: 86400, mode: box}
+    sound:
+      name: Zvuk alebo HTTPS/HTTP adresa
+      description: ding, alarm_beep, alarm, alarmo, siren, alebo URL zvuku.
+      selector: {text: {}}

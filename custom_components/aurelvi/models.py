@@ -1,0 +1,145 @@
+"""Pure validation, indexing and state projection. No Home Assistant dependency."""
+from __future__ import annotations
+import copy
+import json
+import math
+import re
+
+ID = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+ENTITY = re.compile(r"^[a-z_][a-z0-9_]*\.[a-z0-9_]+$")
+SERVICE = re.compile(r"^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$")
+TYPES = {"grid", "fan", "clock", "weather", "camera", "alarm", "music"}
+
+def panel_id(value):
+    if not isinstance(value, str) or not ID.fullmatch(value) or value == "discover":
+        raise ValueError("Neplatné ID panela")
+    return value
+
+def entity_id(value, domain=None):
+    if not isinstance(value,str) or not ENTITY.fullmatch(value) or domain and value.split('.')[0] != domain:
+        raise ValueError("Neplatná entita")
+    return value
+
+def entity_key(value):
+    return re.sub(r"[^a-z0-9]+", "_", value.lower()).strip('_')
+
+def number(value, low, high):
+    if isinstance(value,bool) or not isinstance(value,(int,float)) or not math.isfinite(value) or not low <= value <= high:
+        raise ValueError("Číslo je mimo povoleného rozsahu")
+    return value
+
+def actions(value):
+    if isinstance(value,dict): value=[value]
+    if not isinstance(value,list) or not value or len(value)>10: raise ValueError("Priraď 1 až 10 akcií")
+    for action in value:
+        if not isinstance(action,dict) or not SERVICE.fullmatch(action.get('service','')): raise ValueError("Akcia má mať service: doména.akcia")
+        target=action.get('target',{})
+        if not isinstance(target,dict) or set(target)-{'entity_id','area_id','device_id','label_id'}: raise ValueError("Neplatný cieľ akcie")
+        ids=target.get('entity_id',action.get('entity_id',[]))
+        for item in [ids] if isinstance(ids,str) else ids: entity_id(item)
+        if not isinstance(action.get('data',{}),dict): raise ValueError("Dáta akcie musia byť objekt")
+    return value
+
+def validate_config(doc):
+    if not isinstance(doc,dict) or len(json.dumps(doc))>262144: raise ValueError("Konfigurácia je príliš veľká")
+    doc=copy.deepcopy(doc)
+    pages=doc.get('pages')
+    if not isinstance(pages,list) or not 1<=len(pages)<=30: raise ValueError("Pridaj 1 až 30 stránok")
+    page_ids=set(); tile_ids=set()
+    for page in pages:
+        pid=panel_id(page.get('id'))
+        if pid in page_ids: raise ValueError("Duplicitná stránka")
+        page_ids.add(pid)
+        if page.get('type') not in TYPES: raise ValueError("Nepodporovaný typ stránky")
+        if page.get('type')=='fan':
+            fan=page.get('fan',{}); entity_id(fan.get('fanEntity'),'fan')
+            if fan.get('lightEntity'): entity_id(fan['lightEntity'],'light')
+            speeds=fan.get('speeds',[])
+            if not isinstance(speeds,list) or not 1<=len(speeds)<=6: raise ValueError("Počet rýchlostí je 1 až 6")
+            for speed in speeds:
+                if speed.get('actions'): actions(speed['actions'])
+                elif 'percentage' in speed: number(speed['percentage'],1,100)
+                elif not isinstance(speed.get('preset_mode'),str) or not speed['preset_mode']: raise ValueError("Rýchlosti priraď percentá, režim alebo vlastnú akciu")
+            for extra in fan.get('extras',[]):
+                eid=panel_id(extra.get('id'))
+                if pid+'.'+eid in tile_ids: raise ValueError("Duplicitná akcia")
+                tile_ids.add(pid+'.'+eid);actions(extra.get('actions'))
+            if len(fan.get('extras',[]))>8:raise ValueError("Najviac 8 vlastných tlačidiel")
+        if page.get('type')=='grid':
+            grid=page.get('grid',{});cols=number(grid.get('columns'),1,12);rows=number(grid.get('rows'),1,12)
+            if int(cols)!=cols or int(rows)!=rows: raise ValueError("Rozmery mriežky musia byť celé")
+            tiles=page.get('tiles',[])
+            if not isinstance(tiles,list) or len(tiles)>100:raise ValueError("Príliš veľa tlačidiel")
+            occupied=set()
+            for tile in tiles:
+                tid=panel_id(tile.get('id'))
+                if tid in tile_ids:raise ValueError("Duplicitné tlačidlo")
+                tile_ids.add(tid)
+                if tile.get('type') not in {'button','dimmer','switcher','split','rocker','readout'}:raise ValueError("Nepodporovaný ovládač")
+                for name in ['row','col','rowSpan','colSpan']:
+                    value=tile.get(name,1);number(value,1,12)
+                    if int(value)!=value:raise ValueError("Pozícia musí byť celé číslo")
+                col=tile.get('col',1);row=tile.get('row',1);cs=tile.get('colSpan',1);rs=tile.get('rowSpan',1)
+                if col+cs-1>cols or row+rs-1>rows:raise ValueError("Tlačidlo je mimo mriežky")
+                for c in range(col,col+cs):
+                    for r in range(row,row+rs):
+                        if (c,r) in occupied:raise ValueError("Tlačidlá sa prekrývajú")
+                        occupied.add((c,r))
+                if tile.get('entity'):entity_id(tile['entity'])
+                for binding in tile.get('bindings',{}).values():actions(binding)
+                for segment in tile.get('buttons',[]):
+                    for binding in segment.get('bindings',{}).values():actions(binding)
+        if page.get('type')=='weather' and (page.get('weather') or {}).get('entity'):entity_id(page['weather']['entity'],'weather')
+        if page.get('type')=='camera':
+            for camera in (page.get('camera') or {}).get('cameras',[]):
+                entity_id(camera.get('entity'),'camera')
+                for binding in camera.get('ptz',{}).values():actions(binding)
+    doc.setdefault('v',1);doc.setdefault('theme','cream')
+    return doc
+
+def entities(config):
+    out=set()
+    def walk(value):
+        if isinstance(value,dict):
+            for key,v in value.items():
+                if key in {'entity','entity_id','fanEntity','lightEntity'}:
+                    for item in [v] if isinstance(v,str) else v if isinstance(v,list) else []:
+                        if isinstance(item,str) and ENTITY.fullmatch(item):out.add(item)
+                walk(v)
+        elif isinstance(value,list):
+            for v in value:walk(v)
+    walk(config);return out
+
+def mirror(state):
+    if state is None:return {'available':False,'on':False,'value':'unavailable'}
+    value=state.state;a=state.attributes
+    doc={'available':value not in {'unknown','unavailable'},'on':value=='on','value':value}
+    for name in ['percentage','percentage_step','direction','preset_mode','preset_modes','oscillating','supported_features','color_temp_kelvin','min_color_temp_kelvin','max_color_temp_kelvin','temperature','current_temperature','unit_of_measurement','friendly_name','humidity','wind_speed','temperature_unit','wind_speed_unit','media_title','volume_level']:
+        if name in a:doc[name]=a[name]
+    if 'brightness' in a:doc['brightness']=round(float(a['brightness'])/255,4)
+    if 'color_temp_kelvin' not in doc and a.get('color_temp'):doc['color_temp_kelvin']=round(1000000/float(a['color_temp']))
+    if state.entity_id.startswith('weather.'):doc['condition']=value;doc['attributes']=dict(a)
+    return doc
+
+def fan_page(fan='fan.stropny_ventilator',light='light.stropne_svetlo',count=6):
+    return {'id':'fan','title':'Svetlo a ventilátor','type':'fan','fan':{'fanEntity':fan,'lightEntity':light,'speeds':[{'label':str(i+1),'percentage':round(100*(i+1)/count)} for i in range(count)],'controls':{'direction':True,'brightness':True,'temperature':True,'allOff':True,'timer':True},'extras':[]}}
+
+def default_config():return {'v':1,'theme':'cream','pages':[{'id':'home','title':'Domov','type':'grid','grid':{'columns':2,'rows':2},'tiles':[]},{'id':'clock','title':'Hodiny','type':'clock'}]}
+
+def validate_device(device,page_count):
+    if not isinstance(device,dict) or len(json.dumps(device))>16384:raise ValueError('Neplatné nastavenie displeja')
+    d=copy.deepcopy(device)
+    if 'defaultPage' in d:number(d['defaultPage'],0,page_count-1)
+    if 'inactivityTimeout' in d:number(d['inactivityTimeout'],0,86400)
+    saver=d.get('screensaver',{})
+    if 'after' in saver:number(saver['after'],10,86400)
+    if 'dimLevel' in saver:number(saver['dimLevel'],.05,1)
+    night=d.get('nightMode',{})
+    for key in ['start','end']:
+        if key in night:number(night[key],0,23)
+    if 'brightness' in night:number(night['brightness'],5,100)
+    auto=d.get('autoBrightness',{})
+    for key in ['dayBrightness','nightBrightness']:
+        if key in auto:number(auto[key],5,100)
+    if 'nightThresholdLux' in auto:number(auto['nightThresholdLux'],0,100000)
+    return d

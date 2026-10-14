@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Aurelvi Panel</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="features.css"><link rel="stylesheet" href="aurelvi.css"></head><body>
+<header><button id="menu" aria-label="Nastavenia">☰</button><strong id="title">Aurelvi</strong><span id="status" aria-label="MQTT odpojené"></span><span id="pages"></span><button id="next" aria-label="Ďalšia stránka">›</button></header>
+<main id="main"><div id="surface"></div></main>
+<section id="settings" hidden><h1>Pripojenie panela</h1><p id="connection-detail">MQTT nenastavené</p>
+<label for="namespace">Integrácia</label><select id="namespace"><option value="aurelvi">Aurelvi</option><option value="domodreams">Pôvodná kompatibilita</option></select><label for="broker">MQTT WebSocket adresa</label><input id="broker" type="url" placeholder="ws://homeassistant.local:1884" autocomplete="off" spellcheck="false">
+<label for="device">ID panela v integrácii</label><input id="device" placeholder="nspanel-7tmv73" autocomplete="off" spellcheck="false">
+<label for="username">MQTT používateľ</label><input id="username" autocomplete="off" spellcheck="false">
+<label for="password">MQTT heslo</label><input id="password" type="password" autocomplete="off">
+<div class="row"><button id="cancel">Späť</button><button id="save" class="primary">Uložiť a pripojiť</button></div>
+<p>Stránky upravuj v Home Assistante → Aurelvi Studio. Pri použití rovnakého ID najprv zastav aplikáciu DomoDreams.</p><p id="summary"></p><p>Aurelvi 0.3.0 · vlastná aplikácia · bez vodoznaku</p></section>
+<div id="toast" hidden role="status"></div><script src="protocol.js"></script><script src="icons.js"></script><script src="features.js"></script><script src="aurelvi.js"></script><script src="app.js"></script><script src="studio-preview.js"></script></body></html>

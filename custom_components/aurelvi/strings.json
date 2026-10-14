@@ -1,0 +1,18 @@
+{
+  "title": "Aurelvi",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Aurelvi – Domov na dotyk",
+        "description": "Použijeme existujúcu MQTT integráciu Home Assistanta. Panel musí používať rovnaký broker a režim Aurelvi. Stránky nastavíš v Aurelvi Studio v bočnom menu."
+      }
+    },
+    "error": {
+      "mqtt_missing": "Najprv pridaj integráciu MQTT a nastav broker.",
+      "mqtt_disconnected": "MQTT nie je pripojené. Skontroluj broker."
+    },
+    "abort": {
+      "single_instance_allowed": "Integrácia Aurelvi je už pridaná."
+    }
+  }
+}
