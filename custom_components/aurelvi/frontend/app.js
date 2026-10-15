@@ -428,6 +428,7 @@
     return box;
   }
   function clock(surface) {
+    if(window.AurelviLicence)window.AurelviLicence.setPage("clock");
     if (F) {
       F.renderClock(surface);
       return;
@@ -470,6 +471,7 @@
       ? pageIndex + 1 + " / " + config.pages.length
       : "";
     if (!config) {
+      if(window.AurelviLicence)window.AurelviLicence.setPage("");
       $("title").textContent = "OpenPanel";
       empty(
         uiText("Ready to connect","Pripravené na pripojenie"),
@@ -481,6 +483,7 @@
       return;
     }
     var page = config.pages[pageIndex];
+    if(window.AurelviLicence)window.AurelviLicence.setPage(page.type);
     $("title").textContent = page.title || "OpenPanel";
     if (A && A.renderPage(page, surface)) return;
     if (page.type === "grid") {

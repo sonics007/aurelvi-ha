@@ -1,3 +1,10 @@
+## Annual licensing model (prepared, sales disabled)
+
+- Full EUR 34.90/year/panel and Page EUR 7.90/year/panel replace new lifetime/skin/pack sales.
+- All features remain free; only the watermark changes after launch. Clock includes the screensaver.
+- Multiple page tokens, paid annual refresh, cancellation portal and legacy-token compatibility.
+- Preview remains unwatermarked. Stripe products, secrets and on-device release validation are still required.
+
 # Changelog
 
 ## 0.3.12

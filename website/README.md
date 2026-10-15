@@ -12,13 +12,13 @@ The repository remains public only for integration and website files. Private An
 
 ## Commerce status
 
-`assets/commerce.json` defaults to disabled. Plus prices (€14.90/year and €39.90 lifetime, per panel) are proposals. No real payment is collected. Native licence application, merchant onboarding, policies, subscription cancellation/management and a deployed backend are prerequisites for launch. See `licensing-server/README.md` in the repository for the server preparation and limitations. Do not enable the buttons merely by changing a frontend flag.
+Sales remain disabled. The current offer is yearly recurring, per panel: Full EUR 34.90 or one page type EUR 7.90. All functions and all styles remain free with a watermark after launch; the current preview stays unwatermarked. Clock includes the screensaver. No lifetime, skin or pack purchases are offered. Existing issued licences keep their rights. See `licensing-server/README.md` for Stripe prices, renewal, customer portal, tax setup and launch requirements.
 
 ## Publishing after first-time setup
 
 In repository Settings → Pages, select **GitHub Actions** as the source. The **Publish Aurelvi website** workflow deploys the `website/` directory when its content changes. The target public address is `https://aurelvi-app.com/`. The original address remains `https://sonics007.github.io/aurelvi-ha/` until the custom domain is activated. Future website commits redeploy automatically. Deployment success must be checked in Actions before treating this address as live.
 
-Atelier 0.3.7 adds a persistent light/dark switch, eight locally bundled full app images and an 80-cell screenshot atlas. Micro purchases are proposed at EUR 1.49 per skin and EUR 4.90 per eight-skin collection, per panel. Purchases stay disabled. Native activation is implemented, but commercial gating, renewal/restore and subscription management are not live.
+Atelier 0.3.7 adds a persistent light/dark switch, eight locally bundled full app images and an 80-cell screenshot atlas. The previous skin/pack/lifetime proposal is superseded by annual page-type and Full licences. Purchases stay disabled pending Stripe and on-device testing.
 
 
 ## Custom domain: aurelvi-app.com

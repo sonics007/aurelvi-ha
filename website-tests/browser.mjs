@@ -43,7 +43,7 @@ try{
  await page.getByRole('heading',{name:'Panel podľa teba.'}).waitFor();
  await page.screenshot({path:'website-test-results/setup-slovak.png',fullPage:true});
  await page.goto('http://127.0.0.1:8774/pricing.html');
- assert.equal(await page.locator('[data-buy]:disabled').count(),4);
+ assert.equal(await page.locator('[data-buy]:disabled').count(),2);
  await page.goto('http://127.0.0.1:8774/activate.html');
  assert(await page.locator('#activation-result').isHidden());
  await page.setViewportSize({width:390,height:844});

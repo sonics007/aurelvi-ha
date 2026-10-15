@@ -1,53 +1,45 @@
-# Aurelvi Plus — pre-launch payment and licence service
+# Aurelvi annual watermark licences
 
-**Not deployed; sales disabled.** The static website has proposed prices and a disabled checkout. APK 0.3.7 and HA 0.3.7 include a signed-token activation UI. The catalogue remains in open preview and checkout stays disabled. Renewal, transfer, cancellation and live deployment are still prerequisites for commercial launch. Do not turn on checkout until the supported APK/HA activation UI and actual premium deliverables are released and tested.
+Implemented in source; commerce remains disabled. The owner's deployed Worker must be updated separately. No live products, secrets or accounts are created by this repository.
 
-## Proposed offer
+## Offer
 
-- Community: €0, all current controls and skins remain available.
-- Plus Annual: €14.90 per panel per year, recurring until cancelled.
-- Plus Lifetime: €39.90 once per panel, for the supported life of the project.
-- Plus supports development and planned future premium visual packs. No promised support response time or unavailable feature is sold now.
-- Each token binds to the Aurelvi device ID, **not a hardware-attested serial**. Never use a customer's MQTT password or HA token.
+| Plan | Per panel, per year | Signed entitlement |
+| --- | --- | --- |
+| Free | EUR 0 | All functions and styles with watermark after launch |
+| Page | EUR 7.90, recurring | `page:grid`, `page:clock`, `page:weather`, `page:alarm`, `page:camera` or `page:music` |
+| Full | EUR 34.90, recurring | `full`, every current and future page type during the paid term |
 
-## Payment flow
+Clock includes the screensaver. A type licence covers every page/layout/style of that type. Multiple type licences coexist on the panel. Settings have no watermark. Expiry never blocks a control or changes the page configuration. Existing signed annual/lifetime/skin/pack tokens remain verifiable, keep their expiry and are not sold by new checkout. Legacy visual tokens are grandfathered into clean rendering rather than reducing existing rights.
 
-1. The browser sends a selected plan and panel ID to `/checkout`.
-2. The Worker checks the real Stripe Price against a server-side EUR price/interval allowlist. Browser input never sets the amount.
-3. Stripe-hosted Checkout accepts card details. Annual uses subscription mode; lifetime uses payment mode.
-4. The success page sends the Stripe checkout session reference to `/licence`. A success redirect alone grants nothing.
-5. The Worker reads the session and expanded payment/subscription data from Stripe. It verifies the plan, quantity, currency, exact amount, successful payment, absence of refund/dispute and the paid annual period.
-6. It issues an RSA-SHA256 signed `AV1` token. No database or webhook is required for this synchronous retrieval design. No email delivery is implemented; the customer must copy/save the token. Stripe receipts and subscription customer communication must be configured in the Stripe account.
-7. Native verification uses only the public RSA key. Annual renewal needs the client to fetch a new token after the next paid period; the currently published APK does not do this yet. Do not describe renewal as working until that client is shipped.
+The released preview stays unwatermarked: native `LicencePolicy.COMMERCE_LIVE=false`. The website and Worker also default to sales disabled. Remove these launch guards only as part of a tested release.
 
-A copied session reference is a bearer capability: do not log full URLs or put analytics on the activation page. The frontend removes it from browser history after successful retrieval. Keys and tokens are not sent to this project's GitHub repository.
+## Architecture
 
-## Deployment checklist for the owner
+- Static site on `https://aurelvi-app.com`; Worker on `https://api.aurelvi-app.com`.
+- `POST /checkout` accepts panel ID, `full` or `page`, and a page product. Server checks the Stripe yearly EUR Price and fixes quantity to 1. Browser input never sets the price.
+- Stripe Checkout explicitly requires acceptance of published terms. Each checkout creates a separate yearly subscription with signed panel/product metadata.
+- `POST /licence` retrieves the original session and latest subscription/invoice/charge through depth-limited Stripe calls. Only a fully paid, nonrefunded, nondisputed annual period gets an RSA-SHA256 `AV1` token.
+- Native app saves multiple licences encrypted with Android Keystore. Renewals replace only the same plan/product. Startup and periodic HTTPS refresh use the original order reference, and only a valid signature for the same panel/order/product is accepted. Keep the matching original private signing key; a new unrelated key would invalidate compatibility.
+- `POST /portal` uses the Stripe customer from the receipt, never a browser-provided customer ID. The owner must configure an end-of-period cancellation-only portal (payment method updates allowed, price/product/quantity changes disabled).
+- Cancel future renewal: licence stays valid until the paid expiry; then the watermark returns. The app can work offline until its signed expiry. An offline panel needs internet to retrieve the new annual token.
 
-1. Create/verify the owner's Stripe account, set business details, payout destination and customer-facing terms. The owner must complete identity/payment onboarding themselves.
-2. Create EUR prices: annual €14.90/one year and lifetime €39.90/one-time. No discounts, trials, extra line items or tax additions are currently supported by the strict verifier. Resolve the final tax-inclusive pricing with the owner before launch; change both the UI and server checks together if needed.
-3. Provide a supported secure account/subscription management route and cancellation instructions before enabling subscriptions. No customer billing portal has been implemented yet.
-4. Create a Cloudflare Workers project. Set `SITE_URL` to the exact website base path. Configure Stripe Price IDs in Wrangler.
-5. Generate an RSA keypair of at least 2048 bits with a trusted local tool. Store the **private JWK only as a Cloudflare secret** `LICENCE_PRIVATE_JWK`; distribute only the public key to clients. Store the Stripe secret as `STRIPE_SECRET_KEY`. Do not put secrets in `wrangler.toml`, GitHub source, browser JavaScript, commits or chat.
-6. Ship and test native/HA token verification/application, annual refresh, expiry and panel ID changes. Test with Stripe test-mode success, failure, refund, renewal, cancellation and dispute cases. Decide transfer/replacement policy before publishing customer terms.
-7. Deploy the Worker using Wrangler from the owner's authenticated Cloudflare environment. Enable commerce/native flags on both the Worker and `website/assets/commerce.json` only after everything above is complete. Set `apiBase` to the actual deployed HTTPS endpoint.
-8. Switch live Stripe credentials and publish the customer-facing policies when approved by the owner. This source change does not create a merchant account, enable live charges, provide legal terms or deploy a server.
+Native and browser refresh send the receipt in a POST body, avoiding query-string access logs. The legacy GET retrieval route remains supported for compatibility. The original checkout reference is a bearer capability for renewal and billing management. Save it privately; never share it, include it in MQTT payloads, analytics or logs. No new receipt is needed for the next paid annual period. The activation page supports manual licence retrieval and billing management. There is no custom customer account or custom licence email delivery yet; enable Stripe receipts and its hosted customer portal login for recovery.
 
-Offline verification establishes authenticity and expiry, not instantaneous revocation. A previously issued lifetime token cannot be remotely revoked while a device stays offline. A production client must define periodic entitlement checks, refund/dispute handling, account recovery and cancellation UX before commercial launch.
+Offline verification cannot instantly revoke an already-issued token after a refund or dispute. Online refresh refuses a new token; the cached token remains valid until its original expiry. A stronger revocation policy would require bounded online validity. Do not claim instantaneous revocation.
 
-## Token format
+## Owner setup (test environment first)
 
-`AV1.<base64url UTF-8 JSON>.<base64url RSA-SHA256 signature>`
+1. Update this Worker's code in Cloudflare. Keep `SITE_URL=https://aurelvi-app.com`, `COMMERCE_ENABLED=false`, `NATIVE_ACTIVATION_READY=false` until tests are finished.
+2. In Stripe create **two new yearly recurring EUR Prices**: Full 34.90 and Page 7.90. Do not reuse old lifetime/skin/pack or EUR 14.90 Price IDs. One shared Page Price covers the six allowlisted types through server-side subscription metadata.
+3. Configure the customer portal: cancellation **at period end**, invoice/history/payment method management, no changing subscription products, prices or quantities. Set `STRIPE_PORTAL_CONFIGURATION=bpc_…`.
+4. Set `STRIPE_PRICE_FULL=price_…`, `STRIPE_PRICE_PAGE=price_…` as Worker variables. Store `STRIPE_SECRET_KEY` and the existing matching `LICENCE_PRIVATE_JWK` only as Cloudflare secrets. Never commit or paste their values into chat.
+5. Publish the actual seller details, terms, privacy, cancellation/refund and recovery policies. Confirm tax-inclusive EUR totals. The current verifier requires the exact displayed total and fully paid invoice amount; adding tax on top, discounts, trials, prorations or extra items is intentionally rejected. Configure prices and tax consistently, and test country-specific totals before launch.
+6. Test two page licences on one panel; Full; cross-panel and tampered tokens; yearly renewal and expiry; cancel-at-period-end; failed payments; refund/dispute; offline use; reinstall/recovery. Verify the existing public signing key in the supported APK.
+7. Release the updated native verifier and refresh UI. Only then set native `COMMERCE_LIVE=true` in a supported release and enable both Worker flags and website flags with the actual API endpoint. Never enable live billing on an older APK that does not support page/full claims.
 
-The signature covers the ASCII string `AV1.<payload>` using RSASSA-PKCS1-v1_5 with SHA-256. Claims: version, issuer, audience, panel ID, plan, issued-at, expiry (`null` for lifetime) and Stripe order reference. Reject mismatched panels, unsupported issuer/audience/version, modified signatures and expired annual licences. Never distribute the private key with the APK.
+## Tests
 
-## Modular products in 0.3.7
+`node --test licensing-server/worker.test.mjs`
 
-- One premium skin: EUR 1.49 once per panel (`plan=skin`, e.g. `product=skin:stereo-silver`).
-- Eight-design collection: EUR 4.90 once per panel (`plan=pack`, e.g. `product=pack:hifi`).
-- Atelier Pass: EUR 14.90/year per panel (`plan=annual`, `product=plus`).
-- Atelier Forever: EUR 39.90 once per panel (`plan=lifetime`, `product=plus`).
-
-`products` is a signed claim and is checked by the native app. The server only issues 48 premium skin IDs and six known pack IDs; it cannot accept a browser-provided amount or arbitrary product. The 32 Essentials remain free. There are no paid sound/clock promises for features that have not been shipped.
-
-`licence-public.json` matches the public key compiled into APK 0.3.7. The private issuer key is intentionally absent from this repository. The owner must keep the matching private signing key securely and configure it as the Worker secret before issuing production tokens. Do not generate an unrelated key after releasing an APK, or its offline verifier will reject licences.
+New sales intentionally exclude one-time and legacy products. Stripe sandbox and on-device end-to-end tests are still required before taking money. The deployed Worker does not automatically update from a GitHub commit when it was created in the dashboard.
