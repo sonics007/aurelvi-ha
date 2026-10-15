@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'website/**'
+      - 'custom_components/aurelvi/frontend/**'
       - 'website-tests/**'
       - '.github/workflows/website-browser.yml'
   workflow_dispatch:
