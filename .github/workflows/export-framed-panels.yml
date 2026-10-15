@@ -1,0 +1,58 @@
+name: Export framed NSPanel Pro images
+on:
+  push:
+    paths:
+      - '.github/workflows/export-framed-panels.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --ignore-scripts --prefix website-tests
+      - run: npx playwright install --with-deps chromium
+        working-directory: website-tests
+      - name: Render all 80 panels at double resolution
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('website-tests/materials.mjs')
+          s=p.read_text()
+          assert 'viewport:{width:480,height:480}' in s
+          s=s.replace("const page=await browser.newPage({viewport:{width:480,height:480}}),errors=[];", "const outer=await browser.newPage({viewport:{width:640,height:640},deviceScaleFactor:2});await outer.setContent(\"<style>html,body{margin:0;width:640px;height:640px;background:transparent}.device{position:absolute;left:30px;top:24px;width:580px;height:580px;box-sizing:border-box;border:2px solid #424345;border-radius:14px;background:linear-gradient(135deg,#252629,#111214 42%,#1b1c1e);box-shadow:0 12px 18px #0004,inset 0 1px 2px #ffffff38,inset 0 -3px 4px #0009}.device:before{content:\\\"\\\";position:absolute;top:20px;left:284px;width:5px;height:5px;background:#08090a;border-radius:50%;box-shadow:inset 0 0 1px #777}.device:after{content:\\\"\\\";position:absolute;bottom:18px;left:269px;width:38px;height:2px;border-radius:2px;background:#24262a}iframe{position:absolute;left:48px;top:48px;width:480px;height:480px;border:0;border-radius:3px;background:#000;box-shadow:0 0 0 2px #08090a}</style><div class=\\\"device\\\"><iframe title=\\\"Aurelvi on NSPanel Pro\\\"></iframe></div>\");const page=await (await outer.$('iframe')).contentFrame(),errors=[];")
+          s=s.replace("page.on('pageerror'", "outer.on('pageerror'")
+          s=s.replace("await page.screenshot({path:", "await outer.screenshot({omitBackground:true,path:")
+          p.write_text(s)
+          PY
+          node website-tests/materials.mjs
+          git restore website-tests/materials.mjs
+      - name: Package PNG images
+        run: |
+          mkdir -p marketing/nspanel-pro-framed
+          cp material-captures/*.png marketing/nspanel-pro-framed/
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+          images=sorted(Path('marketing/nspanel-pro-framed').glob('*.png'))
+          assert len(images)==80
+          with ZipFile('marketing/aurelvi-nspanel-pro-framed.zip','w',ZIP_DEFLATED) as z:
+              for p in images:
+                  z.write(p, 'aurelvi-nspanel-pro-framed/'+p.name)
+          Path('marketing/NSPANEL-PRO-FRAMED.md').write_text('# Aurelvi panel images\n\n80 PNG screenshots of the actual Aurelvi demo interface, rendered at 1280 × 1280 pixels with transparent backgrounds. English labels. These are digital device mockups in a dark NSPanel Pro 86-style frame, not product photographs.\n\n[Download all 80 images as ZIP](https://github.com/sonics007/aurelvi-ha/raw/refs/heads/main/marketing/aurelvi-nspanel-pro-framed.zip)\n\n[Browse individual PNG images](nspanel-pro-framed/)\n')
+          PY
+      - name: Save images to GitHub
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add marketing/nspanel-pro-framed marketing/aurelvi-nspanel-pro-framed.zip marketing/NSPANEL-PRO-FRAMED.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Add 80 framed NSPanel Pro mockups and downloadable ZIP"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
