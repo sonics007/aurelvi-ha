@@ -42,3 +42,9 @@ Status: website URLs are prepared; GitHub Pages custom-domain and registrar DNS 
 The Actions publishing method ignores a repository CNAME file: the custom domain must be saved in Pages settings. Do not add a JavaScript redirect before DNS and TLS work, as that would send visitors to an unavailable domain.
 
 Reference: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
+
+## Page showcase
+
+The home page and gallery show 12 actual app captures: room controls, scenes, dimmers, blinds, two clocks, two weather finishes, alarm, camera, music and fan. The gallery filters these independently of the 80-skin catalogue. Images enlarge with keyboard or touch. English and Slovak captions are included.
+
+`node website-tests/page-captures.mjs` generates `website/assets/pages/*.png` using the production frontend at 480 × 480. Data is fictional, the camera feed is explicitly an illustration, external requests are blocked, and the fake client never reaches MQTT. No application DOM or CSS is replaced to make screenshots. Run after installing `website-tests` dependencies and Chromium. The Pages workflow generates the captures and runs responsive browser checks before publishing; generated PNGs are build outputs.

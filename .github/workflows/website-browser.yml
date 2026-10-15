@@ -25,6 +25,8 @@ jobs:
       - name: Install Chromium
         working-directory: website-tests
         run: npx playwright install --with-deps chromium
+      - name: Capture page layouts from the actual app
+        run: node website-tests/page-captures.mjs
       - name: Test responsive site
         run: node website-tests/browser.mjs
       - name: Capture actual panel materials
@@ -50,3 +52,4 @@ jobs:
           path: |
             website-test-results
             material-captures
+            website/assets/pages

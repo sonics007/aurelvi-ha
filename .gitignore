@@ -10,3 +10,6 @@ signing/
 .env
 .env.*
 .DS_Store
+website/assets/pages/
+website-test-results/
+material-captures/

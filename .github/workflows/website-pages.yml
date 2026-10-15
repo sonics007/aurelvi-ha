@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'website/**'
+      - 'website-tests/**'
+      - 'custom_components/aurelvi/frontend/**'
       - '.github/workflows/website-pages.yml'
   workflow_dispatch:
 permissions:
@@ -21,6 +23,18 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install screenshot tools
+        run: npm install --ignore-scripts --prefix website-tests
+      - name: Install Chromium
+        working-directory: website-tests
+        run: npx playwright install --with-deps chromium
+      - name: Capture actual panel pages
+        run: node website-tests/page-captures.mjs
+      - name: Check gallery and mobile layout before publication
+        run: node website-tests/browser.mjs
       - uses: actions/configure-pages@v5
         with:
           enablement: true
