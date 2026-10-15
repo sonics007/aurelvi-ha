@@ -24,7 +24,7 @@ try{
  await page.locator('.studio-image img').focus();await page.keyboard.press('Enter');assert(await page.locator('.image-lightbox img').isVisible());await page.getByRole('button',{name:'Close enlarged image'}).click();
  await page.goto('http://127.0.0.1:8774/gallery.html');
  assert.equal(await page.locator('.page-card').count(),12);
- await page.locator('.page-card img').evaluateAll(images=>Promise.all(images.map(i=>i.decode())));
+ await page.locator('.page-card img').evaluateAll(images=>Promise.all(images.map(i=>{i.loading="eager";return i.decode()})));
  await page.getByRole('button',{name:'Clocks',exact:true}).click();
  assert.equal(await page.locator('.page-card:visible').count(),2);
  await page.locator('.page-card:visible img').first().click();
