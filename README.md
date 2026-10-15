@@ -35,7 +35,7 @@ Remove room also offers **Older / manually created pages**. Select the exact pag
 
 ## Version 0.3.7 — Design atelier and room inventories
 
-80 original skins include Art Deco ornamental frames, Hi-Fi rotary controls and a fan-output meter, Ceramic, Japandi, Glass and Neon. The gallery uses actual app captures and is also available on the [Aurelvi website](https://sonics007.github.io/aurelvi-ha/).
+80 original skins include Art Deco ornamental frames, Hi-Fi rotary controls and a fan-output meter, Ceramic, Japandi, Glass and Neon. The gallery uses actual app captures and is also available on the [Aurelvi website](https://aurelvi-app.com/).
 
 **Build room** now lists every entity assigned directly or through a device to the chosen HA area. Choose what to show, group two lights/switches on a shared plate, then review and save. Outdoor covers use their normal cover entity. Remaining domains are safe readouts when no dedicated widget is available. Rebuilding replaces generated drafts for the same room; **Remove room** removes those pages from the panel draft, with Undo, and never deletes HA areas or entities. Manually created unrelated pages remain.
 

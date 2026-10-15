@@ -16,6 +16,29 @@ The repository remains public only for integration and website files. Private An
 
 ## Publishing after first-time setup
 
-In repository Settings → Pages, select **GitHub Actions** as the source. The **Publish Aurelvi website** workflow deploys the `website/` directory when its content changes. The expected public address is `https://sonics007.github.io/aurelvi-ha/`. Future website commits redeploy automatically. Deployment success must be checked in Actions before treating this address as live.
+In repository Settings → Pages, select **GitHub Actions** as the source. The **Publish Aurelvi website** workflow deploys the `website/` directory when its content changes. The target public address is `https://aurelvi-app.com/`. The original address remains `https://sonics007.github.io/aurelvi-ha/` until the custom domain is activated. Future website commits redeploy automatically. Deployment success must be checked in Actions before treating this address as live.
 
 Atelier 0.3.7 adds a persistent light/dark switch, eight locally bundled full app images and an 80-cell screenshot atlas. Micro purchases are proposed at EUR 1.49 per skin and EUR 4.90 per eight-skin collection, per panel. Purchases stay disabled. Native activation is implemented, but commercial gating, renewal/restore and subscription management are not live.
+
+
+## Custom domain: aurelvi-app.com
+
+Status: website URLs are prepared; GitHub Pages custom-domain and registrar DNS configuration must be completed and verified separately.
+
+1. In repository Settings → Pages → Custom domain, save `aurelvi-app.com`. Keep GitHub Actions as the publishing source.
+2. At the domain registrar, replace conflicting parking/redirect A or AAAA records for the apex only. Add these records (do not change mail records):
+
+| Type | Name | Value |
+| --- | --- | --- |
+| A | @ | 185.199.108.153 |
+| A | @ | 185.199.109.153 |
+| A | @ | 185.199.110.153 |
+| A | @ | 185.199.111.153 |
+| CNAME | www | sonics007.github.io |
+
+3. Wait for DNS validation and the GitHub certificate, then enable Enforce HTTPS.
+4. Verify that the homepage, assets and subpages load at `https://aurelvi-app.com/`, and that the old GitHub Pages URL redirects correctly.
+
+The Actions publishing method ignores a repository CNAME file: the custom domain must be saved in Pages settings. Do not add a JavaScript redirect before DNS and TLS work, as that would send visitors to an unavailable domain.
+
+Reference: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
