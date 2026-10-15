@@ -7,6 +7,8 @@ w.OpenPanelNative={readCache:()=>'{"clockLanguage":"en-GB"}',loadIntercomSetting
 class Session extends EventEmitter{constructor(direction='outgoing',user='101'){super();this.direction=direction;this.established=false;this.ended=false;this.connection={addEventListener(){},getSenders:()=>[{track:{stop:()=>trackStopped++}}]};this.remote_identity={uri:{user,host:'example.com'}};}isEstablished(){return this.established;}isEnded(){return this.ended;}terminate(data){this.termination=data;this.ended=true;this.emit('ended');}answer(o){this.options=o;this.answered=true;}mute(o){this.muted=o.audio;}unmute(){this.muted=false;}}
 class UA extends EventEmitter{constructor(options){super();this.options=options;ua=this;}start(){this.started=true;}stop(){this.stopped=true;}call(uri,options){const s=new Session();calls.push({uri,options,session:s});this.emit('newRTCSession',{session:s,originator:'local'});return s;}}
 w.JsSIP={UA,WebSocketInterface:class{constructor(url){this.url=url;}},URI:{parse:uri=>{let m=/sip:([^@]+)@(.+)/.exec(uri);return m&&{user:m[1],host:m[2]};}}};
+// Simulate older NSPanel WebView without replaceChildren.
+w.Element.prototype.replaceChildren=undefined;
 w.eval(fs.readFileSync(path+'intercom.js','utf8'));
 const clickContact=id=>d.querySelector('[data-contact="'+id+'"]').click(),flush=()=>new Promise(r=>setImmediate(r));
 (async()=>{

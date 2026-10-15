@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.12
+
+- Keep the intercom contact list compatible with older Android WebView engines by using established DOM removal APIs.
+
 ## 0.3.11
 
 - Enlarge product images and skin previews in an accessible dialog, with Escape, close and focus return.
