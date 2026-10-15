@@ -1,6 +1,7 @@
 /* Own renderer and kiosk controls; uses only the integration's public protocol. */
 (function () {
   "use strict";
+  function uiText(en,legacy){return window.AurelviI18n?window.AurelviI18n.t(en):legacy;}
   var P = window.OpenPanelProtocol,
     N = window.OpenPanelNative,
     $ = function (id) {
@@ -148,7 +149,7 @@
   }
   function sendEvent(id, action, value, state) {
     if (!online || !client) {
-      toast("Panel nie je pripojený k MQTT");
+      toast(uiText("Panel is not connected to MQTT","Panel nie je pripojený k MQTT"));
       return;
     }
     var page = config && config.pages[pageIndex];
@@ -367,7 +368,7 @@
         held = false;
       b.type = "button";
       b.disabled = !online;
-      b.setAttribute("aria-label", delta < 0 ? "Znížiť jas" : "Zvýšiť jas");
+      b.setAttribute("aria-label", delta < 0 ? uiText("Decrease brightness","Znížiť jas") : uiText("Increase brightness","Zvýšiť jas"));
       b.appendChild(
         glyph(delta < 0 ? tile.iconLow || "minus" : tile.icon || "plus"),
       );
@@ -471,10 +472,10 @@
     if (!config) {
       $("title").textContent = "OpenPanel";
       empty(
-        "Pripravené na pripojenie",
+        uiText("Ready to connect","Pripravené na pripojenie"),
         "V Aurelvi Studio pridaj panel " +
           settings.deviceId +
-          " a ulož jeho stránku.",
+          uiText(" and save its page."," a ulož jeho stránku."),
         "generic",
       );
       return;
@@ -491,8 +492,8 @@
       if (!page.tiles.length) {
         surface.style.display = "block";
         empty(
-          "Prázdna stránka",
-          "Pridaj tlačidlo v editore NSPanel Pro a ulož konfiguráciu.",
+          uiText("Empty page","Prázdna stránka"),
+          uiText("Add a control in Aurelvi Studio and save the configuration.","Pridaj tlačidlo v editore NSPanel Pro a ulož konfiguráciu."),
           "generic",
         );
         return;
@@ -515,7 +516,7 @@
         if (!node) {
           node = document.createElement("div");
           node.className = "tile unsupported";
-          node.textContent = "Nepodporovaný prvok: " + tile.type;
+          node.textContent = uiText("Unsupported control: ","Nepodporovaný prvok: ") + tile.type;
         }
         node.style.gridColumn = tile.col + " / span " + (tile.colSpan || 1);
         node.style.gridRow = tile.row + " / span " + (tile.rowSpan || 1);
@@ -534,8 +535,8 @@
     else if (page.type === "clock") clock(surface);
     else
       empty(
-        "Stránka " + page.type,
-        "Neznámy typ stránky.",
+        uiText("Page ","Stránka ") + page.type,
+        uiText("Unknown page type.","Neznámy typ stránky."),
         page.type === "weather" ? "weather" : "generic",
       );
   }
@@ -649,9 +650,9 @@
           pageIndex = deviceCfg.defaultPage;
         if (F) F.onConfig();
         applyDevice(deviceCfg);
-        $("summary").textContent = "Prijatých stránok: " + config.pages.length;
+        $("summary").textContent = uiText("Pages received: ","Prijatých stránok: ") + config.pages.length;
       } catch (e) {
-        toast("Chyba konfigurácie: " + e.message);
+        toast(uiText("Configuration error: ","Chyba konfigurácie: ") + e.message);
       }
       return;
     }
@@ -723,13 +724,13 @@
     $("status").className = online ? "online" : "";
     $("status").setAttribute(
       "aria-label",
-      online ? "MQTT pripojené" : "MQTT odpojené",
+      online ? uiText("MQTT connected","MQTT pripojené") : uiText("MQTT disconnected","MQTT odpojené"),
     );
     $("connection-detail").textContent = online
-      ? "MQTT pripojené"
+      ? uiText("MQTT connected","MQTT pripojené")
       : value === "connecting"
-        ? "Pripájam sa…"
-        : detail || "MQTT odpojené";
+        ? uiText("Connecting…","Pripájam sa…")
+        : detail || uiText("MQTT disconnected","MQTT odpojené");
     if (detail) toast(detail);
     if (!sleeping) render();
   }
@@ -785,7 +786,7 @@
         parsed.username ||
         parsed.password
       )
-        throw Error("Použi ws:// alebo wss:// bez hesla v adrese");
+        throw Error(uiText("Use ws:// or wss:// without a password in the URL","Použi ws:// alebo wss:// bez hesla v adrese"));
       next = {
         namespace: $("namespace").value,
         url: url,
@@ -806,11 +807,11 @@
     try {
       if (N) {
         if (N.saveSettings(JSON.stringify(settings)) !== "OK")
-          throw Error("Uloženie zlyhalo");
+          throw Error(uiText("Save failed","Uloženie zlyhalo"));
       } else
         localStorage.setItem("openpanel-settings", JSON.stringify(settings));
     } catch (e) {
-      toast("Nastavenie sa nepodarilo uložiť");
+      toast(uiText("Could not save settings","Nastavenie sa nepodarilo uložiť"));
       return;
     }
     if (oldId !== id) {

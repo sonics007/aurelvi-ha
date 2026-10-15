@@ -1,6 +1,7 @@
 /* Aurelvi controls: own protocol, confirmed states and configurable fan template. MIT. */
 (function (root) {
   "use strict";
+  function uiText(en,legacy){return window.AurelviI18n?window.AurelviI18n.t(en):legacy;}
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     n.className = cls || "";
@@ -183,7 +184,7 @@
       var sheet = el("section", "aur-sheet");
       sheet.id = "aur-sheet";
       sheet.setAttribute("role", "dialog");
-      sheet.appendChild(el("h2", "", "Vypnúť ventilátor o…"));
+      sheet.appendChild(el("h2", "", uiText("Turn fan off in…","Vypnúť ventilátor o…")));
       [15, 30, 60, 120].forEach(function (min) {
         sheet.appendChild(
           control(
@@ -203,7 +204,7 @@
         sheet.appendChild(
           control(
             page.id + ".cancel_timer",
-            "Zrušiť časovač",
+            uiText("Cancel timer","Zrušiť časovač"),
             "x",
             false,
             true,
@@ -213,7 +214,7 @@
             },
           ),
         );
-      var close = el("button", "aur-close", "Späť");
+      var close = el("button", "aur-close", uiText("Back","Späť"));
       close.onclick = function () {
         sheet.remove();
       };
@@ -231,7 +232,7 @@
       if (f.lightEntity) {
         var hero = control(
           page.id + ".light",
-          f.lightLabel || "Svetlo",
+          f.lightLabel || uiText("Light","Svetlo"),
           "lightbulb",
           light.on,
           light.available,
@@ -244,28 +245,28 @@
           "span",
           "aur-control-note",
           light.available === false
-            ? "Nedostupné"
+            ? uiText("Unavailable","Nedostupné")
             : light.on
-              ? "Zapnuté" +
+              ? uiText("On","Zapnuté") +
                 (light.brightness !== undefined
                   ? " · " + Math.round(light.brightness * 100) + " %"
                   : "")
-              : "Vypnuté",
+              : uiText("Off","Vypnuté"),
         );
         hero.appendChild(info);
         box.appendChild(hero);
       }
       var heading = el("div", "aur-section-head");
-      heading.appendChild(el("span", "", "RÝCHLOSŤ VENTILÁTORA"));
+      heading.appendChild(el("span", "", uiText("FAN SPEED","RÝCHLOSŤ VENTILÁTORA")));
       heading.appendChild(
         el(
           "span",
           "aur-state-label",
           fan.available === false
-            ? "Nedostupný"
+            ? uiText("Unavailable","Nedostupný")
             : fan.on
-              ? "Zapnutý"
-              : "Vypnutý",
+              ? uiText("On","Zapnutý")
+              : uiText("Off","Vypnutý"),
         ),
       );
       box.appendChild(heading);
@@ -307,7 +308,7 @@
           },
           "aur-speed",
         );
-        b.setAttribute("aria-label", "Rýchlosť " + (s.label || i + 1));
+        b.setAttribute("aria-label", uiText("Speed ","Rýchlosť ") + (s.label || i + 1));
         speedrow.appendChild(b);
       });
       box.appendChild(speedrow);
@@ -315,7 +316,7 @@
       utility.appendChild(
         control(
           page.id + ".off",
-          "Vypnúť",
+          uiText("Off","Vypnúť"),
           "power",
           fan.available !== false && !fan.on,
           fan.available,
@@ -329,9 +330,9 @@
           control(
             page.id + ".direction",
             fan.direction === "reverse"
-              ? "Späť"
+              ? uiText("Back","Späť")
               : fan.direction === "forward"
-                ? "Dopredu"
+                ? uiText("Forward","Dopredu")
                 : "Smer",
             "repeat",
             false,
@@ -345,7 +346,7 @@
         utility.appendChild(
           control(
             page.id + ".all_off",
-            "Všetko vypnúť",
+            uiText("All off","Všetko vypnúť"),
             "power",
             !fan.on && (!f.lightEntity || !light.on),
             fan.available !== false &&
@@ -363,7 +364,7 @@
           slider(
             page.id,
             "brightness",
-            "Jas",
+            uiText("Brightness","Jas"),
             "sun",
             Math.round((light.brightness || 0) * 100) / 100,
             0,
@@ -395,7 +396,7 @@
       if (cfg.timer) {
         var b = control(
           page.id + ".timer",
-          timer.active ? "Vypnutie o " + timerText() : "Časovač vypnutia",
+          timer.active ? "Vypnutie o " + timerText() : uiText("Shutdown timer","Časovač vypnutia"),
           "timer",
           timer.active,
           fan.available,
@@ -435,7 +436,7 @@
       setTimeout(function () {
         if (pending[id]) {
           delete pending[id];
-          ctx.toast("Príkaz nebol potvrdený. Skontroluj spojenie.");
+          ctx.toast(uiText("Command was not confirmed. Check the connection.","Príkaz nebol potvrdený. Skontroluj spojenie."));
           refreshPending();
         }
       }, 10000);
@@ -462,7 +463,7 @@
       if (name === "ack") {
         if (doc.eventId) delete pending[doc.eventId];
         refreshPending();
-        if (doc.ok === false) ctx.toast(doc.message || "Príkaz zlyhal");
+        if (doc.ok === false) ctx.toast(doc.message || uiText("Command failed","Príkaz zlyhal"));
       } else if (name === "timer") {
         timer = doc;
         timerAt = Date.now();
@@ -472,7 +473,7 @@
           if (span)
             span.textContent = doc.active
               ? "Vypnutie o " + timerText()
-              : "Časovač vypnutia";
+              : uiText("Shutdown timer","Časovač vypnutia");
           label.classList.toggle("is-on", doc.active);
         }
       }
