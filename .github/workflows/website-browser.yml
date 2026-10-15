@@ -24,8 +24,12 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Test responsive site
         run: node website-tests/browser.mjs
+      - name: Capture actual panel materials
+        run: node website-tests/materials.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: aurelvi-website-screenshots
-          path: website-test-results
+          path: |
+            website-test-results
+            material-captures

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.11
+
+- Enlarge product images and skin previews in an accessible dialog, with Escape, close and focus return.
+- Add eight bundled photorealistic material textures: brushed aluminium, titanium, carbon fibre, oak, walnut, Carrara marble, black marble and leather.
+- Add an audio-only SIP/WebRTC intercom preview with up to 12 selectable contacts, one active call, explicit acceptance, mute and hangup. Requires a compatible calling provider; mobile locked-screen push is not supplied by this release.
+- Store intercom credentials encrypted on the panel, outside HA/MQTT snapshots.
+- Add 26 offline European core UI packs and language selection, with English fallback for untranslated advanced copy.
+- Remove the old external-project namespace, selectors, links and reference test suite. Existing Aurelvi layouts remain supported.
+
 ## 0.3.10
 
 - Keep wind-mode controls enabled when a fan is in manual speed mode with no active preset (`preset_mode: null`). Clear the active highlight while preserving available choices; disable controls only when the entity is unavailable.

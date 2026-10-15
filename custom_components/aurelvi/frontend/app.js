@@ -54,7 +54,7 @@
   settings.deviceId = settings.deviceId || "nspanel-7tmv73";
   settings.username = settings.username || "";
   settings.password = settings.password || "";
-  settings.namespace = settings.namespace || "aurelvi";
+  settings.namespace = "aurelvi";
   P.setNamespace(settings.namespace);
   function toast(text) {
     $("toast").textContent = text;
@@ -604,6 +604,8 @@
     }
   }
   function applyDevice(doc) {
+    if(window.AurelviI18n){var languageDevice=arguments[0]||{};window.AurelviI18n.setLanguage(window.AurelviI18n.preferred(languageDevice.uiLanguage||languageDevice.clockLanguage||'en'));}
+
     deviceCfg = doc || {};
     var imported = deviceCfg.appSettings;
     if (imported && settings.namespace === "aurelvi") {
@@ -899,7 +901,7 @@
     if (
       Date.now() - lastTouch > after * 1000 &&
       !sleeping &&
-      !(F && F.keepAwake())
+      !(F && F.keepAwake()) && !(window.AurelviIntercom && window.AurelviIntercom.isBusy())
     ) {
       sleeping = true;
       blanked = false;
@@ -961,6 +963,7 @@
   if (window.OpenPanelFeatureFactory)
     F = window.OpenPanelFeatureFactory.create(featureContext);
   if (window.AurelviFactory) A = window.AurelviFactory.create(featureContext);
+  window.addEventListener("aurelvi-intercom-incoming",wake);
   var cached = read("panels", null);
   try {
     if (cached) config = P.validateConfig(cached);

@@ -9,4 +9,8 @@ The Sendspin bundle is built using esbuild 0.25.5, browser IIFE, target Chrome 8
 Only PCM is advertised by OpenPanel; compatibility depends on installed WebView
 and Music Assistant version. No runtime CDN dependency is used.
 Public integration reference files preserve their MIT license in tests/upstream.
-No proprietary DomoDreams APK source code, art, textures or audio is included.
+Aurelvi application code and visual assets are independently maintained.
+
+SIP client: JsSIP 3.10.1 (MIT), bundled locally with debug, events, sdp-transform and ms. Licence texts are included under the frontend/assets third-party directory. No SIP CDN is loaded at runtime.
+
+Material finishes are independently generated digital textures; they are not photographs of physical Aurelvi products.

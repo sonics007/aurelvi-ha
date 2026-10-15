@@ -22,6 +22,9 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/aurelvi-checks/node_modules
         run: |
           node tests/studio.test.cjs
+          node tests/locales.test.cjs
+          node tests/website-ui.test.cjs
+          node tests/intercom.test.cjs
           node tests/rooms.test.cjs
           node tests/fan-room.test.cjs
           node tests/adb-ui.test.cjs

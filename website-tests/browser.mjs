@@ -20,12 +20,17 @@ try{
  assert(await page.locator('.design-strip img').count()>=6);
  await page.locator('.studio-image img').evaluate(image=>image.decode());
  await page.screenshot({path:'website-test-results/home-desktop.png',fullPage:true});
+ await page.locator('.design-strip img').first().click();assert(await page.locator('.image-lightbox').evaluate(d=>d.open));await page.keyboard.press('Escape');assert(!(await page.locator('.image-lightbox').evaluate(d=>d.open)));
+ await page.locator('.studio-image img').focus();await page.keyboard.press('Enter');assert(await page.locator('.image-lightbox img').isVisible());await page.getByRole('button',{name:'Close enlarged image'}).click();
  await page.goto('http://127.0.0.1:8774/gallery.html');
  assert.equal(await page.locator('.skin-choice').count(),80);
+ assert.equal(await page.locator('#language option').count(),26);
+ await page.locator('#language').selectOption('de');assert((await page.locator('nav').textContent()).includes('Funktionen'));await page.locator('#language').selectOption('en');
  await page.getByRole('button',{name:'Dark',exact:true}).click();
  const dark=await page.locator('.skin-choice:visible').count();assert(dark>0&&dark<80);
  await page.getByRole('button',{name:'Jade Library',exact:true}).click();
  assert.equal(await page.locator('[data-theme-name]').textContent(),'Jade Library');
+ assert(await page.locator('.image-lightbox').evaluate(d=>d.open));assert(await page.locator('.lightbox-skin').isVisible());await page.screenshot({path:'website-test-results/enlarged-skin.png'});await page.keyboard.press('Escape');
  await page.screenshot({path:'website-test-results/gallery-desktop.png',fullPage:true});
  await page.getByRole('button',{name:'All skins',exact:true}).click();
  await page.locator('#collection-filter').selectOption('Art Deco');

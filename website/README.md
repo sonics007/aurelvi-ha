@@ -1,6 +1,6 @@
 # Aurelvi website
 
-Static product website for the Aurelvi NSPanel Pro project. English by default, Slovak language switch. Own branding, own demo and original documentation; no copied DomoDreams branding or screenshots.
+Static product website for the Aurelvi NSPanel Pro project. English by default, Slovak language switch. Own branding, own demo and original documentation; original Aurelvi branding and screenshots.
 
 Pages: home, features, 80-skin palette gallery, setup guide, proposed Plus pricing and activation result. Gallery controls are an illustrative browser demo, not connected to a real panel. The editor image is the existing public Aurelvi Studio 0.3.4 screenshot and is labelled with its version.
 

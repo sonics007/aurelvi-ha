@@ -5,7 +5,7 @@
   function concat(parts){var size=0;parts.forEach(function(p){size+=p.length;});var out=new Uint8Array(size),at=0;parts.forEach(function(p){out.set(p,at);at+=p.length;});return out;}
   function string(value){var bytes=encoder.encode(String(value));if(bytes.length>65535)throw Error('MQTT string too long');return concat([new Uint8Array([bytes.length>>8,bytes.length&255]),bytes]);}
   function packet(header,body){var n=body.length,encoded=[];do{var b=n%128;n=Math.floor(n/128);encoded.push(b|(n?128:0));}while(n);return concat([new Uint8Array([header].concat(encoded)),body]);}
-  var namespace='aurelvi';function setNamespace(value){namespace=value==='domodreams'?'domodreams':'aurelvi';}
+  var namespace='aurelvi';function setNamespace(){namespace='aurelvi';}
   function base(id){if(!/^[A-Za-z0-9_-]{1,64}$/.test(id)||id==='discover')throw Error('Neplatné ID panela');return namespace+'/panel/'+id;}
   function entityKey(id){return String(id||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');}
   function stateFor(tile,states){return states[tile.stateKey||entityKey(tile.entity)]||{};}

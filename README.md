@@ -2,7 +2,14 @@
 
 # Aurelvi for Home Assistant
 
-Local MQTT integration and Aurelvi Studio for Android wall panels. The interface follows your Home Assistant language: Slovak for `sk`, English for every other language. Android source code is maintained in a separate private repository.
+## Version 0.3.11
+
+Enlarged website images, eight material textures, 26 European core UI packs and an audio-only SIP/WebRTC intercom preview. Use APK **0.3.11** for the new panel surfaces, local language selector and intercom. The intercom requires a compatible SIP/WSS service and phone app; locked-screen ringing additionally requires provider push support. No hosted calling service is included, and a real phone call still needs device verification.
+
+Additional language packs currently cover core controls; advanced untranslated descriptions fall back to English.
+
+
+Local MQTT integration and Aurelvi Studio for Android wall panels. Studio follows your Home Assistant language, with 26 core UI packs and English fallback for untranslated advanced descriptions. Android source code is maintained in a separate private repository.
 
 ## Install or update
 
@@ -75,4 +82,6 @@ If an older version has already overwritten a layout, restore a saved backup; th
 
 Run `tests/integration.test.py`, `tests/settings.test.py`, `tests/health.test.py` and `tests/lifecycle.test.py` with Python, plus `tests/studio.test.cjs` with Node and jsdom. These use isolated Home Assistant adapters; installation and behavior on real hardware still require verification.
 
-See [FEATURES.md](FEATURES.md) for the feature comparison and scope. The project is independent of SONOFF, eWeLink and DomoDreams. Own-code and third-party licenses are included in this repository.
+See [FEATURES.md](FEATURES.md) for the feature comparison and scope. The project is independent of SONOFF and eWeLink. Own-code and third-party licenses are included in this repository.
+
+Details: [Intercom setup](docs/intercom.md) · [Language coverage](docs/languages.md).

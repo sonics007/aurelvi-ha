@@ -1,0 +1,5 @@
+const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
+const root=__dirname+'/../custom_components/aurelvi/',data=JSON.parse(fs.readFileSync(root+'frontend/locales.json','utf8'));
+assert.equal(Object.keys(data.names).length,26);for(const code of Object.keys(data.names)){assert.equal(Object.keys(data.translations[code]).length,40);assert(Object.values(data.translations[code]).every(v=>typeof v==='string'&&v));const ha=JSON.parse(fs.readFileSync(root+'translations/'+code+'.json','utf8'));assert.equal(ha.title,'Aurelvi');}
+const dom=new JSDOM('<body/>',{runScripts:'outside-only',url:'https://ha.test'}),w=dom.window;w.eval(fs.readFileSync(root+'frontend/i18n.js','utf8'));const I=w.AurelviI18n;
+assert.equal(I.t('Save','de'),'Speichern');assert.equal(I.t('Save','hu-HU'),'Mentés');assert.equal(I.t('Uložiť na panel','pl-PL'),'Zapisz na panelu');assert.equal(I.t('Save','xx'),'Save');assert.equal(I.t('Advanced untranslated copy','hu'),'Advanced untranslated copy');assert.equal(I.normalize('no-NO'),'nb');w.close();console.log('PASS 26 core locale packs, HA files, regional locale matching, native names and explicit English fallback');

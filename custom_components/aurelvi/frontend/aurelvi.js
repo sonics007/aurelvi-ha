@@ -70,6 +70,11 @@
       else{document.body.style.removeProperty("background-image");document.body.style.removeProperty("background-size");document.body.style.removeProperty("background-position");}
       document.body.dataset.skin = name;
       document.body.dataset.material = skin ? skin.material : "soft";
+      document.body.dataset.texture = skin ? (skin.texture || "") : "";
+      document.body.dataset.trim = skin ? (skin.trim || "") : "";
+      var texture=skin && skin.texture;
+      document.body.style.setProperty("--texture-image",texture ? 'url("materials/'+texture+'.webp")' : "none");
+      document.body.style.setProperty("--material-tint",skin ? skin.bg+"99" : "transparent");
       document.body.dataset.skinVariant = skin ? String(skin.variant || 0) : "0";
       document.body.classList.toggle("aurelvi-night", skin ? skin.dark : name === "night");
       if (skin) {
@@ -422,7 +427,6 @@
       }
     }
     function begin(event) {
-      if (ctx.settings().namespace === "domodreams") return;
       var id = event.eventId;
       pending[id] = { button: event.button, started: Date.now() };
       document.querySelectorAll("[data-control]").forEach(function (b) {

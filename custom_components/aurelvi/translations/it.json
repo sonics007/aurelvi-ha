@@ -1,0 +1,175 @@
+{
+  "title": "Aurelvi",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Aurelvi – Home at a touch",
+        "description": "Uses the existing Home Assistant MQTT integration. Connect the panel to the same broker, using Aurelvi mode. Configure pages in Aurelvi Studio in the sidebar."
+      }
+    },
+    "error": {
+      "mqtt_missing": "Set up the MQTT integration and broker first.",
+      "mqtt_disconnected": "MQTT is disconnected. Check the broker."
+    },
+    "abort": {
+      "single_instance_allowed": "Aurelvi is already configured."
+    }
+  },
+  "services": {
+    "push_config": {
+      "name": "Push configuration",
+      "description": "Resend saved pages and states to the panel.",
+      "fields": {
+        "panel_id": {
+          "name": "Panel ID"
+        }
+      }
+    },
+    "wake": {
+      "name": "Wake panel",
+      "fields": {
+        "panel_id": {
+          "name": "Panel ID"
+        }
+      }
+    },
+    "page": {
+      "name": "Show page",
+      "fields": {
+        "panel_id": {
+          "name": "Panel ID"
+        },
+        "id": {
+          "name": "Studio page ID"
+        }
+      }
+    },
+    "screen": {
+      "name": "Set screen",
+      "fields": {
+        "panel_id": {
+          "name": "Panel ID"
+        },
+        "action": {
+          "name": "Action"
+        },
+        "brightness": {
+          "name": "Brightness (0.05 to 1)"
+        }
+      }
+    },
+    "start_timer": {
+      "name": "Start shutdown timer",
+      "description": "The timer is stored in Home Assistant and restored after a restart.",
+      "fields": {
+        "panel_id": {
+          "name": "Panel ID"
+        },
+        "entity_id": {
+          "name": "Device to turn off"
+        },
+        "seconds": {
+          "name": "Seconds"
+        }
+      }
+    },
+    "cancel_timer": {
+      "name": "Cancel timer",
+      "fields": {
+        "panel_id": {
+          "name": "Panel ID"
+        }
+      }
+    },
+    "notify": {
+      "name": "Panel notification",
+      "fields": {
+        "panel_id": {
+          "name": "Panel ID"
+        },
+        "title": {
+          "name": "Title"
+        },
+        "message": {
+          "name": "Notification message"
+        },
+        "priority": {
+          "name": "Priority"
+        },
+        "timeoutS": {
+          "name": "Display duration in seconds (0 = unlimited)"
+        },
+        "sound": {
+          "name": "Sound or HTTPS/HTTP URL",
+          "description": "ding, alarm_beep, alarm, alarmo, siren, or a sound URL."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "version": {
+        "name": "Versione"
+      },
+      "rssi": {
+        "name": "Wi-Fi signal"
+      },
+      "freeMemMB": {
+        "name": "Free memory"
+      },
+      "uptimeS": {
+        "name": "Uptime"
+      },
+      "timer": {
+        "name": "Timer"
+      },
+      "illuminance": {
+        "name": "Illuminance"
+      }
+    },
+    "binary_sensor": {
+      "online": {
+        "name": "Connection"
+      },
+      "motion": {
+        "name": "Motion"
+      }
+    },
+    "button": {
+      "wake": {
+        "name": "Wake"
+      },
+      "info": {
+        "name": "Refresh information"
+      },
+      "cancel_timer": {
+        "name": "Cancel timer"
+      }
+    },
+    "number": {
+      "brightness": {
+        "name": "Screen brightness"
+      }
+    },
+    "switch": {
+      "screen": {
+        "name": "Schermo"
+      }
+    },
+    "media_player": {
+      "speaker": {
+        "name": "Altoparlante"
+      }
+    },
+    "update": {
+      "update": {
+        "name": "App update"
+      }
+    },
+    "notify": {
+      "notification": {
+        "name": "Notifica"
+      }
+    }
+  }
+}
