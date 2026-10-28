@@ -1,5 +1,6 @@
 const fs=require('fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
 const dom=new JSDOM('<body/>',{url:'https://ha.test',runScripts:'outside-only'}),w=dom.window,calls=[];
+require('./studio-locale.cjs')(w);
 w.eval(fs.readFileSync(__dirname+'/../custom_components/aurelvi/frontend/studio.js','utf8'));
 const studio=w.document.createElement('aurelvi-studio');
 const store={version:'0.3.5',panels:[],timers:{},settings:{},latest:{},logs:[]};
@@ -15,5 +16,5 @@ studio.adbDialog();assert(button('Install latest Aurelvi APK').disabled);change(
 button('Install latest Aurelvi APK').click();await tick();assert(button('Reboot').disabled);release();await tick();assert(!button('Reboot').disabled);
 change('Panel IP address','192.168.1.232');assert(button('Reboot').disabled,'editing target resets tested status');
 fail=true;button('Connect / test ADB').click();await tick();assert(button('Install latest Aurelvi APK').disabled);assert(studio.shadowRoot.querySelector('.modal .notice.error'));assert(studio.shadowRoot.querySelector('.modal pre').textContent.includes('Connection denied'));
-button('Close').click();hass.language='sk';studio.hass=hass;studio.adbDialog();assert(button('Pripojiť / overiť ADB'));assert(button('Nainštalovať najnovšiu Aurelvi APK'));assert(button('Obnoviť domovskú aplikáciu Androidu'));dom.window.close();console.log('PASS ADB UI: initial setup, endpoint, busy install, target change, failure and Slovak locale');
+button('Close').click();hass.language='sk';studio.hass=hass;await studio.i18nReady;studio.adbDialog();assert(button('Pripojiť / overiť ADB'));assert(button('Nainštalovať najnovšiu Aurelvi APK'));assert(button('Obnoviť domovskú aplikáciu Androidu'));dom.window.close();console.log('PASS ADB UI: initial setup, endpoint, busy install, target change, failure and Slovak locale');
 })().catch(e=>{console.error(e);dom.window.close();process.exitCode=1});
