@@ -2,7 +2,10 @@ name: Validate Studio room controls
 on:
   push:
     paths:
-      - 'custom_components/aurelvi/frontend/studio.js'
+      - 'custom_components/aurelvi/frontend/**'
+      - 'website/**'
+      - 'locale/**'
+      - 'tools/**'
       - 'tests/*.cjs'
       - '.github/workflows/studio-validation.yml'
   pull_request:
@@ -16,6 +19,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Generated translation files are current
+        run: python3 tools/build_locales.py --check
       - run: npm install --prefix "$RUNNER_TEMP/aurelvi-checks" jsdom@26
       - name: Studio and room inventories
         env:
