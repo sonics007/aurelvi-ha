@@ -7,6 +7,16 @@
 
 # Changelog
 
+## 0.3.13
+
+- All user-visible text moved to `locale/<code>.json` with named keys; `locale/sk.json` is the master (1002 keys). `tools/build_locales.py` generates the panel, Studio, website and Home Assistant translation files; CI checks they are current. See LOCALIZATION.md.
+- Studio, the panel UI, backend messages, HA entities/services and the website are fully translated into all 26 languages (machine-translated; native review welcome).
+- New `aurelvi.adb_command` service and **Reboot (ADB)** button, available even when the panel is offline over MQTT; the panel's ADB address is remembered. Example watchdog automation in `examples/panel-watchdog.yaml`.
+- Fewer state writes and disk saves: per-panel entity cache, panel-scoped entity updates, delayed storage writes.
+- Camera stream URLs with access tokens are no longer retained on the MQTT broker; unpaired panel auto-creation is capped at 10. Broker ACL guidance in `docs/security.md`.
+- Rejected MQTT messages are logged as warnings; all Python tests run in CI; the version is read from `manifest.json`.
+- Requires APK **0.3.13** for the translated panel UI.
+
 ## 0.3.12
 
 - Keep the intercom contact list compatible with older Android WebView engines by using established DOM removal APIs.

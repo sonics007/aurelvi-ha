@@ -2,6 +2,10 @@
 
 # Aurelvi for Home Assistant
 
+## Version 0.3.13 — Languages and panel watchdog
+
+Studio, the wall panel, error messages and Home Assistant entities are available in 26 languages; texts live in `locale/` (see [LOCALIZATION.md](LOCALIZATION.md)). New **Reboot (ADB)** button and `aurelvi.adb_command` service let Home Assistant restart a panel that dropped off MQTT — see *Automatický reštart panelu (watchdog)* below. Update the integration, restart HA, and install APK **0.3.13** for the translated panel UI.
+
 ## Version 0.3.11
 
 Enlarged website images, eight material textures, 26 European core UI packs and an audio-only SIP/WebRTC intercom preview. Use APK **0.3.11** for the new panel surfaces, local language selector and intercom. The intercom requires a compatible SIP/WSS service and phone app; locked-screen ringing additionally requires provider push support. No hosted calling service is included, and a real phone call still needs device verification.
