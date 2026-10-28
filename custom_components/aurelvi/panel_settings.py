@@ -1,5 +1,6 @@
 """Allowlisted application settings reported by a panel; never import credentials."""
 import re
+from .i18n import msg
 from urllib.parse import urlsplit
 
 
@@ -58,7 +59,7 @@ def normalize_panel_config(raw):
             domain = value.split('.')[0]
             return {'service': domain + ('.press' if domain == 'button' else '.turn_on'), 'target': {'entity_id': value}}
         if not isinstance(value, dict):
-            raise ValueError('Unsupported legacy action')
+            raise ValueError(msg('backend.settings.legacy_unsupported'))
         if value.get('service'):
             value.pop('action', None)
             return value
@@ -67,10 +68,10 @@ def normalize_panel_config(raw):
             return {'noop': True}
         services = {'toggle': 'homeassistant.toggle', 'turn_on': 'homeassistant.turn_on', 'turn_off': 'homeassistant.turn_off', 'brightness': 'light.turn_on', 'scene': 'scene.turn_on', 'script': 'script.turn_on'}
         if kind not in services:
-            raise ValueError('Unsupported legacy action: ' + str(kind))
+            raise ValueError(msg('backend.settings.legacy_unsupported_kind', kind=kind))
         target = value.get('entity_id') or entity
         if not target:
-            raise ValueError('Legacy action has no target entity')
+            raise ValueError(msg('backend.settings.legacy_no_target'))
         out = {'service': services[kind], 'target': {'entity_id': target}, 'data': value.get('data', {})}
         if kind == 'brightness':
             out['dynamic'] = 'brightness_pct'

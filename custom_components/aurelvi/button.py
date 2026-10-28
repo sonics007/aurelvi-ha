@@ -1,10 +1,15 @@
 from homeassistant.components.button import ButtonEntity
+from .const import DOMAIN
 from .entity import AurelviEntity,add_dynamic
+from .i18n import plain
 class PanelButton(AurelviEntity,ButtonEntity):
     def __init__(self,h,p,cmd,name):super().__init__(h,p,cmd,name);self.cmd=cmd
     async def async_press(self):
-        if self.cmd=='cancel_timer':await self.hub.cancel_timer(self.pid)
-        else:await self.hub.command(self.pid,self.cmd)
+        from homeassistant.exceptions import HomeAssistantError
+        try:
+            if self.cmd=='cancel_timer':await self.hub.cancel_timer(self.pid)
+            else:await self.hub.command(self.pid,self.cmd)
+        except ValueError as err:raise HomeAssistantError(translation_domain=DOMAIN,translation_key='panel_command_failed',translation_placeholders={'error':plain(err)}) from err
 class AdbRebootButton(AurelviEntity,ButtonEntity):
     """Reboots over ADB (LAN), so it stays usable while the panel is offline over MQTT."""
     def __init__(self,h,p):super().__init__(h,p,'adb_reboot','Reštartovať (ADB)')
@@ -16,5 +21,5 @@ class AdbRebootButton(AurelviEntity,ButtonEntity):
         from .adb import async_service
         from homeassistant.exceptions import HomeAssistantError
         try:await async_service(self.hub,{'panel_id':self.pid,'operation':'reboot'})
-        except ValueError as err:raise HomeAssistantError(str(err)) from err
+        except ValueError as err:raise HomeAssistantError(translation_domain=DOMAIN,translation_key='adb_failed',translation_placeholders={'error':plain(err)}) from err
 async def async_setup_entry(hass,entry,async_add_entities):await add_dynamic(hass,entry,async_add_entities,lambda h,p:[PanelButton(h,p,'wake','Prebudiť'),PanelButton(h,p,'info','Obnoviť informácie'),PanelButton(h,p,'cancel_timer','Zrušiť časovač'),AdbRebootButton(h,p)])

@@ -1,12 +1,15 @@
 """Regression coverage for nullable Home Assistant light/device readings."""
 import importlib.util
 import json
+import sys
+import types
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
 
-spec=importlib.util.spec_from_file_location('models',Path(__file__).resolve().parents[1]/'custom_components/aurelvi/models.py')
-models=importlib.util.module_from_spec(spec);spec.loader.exec_module(models)
+_pkg=types.ModuleType('aurelvi_pkg');_pkg.__path__=[str(Path(__file__).resolve().parents[1]/'custom_components/aurelvi')];sys.modules['aurelvi_pkg']=_pkg
+spec=importlib.util.spec_from_file_location('aurelvi_pkg.models',Path(__file__).resolve().parents[1]/'custom_components/aurelvi/models.py')
+models=importlib.util.module_from_spec(spec);sys.modules['aurelvi_pkg.models']=models;spec.loader.exec_module(models)
 
 def state(value='off',**attrs):
     return SimpleNamespace(entity_id='light.ceiling',state=value,attributes=attrs)

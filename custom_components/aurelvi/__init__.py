@@ -10,6 +10,7 @@ from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 from .const import DOMAIN, PLATFORMS, VERSION
 from .hub import Hub
+from .i18n import msg as tr, plain
 from .models import panel_id
 
 _LOGGER=logging.getLogger(__name__)
@@ -45,7 +46,7 @@ async def async_unload_entry(hass,entry):
 @websocket_api.async_response
 async def ws_command(hass,connection,msg):
     hub=hass.data.get(DOMAIN,{}).get('hub')
-    if not hub:connection.send_error(msg['id'],'not_ready','Najprv pridaj integráciu Aurelvi');return
+    if not hub:connection.send_error(msg['id'],'not_ready',tr('backend.ws.not_ready'));return
     action=msg['action'];pid=msg.get('panel_id');data=msg['data']
     try:
         if pid:panel_id(pid)
@@ -58,7 +59,7 @@ async def ws_command(hass,connection,msg):
         elif action=='licence':
             token=data.get('token','')
             import re
-            if not isinstance(token,str) or not re.fullmatch(r'AV1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+',token) or len(token)>10000:raise ValueError('Invalid licence token')
+            if not isinstance(token,str) or not re.fullmatch(r'AV1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+',token) or len(token)>10000:raise ValueError(tr('backend.ws.invalid_licence'))
             await hub.command(pid,'licence',{'token':token});result={'sent':True}
         elif action=='list':result=hub.snapshot()
         elif action=='add':await hub.add(pid,data.get('name'));result=hub.snapshot()
@@ -71,7 +72,7 @@ async def ws_command(hass,connection,msg):
         elif action=='push':await hub.push(pid);result=True
         elif action=='command':
             name=data.get('name');payload=data.get('payload',{})
-            if name not in {'wake','screen','page','info','screenshot','notify_clear','check_update'}:raise ValueError('Nepovolený príkaz')
+            if name not in {'wake','screen','page','info','screenshot','notify_clear','check_update'}:raise ValueError(tr('backend.ws.command_not_allowed'))
             await hub.command(pid,name,payload);result=True
         elif action=='notify':await hub.notify(pid,data);result=True
         elif action=='timer':await hub.set_timer(pid,data['entity'],data['seconds']);result=True
@@ -80,44 +81,46 @@ async def ws_command(hass,connection,msg):
             import re
             from urllib.parse import urlparse
             repo=data.get('githubRepo','').strip();url=data.get('haUrl','').strip()
-            if repo and not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}',repo):raise ValueError('Repozitár má mať tvar vlastnik/repozitar')
+            if repo and not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}',repo):raise ValueError(tr('backend.ws.invalid_repo_format'))
             if url:
                 u=urlparse(url)
-                if u.scheme not in {'http','https'} or not u.hostname or u.username or u.password:raise ValueError('Neplatná adresa HA')
+                if u.scheme not in {'http','https'} or not u.hostname or u.username or u.password:raise ValueError(tr('backend.ws.invalid_ha_url'))
             hub.latest={};hub.settings={'githubRepo':repo,'githubAsset':data.get('githubAsset','').strip(),'haUrl':url,'configured':True};await hub.persist();await hub.check_releases()
             for panel,p in hub.panels.items():
                 if p.get('paired'):await hub.push(panel)
             result=True
         elif action=='check_update':await hub.check_releases();result=hub.latest
         elif action=='install_update':
-            if not hub.latest.get('url'):raise ValueError('Nie je dostupné APK')
+            if not hub.latest.get('url'):raise ValueError(tr('backend.ws.no_apk'))
             await hub.command(pid,'update',{'url':hub.latest['url']});result=True
         elif action=='states':
             from .models import entities, mirror
             cfg=data.get('config',{})
             result={entity.replace('.','_'):mirror(hass.states.get(entity)) for entity in entities(cfg)}
-        else:raise ValueError('Neznáma operácia')
+        else:raise ValueError(tr('backend.ws.unknown_operation'))
         connection.send_result(msg['id'],result)
     except (ValueError,KeyError,TypeError) as e:connection.send_error(msg['id'],'invalid_request',str(e))
     except Exception:
         _LOGGER.exception('Aurelvi Studio operation failed: %s',action)
-        connection.send_error(msg['id'],'failed','Operácia zlyhala. Pozri systémový log HA.')
+        connection.send_error(msg['id'],'failed',tr('backend.ws.failed'))
 
 def register_services(hass):
     async def handle(call):
         hub=hass.data[DOMAIN]['hub'];data=dict(call.data);pid=data.pop('panel_id')
-        if call.service=='push_config':await hub.push(pid)
-        elif call.service=='start_timer':await hub.set_timer(pid,data['entity_id'],data['seconds'])
-        elif call.service=='cancel_timer':await hub.cancel_timer(pid)
-        elif call.service=='notify':await hub.notify(pid,data)
-        else:await hub.command(pid,call.service,data)
+        try:
+            if call.service=='push_config':await hub.push(pid)
+            elif call.service=='start_timer':await hub.set_timer(pid,data['entity_id'],data['seconds'])
+            elif call.service=='cancel_timer':await hub.cancel_timer(pid)
+            elif call.service=='notify':await hub.notify(pid,data)
+            else:await hub.command(pid,call.service,data)
+        except ValueError as err:raise HomeAssistantError(translation_domain=DOMAIN,translation_key='panel_command_failed',translation_placeholders={'error':plain(err)}) from err
     for name in ['push_config','wake','page','notify','screen','start_timer','cancel_timer']:
         hass.services.async_register(DOMAIN,name,handle,schema=vol.Schema({vol.Required('panel_id'):str},extra=vol.ALLOW_EXTRA))
     from .adb import SERVICE_OPERATIONS,async_service
     async def handle_adb(call):
         hub=hass.data[DOMAIN]['hub']
         try:await async_service(hub,dict(call.data))
-        except ValueError as err:raise HomeAssistantError(str(err)) from err
+        except ValueError as err:raise HomeAssistantError(translation_domain=DOMAIN,translation_key='adb_failed',translation_placeholders={'error':plain(err)}) from err
     hass.services.async_register(DOMAIN,'adb_command',handle_adb,schema=vol.Schema({
         vol.Required('panel_id'):str,vol.Required('operation'):vol.In(SERVICE_OPERATIONS),
         vol.Optional('host'):str,vol.Optional('port'):vol.All(vol.Coerce(int),vol.Range(min=1,max=65535))}))

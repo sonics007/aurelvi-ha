@@ -19,6 +19,7 @@ from homeassistant.helpers.event import async_track_time_interval, async_call_la
 from homeassistant.helpers.network import get_url
 from homeassistant.helpers.storage import Store
 from .panel_settings import public_settings, public_device, normalize_panel_config
+from .i18n import msg as tr
 from .const import DOMAIN, PREFIX, SIGNAL, VERSION
 from .models import actions, attribute_key, PROJECTED_ATTRIBUTES, finite_attribute, default_config, entities, entity_id, entity_key, mirror, number, panel_id, validate_config, validate_device
 
@@ -80,8 +81,8 @@ class Hub:
         payload=data if isinstance(data,str) else json.dumps(data,separators=(',',':'),ensure_ascii=False)
         await mqtt.async_publish(self.hass,PREFIX+'/'+panel_id(pid)+'/'+suffix,payload,qos=1,retain=retain)
     async def command(self,pid,name,data=None):
-        if not self.panels.get(pid,{}).get('paired'):raise ValueError('Panel ešte nie je pridaný')
-        if not mqtt.is_connected(self.hass) or not self.status.get(pid,{}).get('online'):raise ValueError('Panel alebo MQTT je odpojené')
+        if not self.panels.get(pid,{}).get('paired'):raise ValueError(tr('backend.hub.panel_not_added'))
+        if not mqtt.is_connected(self.hass) or not self.status.get(pid,{}).get('online'):raise ValueError(tr('backend.hub.panel_disconnected'))
         await self.publish(pid,'cmd/'+name,data or {},False)
     async def receive(self,msg):
         try:
@@ -168,7 +169,7 @@ class Hub:
     async def rename(self,pid,name):
         panel_id(pid)
         if not isinstance(name,str) or not name.strip() or len(name.strip())>80:
-            raise ValueError('Názov panela musí mať 1 až 80 znakov')
+            raise ValueError(tr('backend.hub.invalid_name_length'))
         async with self.lock:
             self.panels[pid]['name']=name.strip()
             self.schedule_persist()
@@ -176,12 +177,12 @@ class Hub:
         self.changed(pid)
     async def save(self,pid,config,device,expected):
         config=validate_config(config);device=validate_device(device,len(config['pages']))
-        if not isinstance(device,dict) or len(json.dumps(device))>262144:raise ValueError('Neplatné nastavenia panela')
+        if not isinstance(device,dict) or len(json.dumps(device))>262144:raise ValueError(tr('backend.hub.invalid_panel_settings'))
         # Credentials belong on the panel, never in page configuration or backups.
-        if any(k in device for k in ['haToken','maToken','password','username']):raise ValueError('Heslá nepatria do konfigurácie stránok')
+        if any(k in device for k in ['haToken','maToken','password','username']):raise ValueError(tr('backend.hub.no_passwords'))
         async with self.lock:
             p=self.panels[pid]
-            if p['revision']!=expected:raise ValueError('Konfiguráciu medzitým zmenil iný editor. Obnov stránku.')
+            if p['revision']!=expected:raise ValueError(tr('backend.hub.config_changed'))
             p['history']=(p.get('history',[])+[{'config':p['config'],'device':p['device']}])[-5:]
             p['config']=config;p['device']=copy.deepcopy(device);p['revision']+=1;p['configSource']='studio'
             self.refresh_entities(pid)
@@ -189,7 +190,7 @@ class Hub:
         await self.push(pid);self.changed(pid);return p['revision']
     async def restore(self,pid,expected):
         p=self.panels[pid]
-        if not p.get('history'):raise ValueError('Nie je dostupná predchádzajúca konfigurácia')
+        if not p.get('history'):raise ValueError(tr('backend.hub.no_previous_config'))
         previous=copy.deepcopy(p['history'][-1])
         return await self.save(pid,previous['config'],previous['device'],expected)
     async def push(self,pid):
@@ -206,7 +207,7 @@ class Hub:
         await self.publish_timer(pid)
     async def import_panel_settings(self,pid,data):
         """Adopt the initial panel snapshot without replacing later Studio edits."""
-        if len(json.dumps(data))>524288:raise ValueError('Panel snapshot is too large')
+        if len(json.dumps(data))>524288:raise ValueError(tr('backend.hub.snapshot_too_large'))
         p=self.panels[pid]
         safe=public_settings(data.get('settings'))
         p['localSettings']=safe
@@ -264,12 +265,12 @@ class Hub:
             if action.get('entity_id'):target=dict(target,entity_id=action['entity_id'])
             if action.get('dynamic')=='number_step':
                 entity=target.get('entity_id');entity_id(entity)
-                if domain not in {'number','input_number'} or service!='set_value' or not entity.startswith(domain+'.') or action.get('delta') not in {-1,1}:raise ValueError('Invalid number adjustment')
+                if domain not in {'number','input_number'} or service!='set_value' or not entity.startswith(domain+'.') or action.get('delta') not in {-1,1}:raise ValueError(tr('backend.hub.invalid_number_adjustment'))
                 state=self.hass.states.get(entity)
-                if not state or state.state in {'unknown','unavailable'}:raise ValueError('Number is unavailable')
+                if not state or state.state in {'unknown','unavailable'}:raise ValueError(tr('backend.hub.number_unavailable'))
                 current=finite_attribute(state.state);a=state.attributes
                 low=finite_attribute(a.get('min'));high=finite_attribute(a.get('max'));step=finite_attribute(a.get('step'))
-                if None in (current,low,high,step) or step<=0 or low>high:raise ValueError('Number has invalid limits')
+                if None in (current,low,high,step) or step<=0 or low>high:raise ValueError(tr('backend.hub.number_invalid_limits'))
                 data['value']=round(max(low,min(high,current+action['delta']*step)),10)
             data.update(target)
             await self.hass.services.async_call(domain,service,data,blocking=True)
@@ -277,8 +278,8 @@ class Hub:
     async def handle_event(self,pid,event):
         eid=event.get('eventId');button=event.get('button');page=next((p for p in self.panels[pid]['config']['pages'] if p['id']==event.get('page')),None)
         try:
-            if not mqtt.is_connected(self.hass) or not self.status.get(pid,{}).get('online'):raise ValueError('Panel alebo MQTT je odpojené')
-            if not page:raise ValueError('Neznáma stránka')
+            if not mqtt.is_connected(self.hass) or not self.status.get(pid,{}).get('online'):raise ValueError(tr('backend.hub.panel_disconnected'))
+            if not page:raise ValueError(tr('backend.hub.unknown_page'))
             if page['type']=='fan':await self.fan_event(pid,page,event)
             elif page['type']=='grid':await self.grid_event(pid,page,event)
             elif page['type']=='camera':
@@ -286,20 +287,20 @@ class Hub:
                 for camera in page.get('camera',{}).get('cameras',[]):
                     for direction,binding in camera.get('ptz',{}).items():
                         if button==page['id']+'.ptz.'+entity_key(camera['entity'])+'.'+direction:await self.execute(binding);matched=True
-                if not matched:raise ValueError('Neznámy príkaz kamery')
+                if not matched:raise ValueError(tr('backend.hub.unknown_camera_command'))
             elif button=='alarm' and event.get('action')=='alarm_fired':self.hass.bus.async_fire('aurelvi_alarm_fired',{'panel_id':pid})
-            else:raise ValueError('Neznáma akcia')
+            else:raise ValueError(tr('backend.hub.unknown_action'))
             if eid:await self.publish(pid,'sys/ack',{'eventId':eid,'button':button,'ok':True},False)
         except Exception as e:
-            self.log(pid,'Ovládanie zlyhalo: '+str(e),'error')
-            if eid:await self.publish(pid,'sys/ack',{'eventId':eid,'button':button,'ok':False,'message':str(e)[:180]},False)
+            self.log(pid,tr('backend.log.control_failed',error=e),'error')
+            if eid:await self.publish(pid,'sys/ack',{'eventId':eid,'button':button,'ok':False,'message':(str(e) if str(e).startswith('backend.') else str(e)[:180])},False)
     async def fan_event(self,pid,page,event):
         f=page['fan'];fan=f['fanEntity'];light=f.get('lightEntity');prefix=page['id']+'.';button=event.get('button','')
-        if not button.startswith(prefix):raise ValueError('Neplatné tlačidlo')
+        if not button.startswith(prefix):raise ValueError(tr('backend.hub.invalid_button'))
         action=button[len(prefix):];controls=f.get('controls',{})
         if action.startswith('speed.'):
             index=int(action[6:])-1
-            if not 0<=index<len(f['speeds']):raise ValueError('Neplatná rýchlosť')
+            if not 0<=index<len(f['speeds']):raise ValueError(tr('backend.hub.invalid_speed'))
             speed=f['speeds'][index]
             if speed.get('actions'):await self.execute(speed['actions'])
             elif 'preset_mode' in speed:await self.call('fan.set_preset_mode',fan,{'preset_mode':speed['preset_mode']})
@@ -311,7 +312,7 @@ class Hub:
             if light:await self.call('light.turn_off',light)
         elif action=='direction' and controls.get('direction'):
             state=self.hass.states.get(fan);direction=(state.attributes if state else {}).get('direction')
-            if direction not in {'forward','reverse'}:raise ValueError('Ventilátor nehlási aktuálny smer')
+            if direction not in {'forward','reverse'}:raise ValueError(tr('backend.hub.no_direction'))
             await self.call('fan.set_direction',fan,{'direction':'reverse' if direction=='forward' else 'forward'})
         elif action=='brightness' and light and controls.get('brightness'):
             await self.call('light.turn_on',light,{'brightness_pct':round(number(event.get('value'),0,1)*100)})
@@ -323,18 +324,18 @@ class Hub:
         elif action=='cancel_timer':await self.cancel_timer(pid)
         else:
             extra=next((x for x in f.get('extras',[]) if 'extra.'+x['id']==action),None)
-            if not extra:raise ValueError('Nepriradená akcia')
+            if not extra:raise ValueError(tr('backend.hub.unassigned_action'))
             await self.execute(extra['actions'])
     async def grid_event(self,pid,page,event):
         bid=event.get('button','');action=event.get('action','');tile=next((t for t in page['tiles'] if t['id']==bid or bid.startswith(t['id']+'.')),None)
-        if not tile:raise ValueError('Neznáme tlačidlo')
+        if not tile:raise ValueError(tr('backend.hub.unknown_button'))
         binding=None;entity=tile.get('entity')
         if tile.get('type')=='split':
             segment=next((s for s in tile.get('buttons',[]) if bid==tile['id']+'.'+s['id']),None)
-            if not segment:raise ValueError('Neznámy segment')
+            if not segment:raise ValueError(tr('backend.hub.unknown_segment'))
             binding=segment.get('bindings',{}).get('press:'+str(event.get('state')),segment.get('bindings',{}).get(action));entity=segment.get('entity') or entity
         elif tile.get('type')=='rocker' and entity and entity.startswith('cover.'):
-            if action not in {'open','close','stop'}:raise ValueError('Invalid cover action')
+            if action not in {'open','close','stop'}:raise ValueError(tr('backend.hub.invalid_cover_action'))
             await self.call('cover.'+{'open':'open_cover','close':'close_cover','stop':'stop_cover'}[action],entity);return
         elif tile.get('type')=='rocker':
             index=int(bid.rsplit('.',1)[1]);rocker=tile.get('rockers',[])[index];entity=rocker.get('entity')
@@ -351,7 +352,7 @@ class Hub:
         elif action=='state' and entity and entity.startswith(('select.','input_select.')):await self.call(entity.split('.')[0]+'.select_option',entity,{'option':str(event.get('value'))})
         elif action=='toggle' and entity:await self.call('homeassistant.toggle',entity)
         elif action=='press' and entity and entity.startswith(('scene.','script.')):await self.call(entity.split('.')[0]+'.turn_on',entity)
-        else:raise ValueError('Tlačidlo nemá priradenú akciu')
+        else:raise ValueError(tr('backend.hub.button_no_action'))
     async def set_timer(self,pid,entity,seconds):
         entity_id(entity);number(seconds,5,86400)
         await self.cancel_timer(pid)
@@ -364,7 +365,7 @@ class Hub:
             timer=self.timers.get(key)
             if not timer:return
             try:await self.call(timer['entity'].split('.')[0]+'.turn_off',timer['entity'])
-            except Exception as e:self.log(key,'Časovač nemohol vypnúť zariadenie: '+str(e),'error')
+            except Exception as e:self.log(key,tr('backend.log.timer_failed',error=e),'error')
             finally:
                 self.timers.pop(key,None);self.timer_jobs.pop(key,None);self.schedule_persist();await self.publish_timer(key);self.changed(key)
         self.timer_jobs[key]=async_call_later(self.hass,delay,run)
@@ -409,24 +410,24 @@ class Hub:
     async def check_releases(self,_=None):
         repo=self.settings.get('githubRepo','')
         if not repo:self.latest={};self.changed();return
-        if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}',repo):raise ValueError('Neplatný repozitár')
+        if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}',repo):raise ValueError(tr('backend.hub.invalid_repo'))
         try:
             session=async_get_clientsession(self.hass)
             async with session.get('https://api.github.com/repos/'+repo+'/releases/latest',headers={'Accept':'application/vnd.github+json','User-Agent':'Aurelvi/'+VERSION},timeout=20,allow_redirects=False) as response:
-                if response.status!=200:raise ValueError('GitHub odpovedal '+str(response.status))
-                if response.content_length and response.content_length>1048576:raise ValueError('Odpoveď je príliš veľká')
+                if response.status!=200:raise ValueError(tr('backend.hub.github_status',status=response.status))
+                if response.content_length and response.content_length>1048576:raise ValueError(tr('backend.hub.response_too_large'))
                 raw=await response.content.read(1048577)
-                if len(raw)>1048576:raise ValueError('Odpoveď je príliš veľká')
+                if len(raw)>1048576:raise ValueError(tr('backend.hub.response_too_large'))
                 release=json.loads(raw)
             asset_name=self.settings.get('githubAsset','')
             assets=[a for a in release.get('assets',[]) if a.get('name','').endswith('.apk') and (a['name']==asset_name if asset_name else a['name'].lower().startswith(('aurelvi','openpanel')))]
-            if release.get('draft') or release.get('prerelease') or len(assets)!=1:raise ValueError('Vydanie musí obsahovať jedno vybrané stabilné APK')
+            if release.get('draft') or release.get('prerelease') or len(assets)!=1:raise ValueError(tr('backend.hub.release_needs_one_apk'))
             url=assets[0]['browser_download_url'];parsed=urlparse(url)
-            if parsed.scheme!='https' or parsed.netloc!='github.com' or not parsed.path.lower().startswith('/'+repo.lower()+'/releases/download/'):raise ValueError('Neplatná adresa APK')
+            if parsed.scheme!='https' or parsed.netloc!='github.com' or not parsed.path.lower().startswith('/'+repo.lower()+'/releases/download/'):raise ValueError(tr('backend.hub.invalid_apk_url'))
             tag=re.fullmatch(r'(?i)(?:(?:aurelvi|openpanel)[-_ ]*)?v?(\d+\.\d+\.\d+)',release.get('tag_name',''))
-            if not tag:raise ValueError('Použi tag v0.3.0 alebo inú číselnú verziu')
+            if not tag:raise ValueError(tr('backend.hub.bad_tag'))
             self.latest={'version':tag.group(1),'url':url,'summary':str(release.get('body',''))[:4000],'release_url':release.get('html_url'),'asset':assets[0]['name']};self.changed()
-        except Exception as e:self.log('', 'Kontrola GitHubu: '+str(e),'warning')
+        except Exception as e:self.log('',tr('backend.log.github_check',error=e),'warning')
     def snapshot(self):
         from .health import panel_health
         return {'version':VERSION,'panels':[dict(copy.deepcopy(p),id=pid,status=copy.deepcopy(self.status.get(pid,{})),health=panel_health(self,pid)) for pid,p in self.panels.items()], 'timers':copy.deepcopy(self.timers),'settings':self.settings,'latest':self.latest,'logs':self.logs[-30:]}
