@@ -38,7 +38,7 @@ function load(base,code){
 }
 /* Elements declare text with data-i18n="key" and attributes with data-i18n-attr="title=key;aria-label=key". */
 function apply(base){
-  base=base||document;if(!base.querySelectorAll)return;
+  base=base||root.document;if(!base||!base.querySelectorAll)return;
   var list=[].slice.call(base.querySelectorAll('[data-i18n],[data-i18n-attr]'));
   if(base.matches&&base.matches('[data-i18n],[data-i18n-attr]'))list.unshift(base);
   list.forEach(function(el){
@@ -49,8 +49,8 @@ function apply(base){
 }
 function setLanguage(value){
   lang=normalize(value);
-  if(root.document){document.documentElement.lang=lang;apply(document);}
-  try{document.dispatchEvent(new CustomEvent('aurelvi-language-changed',{detail:lang}));}catch(e){}
+  if(root.document){root.document.documentElement.lang=lang;apply(root.document);}
+  try{root.document.dispatchEvent(new CustomEvent('aurelvi-language-changed',{detail:lang}));}catch(e){}
 }
 var api={names:names,strings:strings,normalize:normalize,t:t,has:has,message:message,register:register,load:load,apply:apply,setLanguage:setLanguage,
   getLanguage:function(){return lang;},preferred:function(fallback){return preferred||normalize(fallback);}};
@@ -58,21 +58,21 @@ root.AurelviI18n=api;
 /* Panel only: language picker inside #settings, remembered by the native app. */
 function mount(){
   if(!root.document)return;
-  var settings=document.getElementById('settings');
-  if(settings&&!document.getElementById('ui-language')){
-    var label=document.createElement('label'),caption=document.createElement('span'),select=document.createElement('select');
+  var settings=root.document.getElementById('settings');
+  if(settings&&!root.document.getElementById('ui-language')){
+    var label=root.document.createElement('label'),caption=root.document.createElement('span'),select=root.document.createElement('select');
     caption.setAttribute('data-i18n','common.language');select.id='ui-language';select.setAttribute('data-i18n-attr','aria-label=common.language');
-    Object.keys(names).forEach(function(code){var option=document.createElement('option');option.value=code;option.textContent=names[code];select.appendChild(option);});
+    Object.keys(names).forEach(function(code){var option=root.document.createElement('option');option.value=code;option.textContent=names[code];select.appendChild(option);});
     select.value=api.preferred(lang);label.appendChild(caption);label.appendChild(select);settings.appendChild(label);
     select.onchange=function(){preferred=normalize(select.value);try{if(root.OpenPanelNative)root.OpenPanelNative.writeCache('ui-language',JSON.stringify(preferred));}catch(e){}setLanguage(preferred);};
   }
   setLanguage(api.preferred(lang));
-  if(document.body&&root.MutationObserver){
+  if(root.document.body&&root.MutationObserver){
     var scheduled=false;
-    new MutationObserver(function(){if(scheduled)return;scheduled=true;Promise.resolve().then(function(){scheduled=false;apply(document);});}).observe(document.body,{childList:true,subtree:true});
+    new MutationObserver(function(){if(scheduled)return;scheduled=true;Promise.resolve().then(function(){scheduled=false;apply(root.document);});}).observe(root.document.body,{childList:true,subtree:true});
   }
 }
-if(root.document&&DATA.mount!==false){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();}
+if(root.document&&DATA.mount!==false){if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',mount);else mount();}
 })(typeof window!=='undefined'?window:globalThis);
 /*@i18n-runtime-end*/
 

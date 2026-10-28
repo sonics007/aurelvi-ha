@@ -32,7 +32,7 @@ const picker=d.getElementById('ui-language');assert(picker,'language picker in #
 // every language has a non-empty string table
 for(const code of Object.keys(I.names)){const table=I.strings[code];assert(table&&Object.keys(table).length>0,code+' has strings');assert(Object.values(table).every(v=>typeof v==='string'&&v));}
 // every panel key used by the panel scripts exists in Slovak and English
-const used=new Set();for(const file of ['app.js','aurelvi.js','features.js','intercom.js','licence.js','protocol.js','index.html','preview.html'])for(const m of fs.readFileSync(frontend+file,'utf8').matchAll(/["'=;](panel\.[a-z_]+\.[a-z_0-9]+)(?=["';])/g))used.add(m[1]);
+const used=new Set();for(const file of ['app.js','aurelvi.js','features.js','intercom.js','licence.js','protocol.js','index.html','preview.html'])for(const m of fs.readFileSync(frontend+file,'utf8').matchAll(/["'=;](panel\.[a-z_]+\.[a-z_0-9]+)(?=["';])/g)){if(!/[._]$/.test(m[1]))used.add(m[1]);}
 assert(used.size>100);for(const key of used){assert.notEqual(I.t(key,undefined,'sk'),key,'sk '+key);assert.notEqual(I.t(key,undefined,'en'),key,'en '+key);}
 w.close();console.log('PASS 26 languages, normalisation, lang/en/sk/key fallback, placeholders, apply() for text and attributes, language picker and panel key coverage');
 })().catch(e=>{console.error(e);w.close();process.exitCode=1});
