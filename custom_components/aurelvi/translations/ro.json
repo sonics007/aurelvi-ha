@@ -4,12 +4,12 @@
       "single_instance_allowed": "Aurelvi is already configured."
     },
     "error": {
-      "mqtt_disconnected": "MQTT is disconnected. Check the broker.",
-      "mqtt_missing": "Set up the MQTT integration and broker first."
+      "mqtt_disconnected": "MQTT este deconectat. Verifică brokerul.",
+      "mqtt_missing": "Configurează mai întâi integrarea MQTT și brokerul."
     },
     "step": {
       "user": {
-        "description": "Uses the existing Home Assistant MQTT integration. Connect the panel to the same broker, using Aurelvi mode. Configure pages in Aurelvi Studio in the sidebar.",
+        "description": "Folosește integrarea MQTT existentă din Home Assistant. Conectează panoul la același broker, în modul Aurelvi. Configurează paginile în Aurelvi Studio, din bara laterală.",
         "title": "Aurelvi – Home at a touch"
       }
     }
@@ -17,24 +17,24 @@
   "entity": {
     "binary_sensor": {
       "motion": {
-        "name": "Motion"
+        "name": "Mișcare"
       },
       "online": {
-        "name": "Connection"
+        "name": "Conexiune"
       }
     },
     "button": {
       "adb_reboot": {
-        "name": "Reboot (ADB)"
+        "name": "Repornire (ADB)"
       },
       "cancel_timer": {
-        "name": "Cancel timer"
+        "name": "Anulează temporizatorul"
       },
       "info": {
-        "name": "Refresh information"
+        "name": "Reîmprospătează informațiile"
       },
       "wake": {
-        "name": "Wake"
+        "name": "Trezire"
       }
     },
     "media_player": {
@@ -49,24 +49,24 @@
     },
     "number": {
       "brightness": {
-        "name": "Screen brightness"
+        "name": "Luminozitatea ecranului"
       }
     },
     "sensor": {
       "freeMemMB": {
-        "name": "Free memory"
+        "name": "Memorie liberă"
       },
       "illuminance": {
-        "name": "Illuminance"
+        "name": "Iluminare"
       },
       "rssi": {
-        "name": "Wi-Fi signal"
+        "name": "Semnal Wi-Fi"
       },
       "timer": {
         "name": "Temporizator"
       },
       "uptimeS": {
-        "name": "Uptime"
+        "name": "Timp de funcționare"
       },
       "version": {
         "name": "Versiune"
@@ -79,99 +79,110 @@
     },
     "update": {
       "update": {
-        "name": "App update"
+        "name": "Actualizare aplicație"
       }
+    }
+  },
+  "exceptions": {
+    "adb_failed": {
+      "message": "Operația ADB a eșuat: {error}"
+    },
+    "github_not_configured": {
+      "message": "Configurează mai întâi GitHub în Aurelvi Studio"
+    },
+    "panel_command_failed": {
+      "message": "Comanda panoului a eșuat: {error}"
     }
   },
   "services": {
     "cancel_timer": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID panou"
         }
       },
-      "name": "Cancel timer"
+      "name": "Anulează temporizatorul"
     },
     "notify": {
       "fields": {
         "message": {
-          "name": "Notification message"
+          "name": "Mesajul notificării"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID panou"
         },
         "priority": {
-          "name": "Priority"
+          "name": "Prioritate"
         },
         "sound": {
-          "description": "ding, alarm_beep, alarm, alarmo, siren, or a sound URL.",
-          "name": "Sound or HTTPS/HTTP URL"
+          "description": "ding, alarm_beep, alarm, alarmo, siren sau un URL de sunet.",
+          "name": "Sunet sau URL HTTPS/HTTP"
         },
         "timeoutS": {
-          "name": "Display duration in seconds (0 = unlimited)"
+          "name": "Durata afișării în secunde (0 = nelimitată)"
         },
         "title": {
-          "name": "Title"
+          "name": "Titlu"
         }
       },
-      "name": "Panel notification"
+      "name": "Notificare pe panou"
     },
     "page": {
       "fields": {
         "id": {
-          "name": "Studio page ID"
+          "name": "ID-ul paginii din Studio"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID panou"
         }
       },
-      "name": "Show page"
+      "name": "Afișează pagina"
     },
     "push_config": {
-      "description": "Resend saved pages and states to the panel.",
+      "description": "Retrimite paginile și stările salvate către panou.",
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID panou"
         }
       },
-      "name": "Push configuration"
+      "name": "Trimite configurația"
     },
     "screen": {
       "fields": {
         "action": {
-          "name": "Action"
+          "name": "Acțiune"
         },
         "brightness": {
-          "name": "Brightness (0.05 to 1)"
+          "name": "Luminozitate (0,05 până la 1)"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID panou"
         }
       },
-      "name": "Set screen"
+      "name": "Setează ecranul"
     },
     "start_timer": {
-      "description": "The timer is stored in Home Assistant and restored after a restart.",
+      "description": "Temporizatorul este salvat în Home Assistant și restabilit după o repornire.",
       "fields": {
         "entity_id": {
-          "name": "Device to turn off"
+          "name": "Dispozitivul de oprit"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID panou"
         },
         "seconds": {
-          "name": "Seconds"
+          "name": "Secunde"
         }
       },
-      "name": "Start shutdown timer"
+      "name": "Pornește temporizatorul de oprire"
     },
     "wake": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID panou"
         }
       },
-      "name": "Wake panel"
+      "name": "Trezește panoul"
     }
   },
   "title": "Aurelvi"

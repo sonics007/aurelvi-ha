@@ -4,12 +4,12 @@
       "single_instance_allowed": "Aurelvi is already configured."
     },
     "error": {
-      "mqtt_disconnected": "MQTT is disconnected. Check the broker.",
-      "mqtt_missing": "Set up the MQTT integration and broker first."
+      "mqtt_disconnected": "MQTT on irti. Tarkista välittäjä.",
+      "mqtt_missing": "Määritä ensin MQTT-integraatio ja välittäjä."
     },
     "step": {
       "user": {
-        "description": "Uses the existing Home Assistant MQTT integration. Connect the panel to the same broker, using Aurelvi mode. Configure pages in Aurelvi Studio in the sidebar.",
+        "description": "Käyttää olemassa olevaa Home Assistantin MQTT-integraatiota. Yhdistä paneeli samaan välittäjään Aurelvi-tilassa. Määritä sivut Aurelvi Studiossa sivupalkissa.",
         "title": "Aurelvi – Home at a touch"
       }
     }
@@ -17,24 +17,24 @@
   "entity": {
     "binary_sensor": {
       "motion": {
-        "name": "Motion"
+        "name": "Liike"
       },
       "online": {
-        "name": "Connection"
+        "name": "Yhteys"
       }
     },
     "button": {
       "adb_reboot": {
-        "name": "Reboot (ADB)"
+        "name": "Käynnistä uudelleen (ADB)"
       },
       "cancel_timer": {
-        "name": "Cancel timer"
+        "name": "Peruuta ajastin"
       },
       "info": {
-        "name": "Refresh information"
+        "name": "Päivitä tiedot"
       },
       "wake": {
-        "name": "Wake"
+        "name": "Herätä"
       }
     },
     "media_player": {
@@ -49,24 +49,24 @@
     },
     "number": {
       "brightness": {
-        "name": "Screen brightness"
+        "name": "Näytön kirkkaus"
       }
     },
     "sensor": {
       "freeMemMB": {
-        "name": "Free memory"
+        "name": "Vapaa muisti"
       },
       "illuminance": {
-        "name": "Illuminance"
+        "name": "Valaistusvoimakkuus"
       },
       "rssi": {
-        "name": "Wi-Fi signal"
+        "name": "Wi-Fi-signaali"
       },
       "timer": {
         "name": "Ajastin"
       },
       "uptimeS": {
-        "name": "Uptime"
+        "name": "Käyntiaika"
       },
       "version": {
         "name": "Versio"
@@ -79,99 +79,110 @@
     },
     "update": {
       "update": {
-        "name": "App update"
+        "name": "Sovelluspäivitys"
       }
+    }
+  },
+  "exceptions": {
+    "adb_failed": {
+      "message": "ADB-toiminto epäonnistui: {error}"
+    },
+    "github_not_configured": {
+      "message": "Määritä ensin GitHub Aurelvi Studiossa"
+    },
+    "panel_command_failed": {
+      "message": "Paneelikomento epäonnistui: {error}"
     }
   },
   "services": {
     "cancel_timer": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneelin tunnus"
         }
       },
-      "name": "Cancel timer"
+      "name": "Peruuta ajastin"
     },
     "notify": {
       "fields": {
         "message": {
-          "name": "Notification message"
+          "name": "Ilmoituksen viesti"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneelin tunnus"
         },
         "priority": {
-          "name": "Priority"
+          "name": "Prioriteetti"
         },
         "sound": {
-          "description": "ding, alarm_beep, alarm, alarmo, siren, or a sound URL.",
-          "name": "Sound or HTTPS/HTTP URL"
+          "description": "ding, alarm_beep, alarm, alarmo, siren tai äänen URL-osoite.",
+          "name": "Ääni tai HTTPS/HTTP-URL"
         },
         "timeoutS": {
-          "name": "Display duration in seconds (0 = unlimited)"
+          "name": "Näyttöaika sekunteina (0 = rajoittamaton)"
         },
         "title": {
-          "name": "Title"
+          "name": "Otsikko"
         }
       },
-      "name": "Panel notification"
+      "name": "Paneelin ilmoitus"
     },
     "page": {
       "fields": {
         "id": {
-          "name": "Studio page ID"
+          "name": "Studio-sivun tunnus"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneelin tunnus"
         }
       },
-      "name": "Show page"
+      "name": "Näytä sivu"
     },
     "push_config": {
-      "description": "Resend saved pages and states to the panel.",
+      "description": "Lähettää tallennetut sivut ja tilat uudelleen paneelille.",
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneelin tunnus"
         }
       },
-      "name": "Push configuration"
+      "name": "Lähetä määritykset"
     },
     "screen": {
       "fields": {
         "action": {
-          "name": "Action"
+          "name": "Toiminto"
         },
         "brightness": {
-          "name": "Brightness (0.05 to 1)"
+          "name": "Kirkkaus (0,05–1)"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneelin tunnus"
         }
       },
-      "name": "Set screen"
+      "name": "Aseta näyttö"
     },
     "start_timer": {
-      "description": "The timer is stored in Home Assistant and restored after a restart.",
+      "description": "Ajastin tallennetaan Home Assistantiin ja se palautuu uudelleenkäynnistyksen jälkeen.",
       "fields": {
         "entity_id": {
-          "name": "Device to turn off"
+          "name": "Sammutettava laite"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneelin tunnus"
         },
         "seconds": {
-          "name": "Seconds"
+          "name": "Sekuntia"
         }
       },
-      "name": "Start shutdown timer"
+      "name": "Käynnistä sammutusajastin"
     },
     "wake": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneelin tunnus"
         }
       },
-      "name": "Wake panel"
+      "name": "Herätä paneeli"
     }
   },
   "title": "Aurelvi"

@@ -4,12 +4,12 @@
       "single_instance_allowed": "Aurelvi is already configured."
     },
     "error": {
-      "mqtt_disconnected": "MQTT is disconnected. Check the broker.",
-      "mqtt_missing": "Set up the MQTT integration and broker first."
+      "mqtt_disconnected": "Az MQTT nincs csatlakoztatva. Ellenőrizze a brokert.",
+      "mqtt_missing": "Először állítsa be az MQTT-integrációt és a brokert."
     },
     "step": {
       "user": {
-        "description": "Uses the existing Home Assistant MQTT integration. Connect the panel to the same broker, using Aurelvi mode. Configure pages in Aurelvi Studio in the sidebar.",
+        "description": "A meglévő Home Assistant MQTT-integrációt használja. Csatlakoztassa a panelt ugyanahhoz a brokerhez, Aurelvi módban. Az oldalakat az oldalsávon található Aurelvi Studióban állítsa be.",
         "title": "Aurelvi – Home at a touch"
       }
     }
@@ -17,24 +17,24 @@
   "entity": {
     "binary_sensor": {
       "motion": {
-        "name": "Motion"
+        "name": "Mozgás"
       },
       "online": {
-        "name": "Connection"
+        "name": "Kapcsolat"
       }
     },
     "button": {
       "adb_reboot": {
-        "name": "Reboot (ADB)"
+        "name": "Újraindítás (ADB)"
       },
       "cancel_timer": {
-        "name": "Cancel timer"
+        "name": "Időzítő törlése"
       },
       "info": {
-        "name": "Refresh information"
+        "name": "Információk frissítése"
       },
       "wake": {
-        "name": "Wake"
+        "name": "Ébresztés"
       }
     },
     "media_player": {
@@ -49,24 +49,24 @@
     },
     "number": {
       "brightness": {
-        "name": "Screen brightness"
+        "name": "Képernyő fényereje"
       }
     },
     "sensor": {
       "freeMemMB": {
-        "name": "Free memory"
+        "name": "Szabad memória"
       },
       "illuminance": {
-        "name": "Illuminance"
+        "name": "Megvilágítás"
       },
       "rssi": {
-        "name": "Wi-Fi signal"
+        "name": "Wi-Fi-jel"
       },
       "timer": {
         "name": "Időzítő"
       },
       "uptimeS": {
-        "name": "Uptime"
+        "name": "Üzemidő"
       },
       "version": {
         "name": "Verzió"
@@ -79,99 +79,110 @@
     },
     "update": {
       "update": {
-        "name": "App update"
+        "name": "Alkalmazásfrissítés"
       }
+    }
+  },
+  "exceptions": {
+    "adb_failed": {
+      "message": "Az ADB-művelet sikertelen: {error}"
+    },
+    "github_not_configured": {
+      "message": "Először állítsa be a GitHubot az Aurelvi Studióban"
+    },
+    "panel_command_failed": {
+      "message": "A panelparancs sikertelen: {error}"
     }
   },
   "services": {
     "cancel_timer": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panelazonosító"
         }
       },
-      "name": "Cancel timer"
+      "name": "Időzítő törlése"
     },
     "notify": {
       "fields": {
         "message": {
-          "name": "Notification message"
+          "name": "Értesítés üzenete"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panelazonosító"
         },
         "priority": {
-          "name": "Priority"
+          "name": "Prioritás"
         },
         "sound": {
-          "description": "ding, alarm_beep, alarm, alarmo, siren, or a sound URL.",
-          "name": "Sound or HTTPS/HTTP URL"
+          "description": "ding, alarm_beep, alarm, alarmo, siren vagy egy hang URL-je.",
+          "name": "Hang vagy HTTPS/HTTP URL"
         },
         "timeoutS": {
-          "name": "Display duration in seconds (0 = unlimited)"
+          "name": "Megjelenítési idő másodpercben (0 = korlátlan)"
         },
         "title": {
-          "name": "Title"
+          "name": "Cím"
         }
       },
-      "name": "Panel notification"
+      "name": "Panelértesítés"
     },
     "page": {
       "fields": {
         "id": {
-          "name": "Studio page ID"
+          "name": "A Studio oldal azonosítója"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panelazonosító"
         }
       },
-      "name": "Show page"
+      "name": "Oldal megjelenítése"
     },
     "push_config": {
-      "description": "Resend saved pages and states to the panel.",
+      "description": "Újra elküldi a mentett oldalakat és állapotokat a panelnek.",
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panelazonosító"
         }
       },
-      "name": "Push configuration"
+      "name": "Konfiguráció küldése"
     },
     "screen": {
       "fields": {
         "action": {
-          "name": "Action"
+          "name": "Művelet"
         },
         "brightness": {
-          "name": "Brightness (0.05 to 1)"
+          "name": "Fényerő (0,05–1)"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panelazonosító"
         }
       },
-      "name": "Set screen"
+      "name": "Képernyő beállítása"
     },
     "start_timer": {
-      "description": "The timer is stored in Home Assistant and restored after a restart.",
+      "description": "Az időzítő a Home Assistantban tárolódik, és újraindítás után visszaáll.",
       "fields": {
         "entity_id": {
-          "name": "Device to turn off"
+          "name": "Kikapcsolandó eszköz"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panelazonosító"
         },
         "seconds": {
-          "name": "Seconds"
+          "name": "Másodperc"
         }
       },
-      "name": "Start shutdown timer"
+      "name": "Leállítási időzítő indítása"
     },
     "wake": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panelazonosító"
         }
       },
-      "name": "Wake panel"
+      "name": "Panel ébresztése"
     }
   },
   "title": "Aurelvi"

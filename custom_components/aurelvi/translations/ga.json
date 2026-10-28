@@ -4,12 +4,12 @@
       "single_instance_allowed": "Aurelvi is already configured."
     },
     "error": {
-      "mqtt_disconnected": "MQTT is disconnected. Check the broker.",
-      "mqtt_missing": "Set up the MQTT integration and broker first."
+      "mqtt_disconnected": "Tá MQTT dícheangailte. Seiceáil an broker.",
+      "mqtt_missing": "Socraigh an comhtháthú MQTT agus an broker ar dtús."
     },
     "step": {
       "user": {
-        "description": "Uses the existing Home Assistant MQTT integration. Connect the panel to the same broker, using Aurelvi mode. Configure pages in Aurelvi Studio in the sidebar.",
+        "description": "Úsáideann sé comhtháthú MQTT Home Assistant atá ann cheana. Ceangail an painéal leis an mbroker céanna, i modh Aurelvi. Cumraigh leathanaigh in Aurelvi Studio sa bharra taobh.",
         "title": "Aurelvi – Home at a touch"
       }
     }
@@ -17,24 +17,24 @@
   "entity": {
     "binary_sensor": {
       "motion": {
-        "name": "Motion"
+        "name": "Gluaiseacht"
       },
       "online": {
-        "name": "Connection"
+        "name": "Ceangal"
       }
     },
     "button": {
       "adb_reboot": {
-        "name": "Reboot (ADB)"
+        "name": "Atosaigh (ADB)"
       },
       "cancel_timer": {
-        "name": "Cancel timer"
+        "name": "Cealaigh an uaineadóir"
       },
       "info": {
-        "name": "Refresh information"
+        "name": "Athnuaigh an fhaisnéis"
       },
       "wake": {
-        "name": "Wake"
+        "name": "Dúisigh"
       }
     },
     "media_player": {
@@ -49,24 +49,24 @@
     },
     "number": {
       "brightness": {
-        "name": "Screen brightness"
+        "name": "Gile an scáileáin"
       }
     },
     "sensor": {
       "freeMemMB": {
-        "name": "Free memory"
+        "name": "Cuimhne saor"
       },
       "illuminance": {
-        "name": "Illuminance"
+        "name": "Soilseacht"
       },
       "rssi": {
-        "name": "Wi-Fi signal"
+        "name": "Comhartha Wi-Fi"
       },
       "timer": {
         "name": "Uaineadóir"
       },
       "uptimeS": {
-        "name": "Uptime"
+        "name": "Am ritheadh"
       },
       "version": {
         "name": "Leagan"
@@ -79,99 +79,110 @@
     },
     "update": {
       "update": {
-        "name": "App update"
+        "name": "Nuashonrú an aip"
       }
+    }
+  },
+  "exceptions": {
+    "adb_failed": {
+      "message": "Theip ar an oibríocht ADB: {error}"
+    },
+    "github_not_configured": {
+      "message": "Socraigh GitHub in Aurelvi Studio ar dtús"
+    },
+    "panel_command_failed": {
+      "message": "Theip ar ordú an phainéil: {error}"
     }
   },
   "services": {
     "cancel_timer": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID an phainéil"
         }
       },
-      "name": "Cancel timer"
+      "name": "Cealaigh an uaineadóir"
     },
     "notify": {
       "fields": {
         "message": {
-          "name": "Notification message"
+          "name": "Teachtaireacht fógra"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID an phainéil"
         },
         "priority": {
-          "name": "Priority"
+          "name": "Tosaíocht"
         },
         "sound": {
-          "description": "ding, alarm_beep, alarm, alarmo, siren, or a sound URL.",
-          "name": "Sound or HTTPS/HTTP URL"
+          "description": "ding, alarm_beep, alarm, alarmo, siren, nó URL fuaime.",
+          "name": "Fuaim nó URL HTTPS/HTTP"
         },
         "timeoutS": {
-          "name": "Display duration in seconds (0 = unlimited)"
+          "name": "Fad taispeána i soicindí (0 = gan teorainn)"
         },
         "title": {
-          "name": "Title"
+          "name": "Teideal"
         }
       },
-      "name": "Panel notification"
+      "name": "Fógra painéil"
     },
     "page": {
       "fields": {
         "id": {
-          "name": "Studio page ID"
+          "name": "ID leathanaigh Studio"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID an phainéil"
         }
       },
-      "name": "Show page"
+      "name": "Taispeáin leathanach"
     },
     "push_config": {
-      "description": "Resend saved pages and states to the panel.",
+      "description": "Seolann na leathanaigh agus na stádais sábháilte chuig an painéal arís.",
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID an phainéil"
         }
       },
-      "name": "Push configuration"
+      "name": "Seol cumraíocht"
     },
     "screen": {
       "fields": {
         "action": {
-          "name": "Action"
+          "name": "Gníomh"
         },
         "brightness": {
-          "name": "Brightness (0.05 to 1)"
+          "name": "Gile (0.05 go 1)"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID an phainéil"
         }
       },
-      "name": "Set screen"
+      "name": "Socraigh scáileán"
     },
     "start_timer": {
-      "description": "The timer is stored in Home Assistant and restored after a restart.",
+      "description": "Stórtar an t-uaineadóir i Home Assistant agus athchóirítear é tar éis atosaithe.",
       "fields": {
         "entity_id": {
-          "name": "Device to turn off"
+          "name": "Gléas le múchadh"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID an phainéil"
         },
         "seconds": {
-          "name": "Seconds"
+          "name": "Soicindí"
         }
       },
-      "name": "Start shutdown timer"
+      "name": "Tosaigh uaineadóir múchta"
     },
     "wake": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID an phainéil"
         }
       },
-      "name": "Wake panel"
+      "name": "Dúisigh an painéal"
     }
   },
   "title": "Aurelvi"

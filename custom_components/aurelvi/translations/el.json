@@ -4,12 +4,12 @@
       "single_instance_allowed": "Aurelvi is already configured."
     },
     "error": {
-      "mqtt_disconnected": "MQTT is disconnected. Check the broker.",
-      "mqtt_missing": "Set up the MQTT integration and broker first."
+      "mqtt_disconnected": "Το MQTT είναι αποσυνδεδεμένο. Ελέγξτε τον broker.",
+      "mqtt_missing": "Ρυθμίστε πρώτα την ενσωμάτωση MQTT και τον broker."
     },
     "step": {
       "user": {
-        "description": "Uses the existing Home Assistant MQTT integration. Connect the panel to the same broker, using Aurelvi mode. Configure pages in Aurelvi Studio in the sidebar.",
+        "description": "Χρησιμοποιεί την υπάρχουσα ενσωμάτωση MQTT του Home Assistant. Συνδέστε το πάνελ στον ίδιο broker, σε λειτουργία Aurelvi. Ρυθμίστε τις σελίδες στο Aurelvi Studio στην πλαϊνή στήλη.",
         "title": "Aurelvi – Home at a touch"
       }
     }
@@ -17,24 +17,24 @@
   "entity": {
     "binary_sensor": {
       "motion": {
-        "name": "Motion"
+        "name": "Κίνηση"
       },
       "online": {
-        "name": "Connection"
+        "name": "Σύνδεση"
       }
     },
     "button": {
       "adb_reboot": {
-        "name": "Reboot (ADB)"
+        "name": "Επανεκκίνηση (ADB)"
       },
       "cancel_timer": {
-        "name": "Cancel timer"
+        "name": "Ακύρωση χρονοδιακόπτη"
       },
       "info": {
-        "name": "Refresh information"
+        "name": "Ανανέωση πληροφοριών"
       },
       "wake": {
-        "name": "Wake"
+        "name": "Αφύπνιση"
       }
     },
     "media_player": {
@@ -49,24 +49,24 @@
     },
     "number": {
       "brightness": {
-        "name": "Screen brightness"
+        "name": "Φωτεινότητα οθόνης"
       }
     },
     "sensor": {
       "freeMemMB": {
-        "name": "Free memory"
+        "name": "Ελεύθερη μνήμη"
       },
       "illuminance": {
-        "name": "Illuminance"
+        "name": "Φωτεινή ένταση"
       },
       "rssi": {
-        "name": "Wi-Fi signal"
+        "name": "Σήμα Wi-Fi"
       },
       "timer": {
         "name": "Χρονοδιακόπτης"
       },
       "uptimeS": {
-        "name": "Uptime"
+        "name": "Χρόνος λειτουργίας"
       },
       "version": {
         "name": "Έκδοση"
@@ -79,99 +79,110 @@
     },
     "update": {
       "update": {
-        "name": "App update"
+        "name": "Ενημέρωση εφαρμογής"
       }
+    }
+  },
+  "exceptions": {
+    "adb_failed": {
+      "message": "Η λειτουργία ADB απέτυχε: {error}"
+    },
+    "github_not_configured": {
+      "message": "Ρυθμίστε πρώτα το GitHub στο Aurelvi Studio"
+    },
+    "panel_command_failed": {
+      "message": "Η εντολή πάνελ απέτυχε: {error}"
     }
   },
   "services": {
     "cancel_timer": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID πάνελ"
         }
       },
-      "name": "Cancel timer"
+      "name": "Ακύρωση χρονοδιακόπτη"
     },
     "notify": {
       "fields": {
         "message": {
-          "name": "Notification message"
+          "name": "Μήνυμα ειδοποίησης"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID πάνελ"
         },
         "priority": {
-          "name": "Priority"
+          "name": "Προτεραιότητα"
         },
         "sound": {
-          "description": "ding, alarm_beep, alarm, alarmo, siren, or a sound URL.",
-          "name": "Sound or HTTPS/HTTP URL"
+          "description": "ding, alarm_beep, alarm, alarmo, siren ή ένα URL ήχου.",
+          "name": "Ήχος ή URL HTTPS/HTTP"
         },
         "timeoutS": {
-          "name": "Display duration in seconds (0 = unlimited)"
+          "name": "Διάρκεια εμφάνισης σε δευτερόλεπτα (0 = χωρίς όριο)"
         },
         "title": {
-          "name": "Title"
+          "name": "Τίτλος"
         }
       },
-      "name": "Panel notification"
+      "name": "Ειδοποίηση πάνελ"
     },
     "page": {
       "fields": {
         "id": {
-          "name": "Studio page ID"
+          "name": "ID σελίδας του Studio"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID πάνελ"
         }
       },
-      "name": "Show page"
+      "name": "Εμφάνιση σελίδας"
     },
     "push_config": {
-      "description": "Resend saved pages and states to the panel.",
+      "description": "Στέλνει ξανά τις αποθηκευμένες σελίδες και καταστάσεις στο πάνελ.",
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID πάνελ"
         }
       },
-      "name": "Push configuration"
+      "name": "Αποστολή διαμόρφωσης"
     },
     "screen": {
       "fields": {
         "action": {
-          "name": "Action"
+          "name": "Ενέργεια"
         },
         "brightness": {
-          "name": "Brightness (0.05 to 1)"
+          "name": "Φωτεινότητα (0,05 έως 1)"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID πάνελ"
         }
       },
-      "name": "Set screen"
+      "name": "Ρύθμιση οθόνης"
     },
     "start_timer": {
-      "description": "The timer is stored in Home Assistant and restored after a restart.",
+      "description": "Ο χρονοδιακόπτης αποθηκεύεται στο Home Assistant και επαναφέρεται μετά από επανεκκίνηση.",
       "fields": {
         "entity_id": {
-          "name": "Device to turn off"
+          "name": "Συσκευή για απενεργοποίηση"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID πάνελ"
         },
         "seconds": {
-          "name": "Seconds"
+          "name": "Δευτερόλεπτα"
         }
       },
-      "name": "Start shutdown timer"
+      "name": "Έναρξη χρονοδιακόπτη απενεργοποίησης"
     },
     "wake": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID πάνελ"
         }
       },
-      "name": "Wake panel"
+      "name": "Αφύπνιση πάνελ"
     }
   },
   "title": "Aurelvi"

@@ -4,12 +4,12 @@
       "single_instance_allowed": "Aurelvi is already configured."
     },
     "error": {
-      "mqtt_disconnected": "MQTT is disconnected. Check the broker.",
-      "mqtt_missing": "Set up the MQTT integration and broker first."
+      "mqtt_disconnected": "MQTT je odklopljen. Preverite posrednika.",
+      "mqtt_missing": "Najprej nastavite integracijo MQTT in posrednika."
     },
     "step": {
       "user": {
-        "description": "Uses the existing Home Assistant MQTT integration. Connect the panel to the same broker, using Aurelvi mode. Configure pages in Aurelvi Studio in the sidebar.",
+        "description": "Uporablja obstoječo integracijo MQTT v Home Assistantu. Povežite ploščo z istim posrednikom v načinu Aurelvi. Strani nastavite v Aurelvi Studiu v stranski vrstici.",
         "title": "Aurelvi – Home at a touch"
       }
     }
@@ -17,24 +17,24 @@
   "entity": {
     "binary_sensor": {
       "motion": {
-        "name": "Motion"
+        "name": "Gibanje"
       },
       "online": {
-        "name": "Connection"
+        "name": "Povezava"
       }
     },
     "button": {
       "adb_reboot": {
-        "name": "Reboot (ADB)"
+        "name": "Ponovni zagon (ADB)"
       },
       "cancel_timer": {
-        "name": "Cancel timer"
+        "name": "Prekliči časovnik"
       },
       "info": {
-        "name": "Refresh information"
+        "name": "Osveži podatke"
       },
       "wake": {
-        "name": "Wake"
+        "name": "Prebudi"
       }
     },
     "media_player": {
@@ -49,24 +49,24 @@
     },
     "number": {
       "brightness": {
-        "name": "Screen brightness"
+        "name": "Svetlost zaslona"
       }
     },
     "sensor": {
       "freeMemMB": {
-        "name": "Free memory"
+        "name": "Prosti pomnilnik"
       },
       "illuminance": {
-        "name": "Illuminance"
+        "name": "Osvetljenost"
       },
       "rssi": {
-        "name": "Wi-Fi signal"
+        "name": "Signal Wi-Fi"
       },
       "timer": {
         "name": "Časovnik"
       },
       "uptimeS": {
-        "name": "Uptime"
+        "name": "Čas delovanja"
       },
       "version": {
         "name": "Različica"
@@ -79,99 +79,110 @@
     },
     "update": {
       "update": {
-        "name": "App update"
+        "name": "Posodobitev aplikacije"
       }
+    }
+  },
+  "exceptions": {
+    "adb_failed": {
+      "message": "Operacija ADB ni uspela: {error}"
+    },
+    "github_not_configured": {
+      "message": "Najprej nastavite GitHub v Aurelvi Studiu"
+    },
+    "panel_command_failed": {
+      "message": "Ukaz plošče ni uspel: {error}"
     }
   },
   "services": {
     "cancel_timer": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID plošče"
         }
       },
-      "name": "Cancel timer"
+      "name": "Prekliči časovnik"
     },
     "notify": {
       "fields": {
         "message": {
-          "name": "Notification message"
+          "name": "Besedilo obvestila"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID plošče"
         },
         "priority": {
-          "name": "Priority"
+          "name": "Prioriteta"
         },
         "sound": {
-          "description": "ding, alarm_beep, alarm, alarmo, siren, or a sound URL.",
-          "name": "Sound or HTTPS/HTTP URL"
+          "description": "ding, alarm_beep, alarm, alarmo, siren ali URL zvoka.",
+          "name": "Zvok ali naslov HTTPS/HTTP"
         },
         "timeoutS": {
-          "name": "Display duration in seconds (0 = unlimited)"
+          "name": "Trajanje prikaza v sekundah (0 = neomejeno)"
         },
         "title": {
-          "name": "Title"
+          "name": "Naslov"
         }
       },
-      "name": "Panel notification"
+      "name": "Obvestilo na plošči"
     },
     "page": {
       "fields": {
         "id": {
-          "name": "Studio page ID"
+          "name": "ID strani v Studiu"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID plošče"
         }
       },
-      "name": "Show page"
+      "name": "Prikaži stran"
     },
     "push_config": {
-      "description": "Resend saved pages and states to the panel.",
+      "description": "Ponovno pošlje shranjene strani in stanja na ploščo.",
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID plošče"
         }
       },
-      "name": "Push configuration"
+      "name": "Pošlji konfiguracijo"
     },
     "screen": {
       "fields": {
         "action": {
-          "name": "Action"
+          "name": "Dejanje"
         },
         "brightness": {
-          "name": "Brightness (0.05 to 1)"
+          "name": "Svetlost (0,05 do 1)"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID plošče"
         }
       },
-      "name": "Set screen"
+      "name": "Nastavi zaslon"
     },
     "start_timer": {
-      "description": "The timer is stored in Home Assistant and restored after a restart.",
+      "description": "Časovnik je shranjen v Home Assistantu in se po ponovnem zagonu obnovi.",
       "fields": {
         "entity_id": {
-          "name": "Device to turn off"
+          "name": "Naprava za izklop"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID plošče"
         },
         "seconds": {
-          "name": "Seconds"
+          "name": "Sekunde"
         }
       },
-      "name": "Start shutdown timer"
+      "name": "Zaženi časovnik za izklop"
     },
     "wake": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "ID plošče"
         }
       },
-      "name": "Wake panel"
+      "name": "Prebudi ploščo"
     }
   },
   "title": "Aurelvi"

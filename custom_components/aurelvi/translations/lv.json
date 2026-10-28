@@ -4,12 +4,12 @@
       "single_instance_allowed": "Aurelvi is already configured."
     },
     "error": {
-      "mqtt_disconnected": "MQTT is disconnected. Check the broker.",
-      "mqtt_missing": "Set up the MQTT integration and broker first."
+      "mqtt_disconnected": "MQTT ir atvienots. Pārbaudiet brokeri.",
+      "mqtt_missing": "Vispirms iestatiet MQTT integrāciju un brokeri."
     },
     "step": {
       "user": {
-        "description": "Uses the existing Home Assistant MQTT integration. Connect the panel to the same broker, using Aurelvi mode. Configure pages in Aurelvi Studio in the sidebar.",
+        "description": "Izmanto esošo Home Assistant MQTT integrāciju. Savienojiet paneli ar to pašu brokeri, izmantojot Aurelvi režīmu. Lapas konfigurējiet Aurelvi Studio sānjoslā.",
         "title": "Aurelvi – Home at a touch"
       }
     }
@@ -17,24 +17,24 @@
   "entity": {
     "binary_sensor": {
       "motion": {
-        "name": "Motion"
+        "name": "Kustība"
       },
       "online": {
-        "name": "Connection"
+        "name": "Savienojums"
       }
     },
     "button": {
       "adb_reboot": {
-        "name": "Reboot (ADB)"
+        "name": "Restartēt (ADB)"
       },
       "cancel_timer": {
-        "name": "Cancel timer"
+        "name": "Atcelt taimeri"
       },
       "info": {
-        "name": "Refresh information"
+        "name": "Atjaunot informāciju"
       },
       "wake": {
-        "name": "Wake"
+        "name": "Pamodināt"
       }
     },
     "media_player": {
@@ -49,24 +49,24 @@
     },
     "number": {
       "brightness": {
-        "name": "Screen brightness"
+        "name": "Ekrāna spilgtums"
       }
     },
     "sensor": {
       "freeMemMB": {
-        "name": "Free memory"
+        "name": "Brīvā atmiņa"
       },
       "illuminance": {
-        "name": "Illuminance"
+        "name": "Apgaismojums"
       },
       "rssi": {
-        "name": "Wi-Fi signal"
+        "name": "Wi-Fi signāls"
       },
       "timer": {
         "name": "Taimeris"
       },
       "uptimeS": {
-        "name": "Uptime"
+        "name": "Darbības laiks"
       },
       "version": {
         "name": "Versija"
@@ -79,99 +79,110 @@
     },
     "update": {
       "update": {
-        "name": "App update"
+        "name": "Lietotnes atjauninājums"
       }
+    }
+  },
+  "exceptions": {
+    "adb_failed": {
+      "message": "ADB darbība neizdevās: {error}"
+    },
+    "github_not_configured": {
+      "message": "Vispirms iestatiet GitHub programmā Aurelvi Studio"
+    },
+    "panel_command_failed": {
+      "message": "Paneļa komanda neizdevās: {error}"
     }
   },
   "services": {
     "cancel_timer": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneļa ID"
         }
       },
-      "name": "Cancel timer"
+      "name": "Atcelt taimeri"
     },
     "notify": {
       "fields": {
         "message": {
-          "name": "Notification message"
+          "name": "Paziņojuma ziņojums"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneļa ID"
         },
         "priority": {
-          "name": "Priority"
+          "name": "Prioritāte"
         },
         "sound": {
-          "description": "ding, alarm_beep, alarm, alarmo, siren, or a sound URL.",
-          "name": "Sound or HTTPS/HTTP URL"
+          "description": "ding, alarm_beep, alarm, alarmo, siren vai skaņas URL.",
+          "name": "Skaņa vai HTTPS/HTTP URL"
         },
         "timeoutS": {
-          "name": "Display duration in seconds (0 = unlimited)"
+          "name": "Rādīšanas ilgums sekundēs (0 = bez ierobežojuma)"
         },
         "title": {
-          "name": "Title"
+          "name": "Nosaukums"
         }
       },
-      "name": "Panel notification"
+      "name": "Paneļa paziņojums"
     },
     "page": {
       "fields": {
         "id": {
-          "name": "Studio page ID"
+          "name": "Studio lapas ID"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneļa ID"
         }
       },
-      "name": "Show page"
+      "name": "Rādīt lapu"
     },
     "push_config": {
-      "description": "Resend saved pages and states to the panel.",
+      "description": "Atkārtoti nosūta saglabātās lapas un stāvokļus panelim.",
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneļa ID"
         }
       },
-      "name": "Push configuration"
+      "name": "Nosūtīt konfigurāciju"
     },
     "screen": {
       "fields": {
         "action": {
-          "name": "Action"
+          "name": "Darbība"
         },
         "brightness": {
-          "name": "Brightness (0.05 to 1)"
+          "name": "Spilgtums (no 0.05 līdz 1)"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneļa ID"
         }
       },
-      "name": "Set screen"
+      "name": "Iestatīt ekrānu"
     },
     "start_timer": {
-      "description": "The timer is stored in Home Assistant and restored after a restart.",
+      "description": "Taimeris tiek saglabāts Home Assistant un atjaunots pēc restartēšanas.",
       "fields": {
         "entity_id": {
-          "name": "Device to turn off"
+          "name": "Izslēdzamā ierīce"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneļa ID"
         },
         "seconds": {
-          "name": "Seconds"
+          "name": "Sekundes"
         }
       },
-      "name": "Start shutdown timer"
+      "name": "Sākt izslēgšanas taimeri"
     },
     "wake": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Paneļa ID"
         }
       },
-      "name": "Wake panel"
+      "name": "Pamodināt paneli"
     }
   },
   "title": "Aurelvi"

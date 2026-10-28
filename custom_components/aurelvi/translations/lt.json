@@ -4,12 +4,12 @@
       "single_instance_allowed": "Aurelvi is already configured."
     },
     "error": {
-      "mqtt_disconnected": "MQTT is disconnected. Check the broker.",
-      "mqtt_missing": "Set up the MQTT integration and broker first."
+      "mqtt_disconnected": "MQTT atjungtas. Patikrinkite brokerį.",
+      "mqtt_missing": "Pirmiausia nustatykite MQTT integraciją ir brokerį."
     },
     "step": {
       "user": {
-        "description": "Uses the existing Home Assistant MQTT integration. Connect the panel to the same broker, using Aurelvi mode. Configure pages in Aurelvi Studio in the sidebar.",
+        "description": "Naudoja esamą Home Assistant MQTT integraciją. Prijunkite skydelį prie to paties brokerio Aurelvi režimu. Puslapius konfigūruokite Aurelvi Studio šoninėje juostoje.",
         "title": "Aurelvi – Home at a touch"
       }
     }
@@ -17,24 +17,24 @@
   "entity": {
     "binary_sensor": {
       "motion": {
-        "name": "Motion"
+        "name": "Judesys"
       },
       "online": {
-        "name": "Connection"
+        "name": "Ryšys"
       }
     },
     "button": {
       "adb_reboot": {
-        "name": "Reboot (ADB)"
+        "name": "Paleisti iš naujo (ADB)"
       },
       "cancel_timer": {
-        "name": "Cancel timer"
+        "name": "Atšaukti laikmatį"
       },
       "info": {
-        "name": "Refresh information"
+        "name": "Atnaujinti informaciją"
       },
       "wake": {
-        "name": "Wake"
+        "name": "Pažadinti"
       }
     },
     "media_player": {
@@ -49,24 +49,24 @@
     },
     "number": {
       "brightness": {
-        "name": "Screen brightness"
+        "name": "Ekrano ryškumas"
       }
     },
     "sensor": {
       "freeMemMB": {
-        "name": "Free memory"
+        "name": "Laisva atmintis"
       },
       "illuminance": {
-        "name": "Illuminance"
+        "name": "Apšvietimas"
       },
       "rssi": {
-        "name": "Wi-Fi signal"
+        "name": "Wi-Fi signalas"
       },
       "timer": {
         "name": "Laikmatis"
       },
       "uptimeS": {
-        "name": "Uptime"
+        "name": "Veikimo laikas"
       },
       "version": {
         "name": "Versija"
@@ -79,99 +79,110 @@
     },
     "update": {
       "update": {
-        "name": "App update"
+        "name": "Programos naujinimas"
       }
+    }
+  },
+  "exceptions": {
+    "adb_failed": {
+      "message": "ADB operacija nepavyko: {error}"
+    },
+    "github_not_configured": {
+      "message": "Pirmiausia nustatykite GitHub Aurelvi Studio"
+    },
+    "panel_command_failed": {
+      "message": "Skydelio komanda nepavyko: {error}"
     }
   },
   "services": {
     "cancel_timer": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Skydelio ID"
         }
       },
-      "name": "Cancel timer"
+      "name": "Atšaukti laikmatį"
     },
     "notify": {
       "fields": {
         "message": {
-          "name": "Notification message"
+          "name": "Pranešimo tekstas"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Skydelio ID"
         },
         "priority": {
-          "name": "Priority"
+          "name": "Prioritetas"
         },
         "sound": {
-          "description": "ding, alarm_beep, alarm, alarmo, siren, or a sound URL.",
-          "name": "Sound or HTTPS/HTTP URL"
+          "description": "ding, alarm_beep, alarm, alarmo, siren arba garso URL.",
+          "name": "Garsas arba HTTPS/HTTP URL"
         },
         "timeoutS": {
-          "name": "Display duration in seconds (0 = unlimited)"
+          "name": "Rodymo trukmė sekundėmis (0 = neribota)"
         },
         "title": {
-          "name": "Title"
+          "name": "Pavadinimas"
         }
       },
-      "name": "Panel notification"
+      "name": "Pranešimas skydeliui"
     },
     "page": {
       "fields": {
         "id": {
-          "name": "Studio page ID"
+          "name": "Studio puslapio ID"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Skydelio ID"
         }
       },
-      "name": "Show page"
+      "name": "Rodyti puslapį"
     },
     "push_config": {
-      "description": "Resend saved pages and states to the panel.",
+      "description": "Iš naujo išsiunčia išsaugotus puslapius ir būsenas į skydelį.",
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Skydelio ID"
         }
       },
-      "name": "Push configuration"
+      "name": "Siųsti konfigūraciją"
     },
     "screen": {
       "fields": {
         "action": {
-          "name": "Action"
+          "name": "Veiksmas"
         },
         "brightness": {
-          "name": "Brightness (0.05 to 1)"
+          "name": "Ryškumas (nuo 0.05 iki 1)"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Skydelio ID"
         }
       },
-      "name": "Set screen"
+      "name": "Nustatyti ekraną"
     },
     "start_timer": {
-      "description": "The timer is stored in Home Assistant and restored after a restart.",
+      "description": "Laikmatis saugomas Home Assistant ir atkuriamas po paleidimo iš naujo.",
       "fields": {
         "entity_id": {
-          "name": "Device to turn off"
+          "name": "Įrenginys, kurį išjungti"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Skydelio ID"
         },
         "seconds": {
-          "name": "Seconds"
+          "name": "Sekundės"
         }
       },
-      "name": "Start shutdown timer"
+      "name": "Paleisti išjungimo laikmatį"
     },
     "wake": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Skydelio ID"
         }
       },
-      "name": "Wake panel"
+      "name": "Pažadinti skydelį"
     }
   },
   "title": "Aurelvi"

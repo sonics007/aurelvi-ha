@@ -4,12 +4,12 @@
       "single_instance_allowed": "Aurelvi is already configured."
     },
     "error": {
-      "mqtt_disconnected": "MQTT is disconnected. Check the broker.",
-      "mqtt_missing": "Set up the MQTT integration and broker first."
+      "mqtt_disconnected": "MQTT er afbrudt. Tjek brokeren.",
+      "mqtt_missing": "Opsæt først MQTT-integrationen og brokeren."
     },
     "step": {
       "user": {
-        "description": "Uses the existing Home Assistant MQTT integration. Connect the panel to the same broker, using Aurelvi mode. Configure pages in Aurelvi Studio in the sidebar.",
+        "description": "Bruger den eksisterende MQTT-integration i Home Assistant. Forbind panelet til samme broker i Aurelvi-tilstand. Konfigurer sider i Aurelvi Studio i sidepanelet.",
         "title": "Aurelvi – Home at a touch"
       }
     }
@@ -17,24 +17,24 @@
   "entity": {
     "binary_sensor": {
       "motion": {
-        "name": "Motion"
+        "name": "Bevægelse"
       },
       "online": {
-        "name": "Connection"
+        "name": "Forbindelse"
       }
     },
     "button": {
       "adb_reboot": {
-        "name": "Reboot (ADB)"
+        "name": "Genstart (ADB)"
       },
       "cancel_timer": {
-        "name": "Cancel timer"
+        "name": "Annuller timer"
       },
       "info": {
-        "name": "Refresh information"
+        "name": "Opdater oplysninger"
       },
       "wake": {
-        "name": "Wake"
+        "name": "Væk"
       }
     },
     "media_player": {
@@ -49,24 +49,24 @@
     },
     "number": {
       "brightness": {
-        "name": "Screen brightness"
+        "name": "Skærmens lysstyrke"
       }
     },
     "sensor": {
       "freeMemMB": {
-        "name": "Free memory"
+        "name": "Ledig hukommelse"
       },
       "illuminance": {
-        "name": "Illuminance"
+        "name": "Belysningsstyrke"
       },
       "rssi": {
-        "name": "Wi-Fi signal"
+        "name": "Wi-Fi-signal"
       },
       "timer": {
         "name": "Timer"
       },
       "uptimeS": {
-        "name": "Uptime"
+        "name": "Oppetid"
       },
       "version": {
         "name": "Version"
@@ -79,99 +79,110 @@
     },
     "update": {
       "update": {
-        "name": "App update"
+        "name": "App-opdatering"
       }
+    }
+  },
+  "exceptions": {
+    "adb_failed": {
+      "message": "ADB-handlingen mislykkedes: {error}"
+    },
+    "github_not_configured": {
+      "message": "Opsæt først GitHub i Aurelvi Studio"
+    },
+    "panel_command_failed": {
+      "message": "Panelkommandoen mislykkedes: {error}"
     }
   },
   "services": {
     "cancel_timer": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panel-ID"
         }
       },
-      "name": "Cancel timer"
+      "name": "Annuller timer"
     },
     "notify": {
       "fields": {
         "message": {
-          "name": "Notification message"
+          "name": "Beskedtekst"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panel-ID"
         },
         "priority": {
-          "name": "Priority"
+          "name": "Prioritet"
         },
         "sound": {
-          "description": "ding, alarm_beep, alarm, alarmo, siren, or a sound URL.",
-          "name": "Sound or HTTPS/HTTP URL"
+          "description": "ding, alarm_beep, alarm, alarmo, siren eller en lyd-URL.",
+          "name": "Lyd eller HTTPS/HTTP-URL"
         },
         "timeoutS": {
-          "name": "Display duration in seconds (0 = unlimited)"
+          "name": "Visningstid i sekunder (0 = ubegrænset)"
         },
         "title": {
-          "name": "Title"
+          "name": "Titel"
         }
       },
-      "name": "Panel notification"
+      "name": "Panelnotifikation"
     },
     "page": {
       "fields": {
         "id": {
-          "name": "Studio page ID"
+          "name": "Studio-side-ID"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panel-ID"
         }
       },
-      "name": "Show page"
+      "name": "Vis side"
     },
     "push_config": {
-      "description": "Resend saved pages and states to the panel.",
+      "description": "Sender gemte sider og tilstande til panelet igen.",
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panel-ID"
         }
       },
-      "name": "Push configuration"
+      "name": "Send konfiguration"
     },
     "screen": {
       "fields": {
         "action": {
-          "name": "Action"
+          "name": "Handling"
         },
         "brightness": {
-          "name": "Brightness (0.05 to 1)"
+          "name": "Lysstyrke (0.05 til 1)"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panel-ID"
         }
       },
-      "name": "Set screen"
+      "name": "Indstil skærm"
     },
     "start_timer": {
-      "description": "The timer is stored in Home Assistant and restored after a restart.",
+      "description": "Timeren gemmes i Home Assistant og gendannes efter en genstart.",
       "fields": {
         "entity_id": {
-          "name": "Device to turn off"
+          "name": "Enhed der skal slukkes"
         },
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panel-ID"
         },
         "seconds": {
-          "name": "Seconds"
+          "name": "Sekunder"
         }
       },
-      "name": "Start shutdown timer"
+      "name": "Start nedlukningstimer"
     },
     "wake": {
       "fields": {
         "panel_id": {
-          "name": "Panel ID"
+          "name": "Panel-ID"
         }
       },
-      "name": "Wake panel"
+      "name": "Væk panel"
     }
   },
   "title": "Aurelvi"
