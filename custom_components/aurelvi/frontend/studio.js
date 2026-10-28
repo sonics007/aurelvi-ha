@@ -17,6 +17,16 @@ function t(key,vars,language){
   if(vars)text=text.replace(/\{([a-zA-Z0-9_]+)\}/g,function(m,name){return Object.prototype.hasOwnProperty.call(vars,name)?String(vars[name]):m;});
   return text;
 }
+/* Backend messages: 'backend.key' or 'backend.key|{"param":"value"}'; params may themselves be encoded messages. */
+function message(text,language,depth){
+  if(typeof text!=='string')return text;
+  depth=depth||0;
+  var bar=text.indexOf('|'),key=bar<0?text:text.slice(0,bar),vars=null;
+  if(!/^[a-z][a-z0-9_]*(\.[A-Za-z0-9_]+)+$/.test(key)||!has(key))return text;
+  if(bar>=0){try{vars=JSON.parse(text.slice(bar+1));}catch(e){vars=null;}}
+  if(vars&&depth<3)Object.keys(vars).forEach(function(name){vars[name]=message(String(vars[name]),language,depth+1);});
+  return t(key,vars,language);
+}
 function register(code,table){strings[code]=Object.assign(strings[code]||{},table||{});}
 /* Load extra keys (e.g. Studio) from <base>/<code>.json plus English and Slovak fallbacks. */
 function load(base,code){
@@ -42,7 +52,7 @@ function setLanguage(value){
   if(root.document){document.documentElement.lang=lang;apply(document);}
   try{document.dispatchEvent(new CustomEvent('aurelvi-language-changed',{detail:lang}));}catch(e){}
 }
-var api={names:names,strings:strings,normalize:normalize,t:t,has:has,register:register,load:load,apply:apply,setLanguage:setLanguage,
+var api={names:names,strings:strings,normalize:normalize,t:t,has:has,message:message,register:register,load:load,apply:apply,setLanguage:setLanguage,
   getLanguage:function(){return lang;},preferred:function(fallback){return preferred||normalize(fallback);}};
 root.AurelviI18n=api;
 /* Panel only: language picker inside #settings, remembered by the native app. */
