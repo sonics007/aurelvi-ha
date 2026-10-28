@@ -23,6 +23,8 @@ from .const import DOMAIN, PREFIX, SIGNAL, VERSION
 from .models import actions, attribute_key, PROJECTED_ATTRIBUTES, finite_attribute, default_config, entities, entity_id, entity_key, mirror, number, panel_id, validate_config, validate_device
 
 _LOGGER=logging.getLogger(__name__)
+# Upper bound for panels that announced themselves on MQTT but were never paired.
+MAX_UNPAIRED=10
 
 class Hub:
     def __init__(self,hass,entry):
@@ -88,6 +90,12 @@ class Hub:
                 if suffix not in {'sys/info','avail'}:return
                 async with self.lock:
                     if pid not in self.panels:
+                        # Any client can publish under aurelvi/panel/<anything>, so cap how many unpaired entries we persist.
+                        if sum(1 for p in self.panels.values() if not p.get('paired'))>=MAX_UNPAIRED:
+                            if not getattr(self,'_unpaired_warned',False):
+                                self._unpaired_warned=True
+                                _LOGGER.warning('Aurelvi: ignoring new unpaired panels, limit of %s reached',MAX_UNPAIRED)
+                            return
                         self.panels[pid]={'name':pid,'paired':False,'config':default_config(),'device':{},'revision':0,'history':[]}
                         self.status[pid]={'online':False,'info':{},'sys':{}}
                         self.schedule_persist()
@@ -229,7 +237,10 @@ class Hub:
                 except Exception:base=None
             if token and base:
                 doc['stream']=base.rstrip('/')+'/api/camera_proxy_stream/'+entity+'?token='+token
-        await self.publish(pid,'state/'+entity_key(entity),doc,True)
+        # Camera docs carry a short-lived HA access token in 'stream'. Publish them non-retained so the
+        # token is not stored on the broker. push() re-sends state on panel reconnect, so this is enough.
+        # Token rotation is picked up because attribute changes fire state_changed, which calls publish_state again.
+        await self.publish(pid,'state/'+entity_key(entity),doc,not entity.startswith('camera.'))
         # Separate MQTT keys let existing APK switchers display confirmed attributes.
         projected=set()
         for page in self.panels[pid]['config']['pages']:
