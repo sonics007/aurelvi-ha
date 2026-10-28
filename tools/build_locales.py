@@ -77,9 +77,15 @@ def pick(data, prefixes):
     return {code: {k: v for k, v in table.items() if k.startswith(prefixes)} for code, table in data.items()}
 
 
+def revision(data):
+    """Short content hash of all locales; Studio appends it to locale fetches to defeat caches."""
+    import hashlib
+    return hashlib.sha1(json.dumps(data, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:10]
+
+
 def runtime(data, prefixes, mount=True):
     names = {code: table.get("language.name", code) for code, table in data.items()}
-    payload = {"names": names, "strings": pick(data, prefixes) if prefixes else {}}
+    payload = {"names": names, "strings": pick(data, prefixes) if prefixes else {}, "rev": revision(data)}
     if not mount:
         payload["mount"] = False
     blob = json.dumps(payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True)

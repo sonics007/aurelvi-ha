@@ -7,6 +7,10 @@
 
 # Changelog
 
+## 0.3.14
+
+- Studio and its language files are loaded with a content hash in the URL, so browsers never keep an old Studio after an update. Fixes untranslated `backend.…` messages (for example in the ADB dialog) when an outdated cached Studio met the 0.3.13 backend.
+
 ## 0.3.13
 
 - All user-visible text moved to `locale/<code>.json` with named keys; `locale/sk.json` is the master (1002 keys). `tools/build_locales.py` generates the panel, Studio, website and Home Assistant translation files; CI checks they are current. See LOCALIZATION.md.

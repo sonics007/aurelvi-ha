@@ -23,6 +23,11 @@ async def async_setup(hass,config):
         hass.data[DOMAIN]['registered']=True
     return True
 
+def _studio_hash():
+    """Content hash so browsers never keep an old Studio after an update with the same version."""
+    import hashlib
+    return hashlib.sha1((Path(__file__).parent/'frontend'/'studio.js').read_bytes()).hexdigest()[:10]
+
 async def async_setup_entry(hass,entry):
     hub=Hub(hass,entry);entry.runtime_data=hub;hass.data[DOMAIN]['hub']=hub
     from .i18n import async_preload
@@ -30,7 +35,7 @@ async def async_setup_entry(hass,entry):
     try:
         await hub.start()
         await hass.config_entries.async_forward_entry_setups(entry,[Platform(x) for x in PLATFORMS])
-        await panel_custom.async_register_panel(hass,frontend_url_path='aurelvi',webcomponent_name='aurelvi-studio',sidebar_title='Aurelvi Studio',sidebar_icon='mdi:gesture-tap',module_url='/aurelvi-static/studio.js?v='+VERSION,embed_iframe=False,require_admin=True,config_panel_domain=DOMAIN)
+        await panel_custom.async_register_panel(hass,frontend_url_path='aurelvi',webcomponent_name='aurelvi-studio',sidebar_title='Aurelvi Studio',sidebar_icon='mdi:gesture-tap',module_url='/aurelvi-static/studio.js?v='+VERSION+'-'+await hass.async_add_executor_job(_studio_hash),embed_iframe=False,require_admin=True,config_panel_domain=DOMAIN)
         register_services(hass)
     except Exception:
         await hub.close();hass.data[DOMAIN].pop('hub',None);raise

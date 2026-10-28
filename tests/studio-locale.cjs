@@ -15,7 +15,7 @@ function table(code) {
 }
 module.exports = function installLocale(w, requested) {
   w.fetch = async url => {
-    const match = /\/([a-z]{2,3})\.json$/.exec(String(url));
+    const match = /\/([a-z]{2,3})\.json(?:\?|$)/.exec(String(url));
     const data = match && table(match[1]);
     if (requested) requested.push(String(url));
     return data ? { ok: true, json: async () => data } : { ok: false, json: async () => ({}) };

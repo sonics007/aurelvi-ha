@@ -32,7 +32,7 @@ function load(base,code){
   code=normalize(code||lang);
   var wanted=[code,'en','sk'].filter(function(c,i,a){return a.indexOf(c)===i;});
   return Promise.all(wanted.map(function(c){
-    return fetch(String(base).replace(/\/$/,'')+'/'+c+'.json').then(function(r){return r.ok?r.json():{};}).then(function(table){register(c,table);}).catch(function(){});
+    return fetch(String(base).replace(/\/$/,'')+'/'+c+'.json'+(DATA.rev?'?v='+DATA.rev:'')).then(function(r){return r.ok?r.json():{};}).then(function(table){register(c,table);}).catch(function(){});
   }));
 }
 /* Elements declare text with data-i18n="key" and attributes with data-i18n-attr="title=key;aria-label=key". */
