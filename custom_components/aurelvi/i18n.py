@@ -12,6 +12,20 @@ def msg(key, **params):
 _STRINGS = {}
 
 
+def _read(lang):
+    from pathlib import Path
+    try:
+        return json.loads((Path(__file__).parent / "frontend" / "locale" / f"{lang}.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+async def async_preload(hass, lang="en"):
+    """Read the locale file in the executor so plain() never does file I/O in the event loop."""
+    if lang not in _STRINGS:
+        _STRINGS[lang] = await hass.async_add_executor_job(_read, lang)
+
+
 def plain(text, lang="en"):
     """Render an encoded message as plain text for logs and Home Assistant exception placeholders.
 
@@ -22,11 +36,7 @@ def plain(text, lang="en"):
         return text
     key, _, raw = text.partition("|")
     if lang not in _STRINGS:
-        try:
-            from pathlib import Path
-            _STRINGS[lang] = json.loads((Path(__file__).parent / "frontend" / "locale" / f"{lang}.json").read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            _STRINGS[lang] = {}
+        _STRINGS[lang] = _read(lang)  # fallback only; async_preload normally filled the cache
     template = _STRINGS[lang].get(key)
     if template is None:
         return text

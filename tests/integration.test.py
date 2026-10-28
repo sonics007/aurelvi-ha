@@ -35,6 +35,7 @@ from aurelvi_test.hub import Hub
 class State:
  def __init__(self,entity_id,state='on',**attributes):self.entity_id=entity_id;self.state=state;self.attributes=attributes
 class Hass:
+ async def async_add_executor_job(self,fn,*args):return fn(*args)
  def __init__(self):
   self.mqtt=[];self.calls=[];self.subscriptions=[];self.devices=[];self.values={};self.fail=False
   self.states=types.SimpleNamespace(get=self.values.get)

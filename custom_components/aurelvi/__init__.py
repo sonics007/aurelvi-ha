@@ -25,6 +25,8 @@ async def async_setup(hass,config):
 
 async def async_setup_entry(hass,entry):
     hub=Hub(hass,entry);entry.runtime_data=hub;hass.data[DOMAIN]['hub']=hub
+    from .i18n import async_preload
+    await async_preload(hass)
     try:
         await hub.start()
         await hass.config_entries.async_forward_entry_setups(entry,[Platform(x) for x in PLATFORMS])
