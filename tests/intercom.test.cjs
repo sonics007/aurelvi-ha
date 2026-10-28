@@ -9,6 +9,7 @@ class UA extends EventEmitter{constructor(options){super();this.options=options;
 w.JsSIP={UA,WebSocketInterface:class{constructor(url){this.url=url;}},URI:{parse:uri=>{let m=/sip:([^@]+)@(.+)/.exec(uri);return m&&{user:m[1],host:m[2]};}}};
 // Simulate older NSPanel WebView without replaceChildren.
 w.Element.prototype.replaceChildren=undefined;
+w.eval(fs.readFileSync(path+'i18n.js','utf8'));// like index.html: runtime first
 w.eval(fs.readFileSync(path+'intercom.js','utf8'));
 const clickContact=id=>d.querySelector('[data-contact="'+id+'"]').click(),flush=()=>new Promise(r=>setImmediate(r));
 (async()=>{
@@ -22,5 +23,6 @@ const clickContact=id=>d.querySelector('[data-contact="'+id+'"]').click(),flush=
  ua.emit('disconnected');assert(d.querySelector('[data-contact="iphone"]').disabled);
  d.getElementById('intercom-uri').value='javascript:alert(1)';d.querySelector('.intercom-setup form').dispatchEvent(new w.Event('submit',{cancelable:true}));assert.equal(saved.length,0);
  d.getElementById('intercom-uri').value='sip:panel@example.com';d.querySelector('.intercom-setup form').dispatchEvent(new w.Event('submit',{cancelable:true}));assert.equal(saved.length,1);assert.equal(saved[0].password,'private-sip-secret');assert(!d.body.textContent.includes('private-sip-secret'));
+ w.AurelviI18n.setLanguage('sk');assert.equal(d.getElementById('intercom-heading').textContent,'Interkom');assert.equal(d.querySelector('.intercom-end').textContent,'Ukončiť hovor');w.AurelviI18n.setLanguage('en');assert.equal(d.getElementById('intercom-heading').textContent,'Intercom');
  w.close();console.log('PASS SIP registration, selected iOS/Android contacts, one call, mute, hangup, incoming consent, busy/unknown rejection, microphone denial, validation and native-only credential saving');
 })().catch(e=>{console.error(e);w.close();process.exitCode=1;});

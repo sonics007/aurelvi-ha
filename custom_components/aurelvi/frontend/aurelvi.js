@@ -1,7 +1,8 @@
 /* Aurelvi controls: own protocol, confirmed states and configurable fan template. MIT. */
 (function (root) {
   "use strict";
-  function uiText(en,legacy){return window.AurelviI18n?window.AurelviI18n.t(en):legacy;}
+  function tr(key,vars){return window.AurelviI18n?window.AurelviI18n.t(key,vars):key;}
+  function backendMessage(text){return window.AurelviI18n&&window.AurelviI18n.message?window.AurelviI18n.message(text):text;}
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     n.className = cls || "";
@@ -175,8 +176,8 @@
     function timerText() {
       var s = remaining();
       return Math.floor(s / 3600) > 0
-        ? Math.floor(s / 3600) + " h " + Math.ceil((s % 3600) / 60) + " min"
-        : Math.ceil(s / 60) + " min";
+        ? tr("panel.fan.hours_minutes", { hours: Math.floor(s / 3600), minutes: Math.ceil((s % 3600) / 60) })
+        : tr("panel.fan.minutes", { minutes: Math.ceil(s / 60) });
     }
     function timerSheet(page) {
       var existing = document.getElementById("aur-sheet");
@@ -184,12 +185,12 @@
       var sheet = el("section", "aur-sheet");
       sheet.id = "aur-sheet";
       sheet.setAttribute("role", "dialog");
-      sheet.appendChild(el("h2", "", uiText("Turn fan off in…","Vypnúť ventilátor o…")));
+      sheet.appendChild(el("h2", "", tr("panel.fan.turn_off_in")));
       [15, 30, 60, 120].forEach(function (min) {
         sheet.appendChild(
           control(
             page.id + ".timer",
-            min < 60 ? min + " min" : min / 60 + " h",
+            min < 60 ? tr("panel.fan.minutes", { minutes: min }) : tr("panel.fan.hours", { hours: min / 60 }),
             "timer",
             false,
             true,
@@ -204,7 +205,7 @@
         sheet.appendChild(
           control(
             page.id + ".cancel_timer",
-            uiText("Cancel timer","Zrušiť časovač"),
+            tr("panel.fan.cancel_timer"),
             "x",
             false,
             true,
@@ -214,7 +215,7 @@
             },
           ),
         );
-      var close = el("button", "aur-close", uiText("Back","Späť"));
+      var close = el("button", "aur-close", tr("common.back"));
       close.onclick = function () {
         sheet.remove();
       };
@@ -232,7 +233,7 @@
       if (f.lightEntity) {
         var hero = control(
           page.id + ".light",
-          f.lightLabel || uiText("Light","Svetlo"),
+          f.lightLabel || tr("panel.fan.light"),
           "lightbulb",
           light.on,
           light.available,
@@ -245,28 +246,28 @@
           "span",
           "aur-control-note",
           light.available === false
-            ? uiText("Unavailable","Nedostupné")
+            ? tr("panel.status.unavailable")
             : light.on
-              ? uiText("On","Zapnuté") +
+              ? tr("common.on") +
                 (light.brightness !== undefined
                   ? " · " + Math.round(light.brightness * 100) + " %"
                   : "")
-              : uiText("Off","Vypnuté"),
+              : tr("common.off"),
         );
         hero.appendChild(info);
         box.appendChild(hero);
       }
       var heading = el("div", "aur-section-head");
-      heading.appendChild(el("span", "", uiText("FAN SPEED","RÝCHLOSŤ VENTILÁTORA")));
+      heading.appendChild(el("span", "", tr("panel.fan.fan_speed")));
       heading.appendChild(
         el(
           "span",
           "aur-state-label",
           fan.available === false
-            ? uiText("Unavailable","Nedostupný")
+            ? tr("panel.fan.unavailable")
             : fan.on
-              ? uiText("On","Zapnutý")
-              : uiText("Off","Vypnutý"),
+              ? tr("panel.fan.state_on")
+              : tr("panel.fan.state_off"),
         ),
       );
       box.appendChild(heading);
@@ -308,7 +309,7 @@
           },
           "aur-speed",
         );
-        b.setAttribute("aria-label", uiText("Speed ","Rýchlosť ") + (s.label || i + 1));
+        b.setAttribute("aria-label", tr("panel.fan.speed", { speed: s.label || i + 1 }));
         speedrow.appendChild(b);
       });
       box.appendChild(speedrow);
@@ -316,7 +317,7 @@
       utility.appendChild(
         control(
           page.id + ".off",
-          uiText("Off","Vypnúť"),
+          tr("panel.fan.turn_off"),
           "power",
           fan.available !== false && !fan.on,
           fan.available,
@@ -330,10 +331,10 @@
           control(
             page.id + ".direction",
             fan.direction === "reverse"
-              ? uiText("Back","Späť")
+              ? tr("panel.fan.direction_back")
               : fan.direction === "forward"
-                ? uiText("Forward","Dopredu")
-                : "Smer",
+                ? tr("panel.fan.direction_forward")
+                : tr("panel.fan.direction"),
             "repeat",
             false,
             fan.available !== false && !!fan.direction,
@@ -346,7 +347,7 @@
         utility.appendChild(
           control(
             page.id + ".all_off",
-            uiText("All off","Všetko vypnúť"),
+            tr("panel.fan.all_off"),
             "power",
             !fan.on && (!f.lightEntity || !light.on),
             fan.available !== false &&
@@ -357,14 +358,14 @@
           ),
         );
       box.appendChild(utility);
-      var meter=el("div","aur-vu"),meterLabel=el("div","aur-vu-label","FAN OUTPUT · "+(fan.available===false?"—":Math.round(fan.on?Number(fan.percentage)||0:0)+" %")),track=el("div","aur-vu-track"),fill=el("div","aur-vu-fill");
+      var meter=el("div","aur-vu"),meterLabel=el("div","aur-vu-label",tr("panel.fan.output",{value:fan.available===false?"—":Math.round(fan.on?Number(fan.percentage)||0:0)+" %"})),track=el("div","aur-vu-track"),fill=el("div","aur-vu-fill");
       fill.style.width=Math.max(0,Math.min(100,fan.on?Number(fan.percentage)||0:0))+"%";track.appendChild(fill);meter.appendChild(meterLabel);meter.appendChild(track);meter.appendChild(el("div","aur-vu-scale","0     20     40     60     80     100"));box.appendChild(meter);
       if (f.lightEntity && cfg.brightness)
         box.appendChild(
           slider(
             page.id,
             "brightness",
-            uiText("Brightness","Jas"),
+            tr("panel.fan.brightness"),
             "sun",
             Math.round((light.brightness || 0) * 100) / 100,
             0,
@@ -381,7 +382,7 @@
           slider(
             page.id,
             "temperature",
-            "Teplota svetla",
+            tr("panel.fan.light_temperature"),
             "thermometer",
             light.color_temp_kelvin || 3000,
             light.min_color_temp_kelvin || 2000,
@@ -396,7 +397,7 @@
       if (cfg.timer) {
         var b = control(
           page.id + ".timer",
-          timer.active ? "Vypnutie o " + timerText() : uiText("Shutdown timer","Časovač vypnutia"),
+          timer.active ? tr("panel.fan.shutdown_in", { time: timerText() }) : tr("panel.fan.shutdown_timer"),
           "timer",
           timer.active,
           fan.available,
@@ -436,7 +437,7 @@
       setTimeout(function () {
         if (pending[id]) {
           delete pending[id];
-          ctx.toast(uiText("Command was not confirmed. Check the connection.","Príkaz nebol potvrdený. Skontroluj spojenie."));
+          ctx.toast(tr("panel.fan.command_unconfirmed"));
           refreshPending();
         }
       }, 10000);
@@ -463,7 +464,7 @@
       if (name === "ack") {
         if (doc.eventId) delete pending[doc.eventId];
         refreshPending();
-        if (doc.ok === false) ctx.toast(doc.message || uiText("Command failed","Príkaz zlyhal"));
+        if (doc.ok === false) ctx.toast(doc.message ? backendMessage(doc.message) : tr("panel.fan.command_failed"));
       } else if (name === "timer") {
         timer = doc;
         timerAt = Date.now();
@@ -472,8 +473,8 @@
           var span = label.querySelector("span");
           if (span)
             span.textContent = doc.active
-              ? "Vypnutie o " + timerText()
-              : uiText("Shutdown timer","Časovač vypnutia");
+              ? tr("panel.fan.shutdown_in", { time: timerText() })
+              : tr("panel.fan.shutdown_timer");
           label.classList.toggle("is-on", doc.active);
         }
       }
@@ -500,7 +501,7 @@
       var label = document.getElementById("aur-timer-label");
       if (label && timer.active) {
         var span = label.querySelector("span");
-        if (span) span.textContent = "Vypnutie o " + timerText();
+        if (span) span.textContent = tr("panel.fan.shutdown_in", { time: timerText() });
       }
     }, 1000);
     themeTimer = setInterval(theme, 60000);

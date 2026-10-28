@@ -1,10 +1,12 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
 const dom=new JSDOM('<html lang="en"><body><section id="settings" hidden></section><main id="surface"><button id="control">Light</button></main></body></html>',{runScripts:'outside-only',url:'https://panel.test'}),w=dom.window;let clean=false,applied=[],removed=false;
 w.OpenPanelNative={licenceInfo:()=>JSON.stringify({status:'community',commercialLive:true,licences:[]}),watermarkRequired:type=>!clean&&type!=='clock',applyLicence:token=>{applied.push(token);return JSON.stringify({status:'active'})},refreshLicences:()=>{},clearLicence:()=>{removed=true;}};
+w.eval(fs.readFileSync('custom_components/aurelvi/frontend/i18n.js','utf8'));// like index.html: runtime first
+w.AurelviI18n.setLanguage('en');
 w.eval(fs.readFileSync('custom_components/aurelvi/frontend/licence.js','utf8'));
 w.AurelviLicence.setPage('grid');assert(!w.document.getElementById('aurelvi-watermark').hidden);assert.equal(w.document.getElementById('aurelvi-watermark').style.pointerEvents,'none');assert.equal(w.document.getElementById('control').textContent,'Light');
 w.AurelviLicence.setPage('clock');assert(w.document.getElementById('aurelvi-watermark').hidden);
 w.AurelviLicence.setPage('weather');assert(!w.document.getElementById('aurelvi-watermark').hidden);clean=true;w.dispatchEvent(new w.Event('aurelvi-licence-changed'));assert(w.document.getElementById('aurelvi-watermark').hidden);
 w.AurelviLicence.command('licence',{token:'signed-token'});assert.deepEqual(applied,['signed-token']);w.AurelviLicence.open();assert(w.document.getElementById('licence-editor').textContent.includes('€34.90/year'));assert(w.document.getElementById('licence-editor').textContent.includes('€7.90/year'));
-w.confirm=()=>false;const buttons=[...w.document.querySelectorAll('button')];buttons.find(b=>b.textContent==='Remove all saved licences').click();assert.equal(removed,false);
+assert(w.document.getElementById('licence-editor').textContent.includes('Annual licences'));w.confirm=()=>false;const buttons=[...w.document.querySelectorAll('button')];buttons.find(b=>b.textContent==='Remove all saved licences').click();assert.equal(removed,false);
 dom.window.close();console.log('PASS watermark scopes, nonblocking controls, licence changes, annual pricing UI and removal confirmation');
