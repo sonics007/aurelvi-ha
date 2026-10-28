@@ -19,7 +19,7 @@
 - Fewer state writes and disk saves: per-panel entity cache, panel-scoped entity updates, delayed storage writes.
 - Camera stream URLs with access tokens are no longer retained on the MQTT broker; unpaired panel auto-creation is capped at 10. Broker ACL guidance in `docs/security.md`.
 - Rejected MQTT messages are logged as warnings; all Python tests run in CI; the version is read from `manifest.json`.
-- Requires APK **0.3.13** for the translated panel UI.
+- Requires APK **0.3.14** for the translated panel UI (APK 0.3.13 was never published).
 
 ## 0.3.12
 
