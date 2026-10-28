@@ -4,7 +4,7 @@
 
 ## Version 0.3.13 — Languages and panel watchdog
 
-Studio, the wall panel, error messages and Home Assistant entities are available in 26 languages; texts live in `locale/` (see [LOCALIZATION.md](LOCALIZATION.md)). New **Reboot (ADB)** button and `aurelvi.adb_command` service let Home Assistant restart a panel that dropped off MQTT — see *Automatický reštart panelu (watchdog)* below. Update the integration, restart HA, and install APK **0.3.14** for the translated panel UI.
+Studio, the wall panel, error messages and Home Assistant entities are available in 26 languages; texts live in `locale/` (see [LOCALIZATION.md](LOCALIZATION.md)). New **Reboot (ADB)** button and `aurelvi.adb_command` service let Home Assistant restart a panel that dropped off MQTT — see *Automatický reštart panelu (watchdog)* below. Update the integration, restart HA, and install APK **0.3.15** for the translated panel UI.
 
 ## Version 0.3.11
 

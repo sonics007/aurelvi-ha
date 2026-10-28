@@ -19,7 +19,7 @@ from homeassistant.helpers.event import async_track_time_interval, async_call_la
 from homeassistant.helpers.network import get_url
 from homeassistant.helpers.storage import Store
 from .panel_settings import public_settings, public_device, normalize_panel_config
-from .i18n import msg as tr
+from .i18n import msg as tr, plain, language as plain_language
 from .const import DOMAIN, PREFIX, SIGNAL, VERSION
 from .models import actions, attribute_key, PROJECTED_ATTRIBUTES, finite_attribute, default_config, entities, entity_id, entity_key, mirror, number, panel_id, validate_config, validate_device
 
@@ -293,7 +293,13 @@ class Hub:
             if eid:await self.publish(pid,'sys/ack',{'eventId':eid,'button':button,'ok':True},False)
         except Exception as e:
             self.log(pid,tr('backend.log.control_failed',error=e),'error')
-            if eid:await self.publish(pid,'sys/ack',{'eventId':eid,'button':button,'ok':False,'message':(str(e) if str(e).startswith('backend.') else str(e)[:180])},False)
+            if eid:
+                # 'message' is ready-to-show text for older APKs; newer panels translate 'messageKey' themselves.
+                text=str(e);device=self.panels.get(pid,{}).get('device',{})
+                lang=plain_language(device.get('uiLanguage') or device.get('clockLanguage') or 'sk')
+                doc={'eventId':eid,'button':button,'ok':False,'message':plain(text,lang)[:180]}
+                if text.startswith('backend.'):doc['messageKey']=text
+                await self.publish(pid,'sys/ack',doc,False)
     async def fan_event(self,pid,page,event):
         f=page['fan'];fan=f['fanEntity'];light=f.get('lightEntity');prefix=page['id']+'.';button=event.get('button','')
         if not button.startswith(prefix):raise ValueError(tr('backend.hub.invalid_button'))

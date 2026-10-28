@@ -119,6 +119,13 @@ class Integration(unittest.IsolatedAsyncioTestCase):
   self.hub.status['test']['online']=False;await self.event('fan.speed.6');self.assertEqual(self.hass.calls,[])
  async def test_service_failure_negative_ack(self):
   self.hass.fail=True;await self.event('fan.speed.6');self.assertFalse(self.hass.mqtt[-1][1]['ok'])
+ async def test_negative_ack_has_readable_text_for_old_apk_and_key_for_new(self):
+  self.hub.panels['test']['device']={'uiLanguage':'sk'}
+  await self.event('fan.unknown');ack=self.hass.mqtt[-1][1]
+  self.assertFalse(ack['ok']);self.assertTrue(ack['messageKey'].startswith('backend.'))
+  self.assertFalse(ack['message'].startswith('backend.'),ack['message']);self.assertTrue(ack['message'])
+  self.hub.panels['test']['device']={'clockLanguage':'de-DE'};await self.event('fan.unknown',event_id='e2')
+  self.assertFalse(self.hass.mqtt[-1][1]['message'].startswith('backend.'))
  async def test_timer_persists_and_executes(self):
   await self.event('fan.timer',120);self.assertIn('test',self.hub.store.saved['timers']);job=jobs[-1];self.assertAlmostEqual(job['delay'],7200,delta=1);await job['callback'](None);self.assertEqual(self.call_data()[:2],('fan','turn_off'));self.assertNotIn('test',self.hub.timers)
  async def test_timer_cancelled_and_restored_after_restart(self):

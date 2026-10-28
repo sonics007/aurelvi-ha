@@ -7,6 +7,11 @@
 
 # Changelog
 
+## 0.3.15
+
+- Panels running an older APK (0.3.12 and earlier) show control errors as readable text again instead of `backend.…` keys: `sys/ack` carries ready-made text in `message` (in the panel's language) and the translatable key in `messageKey`, which newer panels use.
+- Nested backend messages are rendered completely in HA logs and exception texts.
+
 ## 0.3.14
 
 - Studio and its language files are loaded with a content hash in the URL, so browsers never keep an old Studio after an update. Fixes untranslated `backend.…` messages (for example in the ADB dialog) when an outdated cached Studio met the 0.3.13 backend.
@@ -19,7 +24,7 @@
 - Fewer state writes and disk saves: per-panel entity cache, panel-scoped entity updates, delayed storage writes.
 - Camera stream URLs with access tokens are no longer retained on the MQTT broker; unpaired panel auto-creation is capped at 10. Broker ACL guidance in `docs/security.md`.
 - Rejected MQTT messages are logged as warnings; all Python tests run in CI; the version is read from `manifest.json`.
-- Requires APK **0.3.14** for the translated panel UI (APK 0.3.13 was never published).
+- Requires APK **0.3.15** for the translated panel UI (APKs 0.3.13 and 0.3.14 were never published).
 
 ## 0.3.12
 

@@ -464,7 +464,7 @@
       if (name === "ack") {
         if (doc.eventId) delete pending[doc.eventId];
         refreshPending();
-        if (doc.ok === false) ctx.toast(doc.message ? backendMessage(doc.message) : tr("panel.fan.command_failed"));
+        if (doc.ok === false) ctx.toast(doc.messageKey ? backendMessage(doc.messageKey) : doc.message ? backendMessage(doc.message) : tr("panel.fan.command_failed"));
       } else if (name === "timer") {
         timer = doc;
         timerAt = Date.now();
