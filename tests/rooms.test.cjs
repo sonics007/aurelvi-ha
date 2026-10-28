@@ -1,5 +1,6 @@
 const fs=require('fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
 const dom=new JSDOM('<body/>',{url:'https://ha.test',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window;
+require('./studio-locale.cjs')(w);
 const store={version:'0.3.7',panels:[{id:'panel',name:'Room',paired:true,revision:0,device:{},config:{pages:[{id:'clock',title:'Clock',type:'clock'}]},status:{online:true,info:{},sys:{}}}],timers:{},settings:{},latest:{},logs:[]};
 const states={'light.a':{state:'on',attributes:{friendly_name:'Ceiling',brightness:128}},'light.b':{state:'off',attributes:{friendly_name:'Wall',brightness:null}},'cover.outdoor':{state:'open',attributes:{friendly_name:'Outdoor blind',device_class:'shutter'}},'sensor.temp':{state:'21',attributes:{friendly_name:'Temperature'}},'climate.room':{state:'heat',attributes:{}},'lock.gate':{state:'locked',attributes:{}},'button.reboot':{state:'unknown',attributes:{}}};
 const entities=Object.keys(states).map(entity_id=>({entity_id,device_id:'device-a'}));entities.push({entity_id:'sensor.unavailable',device_id:'device-a'},{entity_id:'light.other',device_id:'device-a',area_id:'other'},{entity_id:'switch.disabled',device_id:'device-a',disabled_by:'user'});

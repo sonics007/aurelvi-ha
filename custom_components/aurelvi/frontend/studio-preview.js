@@ -75,7 +75,8 @@
           );
       }
     } catch (e) {
-      document.getElementById("toast").textContent = "Náhľad: " + e.message;
+      document.getElementById("toast").textContent =
+        ((data && data.labels && data.labels.error) || "Preview") + ": " + e.message;
       document.getElementById("toast").hidden = false;
     }
   });
