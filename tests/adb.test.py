@@ -77,4 +77,34 @@ class Tests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'running'):await adb.async_command(hub,{'operation':'connect','host':'192.168.1.2'})
         asyncio.run(run())
 
+    def hub(self,**kw):
+        h=types.SimpleNamespace(panels={'p1':{'paired':True}},status={},calls=[],hass=None)
+        async def persist():h.calls.append('persist')
+        h.persist=persist;h.__dict__.update(kw);return h
+    def test_resolve_endpoint_order(self):
+        h=self.hub();h.status['p1']={'info':{'ip':'192.168.1.50'}}
+        self.assertEqual(adb.resolve_endpoint(h,'p1'),('192.168.1.50',5555))
+        h.panels['p1']['adb']={'host':'192.168.1.60','port':5556}
+        self.assertEqual(adb.resolve_endpoint(h,'p1'),('192.168.1.60',5556))
+        self.assertEqual(adb.resolve_endpoint(h,'p1',{'host':'192.168.1.70'}),('192.168.1.70',5556))
+        self.assertTrue(adb.has_endpoint(h,'p1'))
+    def test_resolve_endpoint_missing_or_public(self):
+        h=self.hub();self.assertFalse(adb.has_endpoint(h,'p1'))
+        with self.assertRaises(ValueError):adb.resolve_endpoint(h,'p1')
+        h.status['p1']={'info':{'ip':'8.8.8.8'}}
+        with self.assertRaises(ValueError):adb.resolve_endpoint(h,'p1')
+    def test_remember_endpoint_persists_once(self):
+        h=self.hub();asyncio.run(adb.remember_endpoint(h,'p1',{'host':'192.168.1.9','port':5555}));asyncio.run(adb.remember_endpoint(h,'p1',{'host':'192.168.1.9','port':5555}))
+        self.assertEqual(h.panels['p1']['adb'],{'host':'192.168.1.9','port':5555});self.assertEqual(h.calls,['persist'])
+    def test_service_rejects_disallowed_operations(self):
+        h=self.hub();h.panels['p1']['adb']={'host':'192.168.1.9','port':5555}
+        for op in ['install','text','set_home','unset_home','memory','notifications','shell',None]:
+            with self.subTest(op=op),self.assertRaisesRegex(ValueError,'not allowed'):asyncio.run(adb.async_service(h,{'panel_id':'p1','operation':op}))
+        with self.assertRaisesRegex(ValueError,'Unknown panel'):asyncio.run(adb.async_service(h,{'panel_id':'zz','operation':'reboot'}))
+    def test_service_runs_reboot_with_resolved_endpoint(self):
+        h=self.hub();h.status['p1']={'info':{'ip':'192.168.1.50'}};seen=[]
+        async def fake(hub,data):seen.append(data);return {'output':'OK'}
+        with patch.object(adb,'async_command',fake):asyncio.run(adb.async_service(h,{'panel_id':'p1','operation':'reboot'}))
+        self.assertEqual(seen,[{'operation':'reboot','host':'192.168.1.50','port':5555}]);self.assertEqual(h.panels['p1']['adb']['host'],'192.168.1.50')
+
 if __name__=='__main__':unittest.main()

@@ -1,0 +1,26 @@
+# Reboot an Aurelvi panel over ADB when it has been offline in MQTT for 5 minutes.
+# Requires network debugging on the panel and one successful "Connect / test ADB"
+# in Studio (Setup / Update) so the panel is authorized and its address is stored.
+# Replace binary_sensor.nspanel_pripojenie and the panel_id with your own.
+alias: Aurelvi - watchdog panelu
+mode: single
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.nspanel_pripojenie
+    to: "off"
+    for: "00:05:00"
+conditions:
+  # Reboot-loop guard: at most one automatic reboot per 30 minutes.
+  - condition: template
+    value_template: >
+      {{ this.attributes.last_triggered is none
+         or (now() - this.attributes.last_triggered).total_seconds() > 1800 }}
+actions:
+  - action: aurelvi.adb_command
+    data:
+      panel_id: nspanel-7tmv73
+      operation: reboot
+  - action: persistent_notification.create
+    data:
+      title: Aurelvi
+      message: Panel nspanel-7tmv73 was offline for 5 minutes and was rebooted over ADB.

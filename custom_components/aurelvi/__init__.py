@@ -7,6 +7,7 @@ from homeassistant.components import frontend, panel_custom, websocket_api, mqtt
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.const import Platform
 from homeassistant.core import callback
+from homeassistant.exceptions import HomeAssistantError
 from .const import DOMAIN, PLATFORMS, VERSION
 from .hub import Hub
 from .models import panel_id
@@ -36,7 +37,7 @@ async def async_unload_entry(hass,entry):
     if not await hass.config_entries.async_unload_platforms(entry,[Platform(x) for x in PLATFORMS]):return False
     await entry.runtime_data.close();hass.data[DOMAIN].pop('hub',None)
     frontend.async_remove_panel(hass,'aurelvi')
-    for name in ['push_config','wake','page','notify','screen','start_timer','cancel_timer']:hass.services.async_remove(DOMAIN,name)
+    for name in ['push_config','wake','page','notify','screen','start_timer','cancel_timer','adb_command']:hass.services.async_remove(DOMAIN,name)
     return True
 
 @websocket_api.websocket_command({vol.Required('type'):'aurelvi/command',vol.Required('action'):str,vol.Optional('panel_id'):str,vol.Optional('data',default={}):dict})
@@ -51,6 +52,9 @@ async def ws_command(hass,connection,msg):
         if action=='adb':
             from .adb import async_command
             result=await async_command(hub,data)
+            if pid:
+                from .adb import remember_endpoint
+                await remember_endpoint(hub,pid,data)
         elif action=='licence':
             token=data.get('token','')
             import re
@@ -109,3 +113,11 @@ def register_services(hass):
         else:await hub.command(pid,call.service,data)
     for name in ['push_config','wake','page','notify','screen','start_timer','cancel_timer']:
         hass.services.async_register(DOMAIN,name,handle,schema=vol.Schema({vol.Required('panel_id'):str},extra=vol.ALLOW_EXTRA))
+    from .adb import SERVICE_OPERATIONS,async_service
+    async def handle_adb(call):
+        hub=hass.data[DOMAIN]['hub']
+        try:await async_service(hub,dict(call.data))
+        except ValueError as err:raise HomeAssistantError(str(err)) from err
+    hass.services.async_register(DOMAIN,'adb_command',handle_adb,schema=vol.Schema({
+        vol.Required('panel_id'):str,vol.Required('operation'):vol.In(SERVICE_OPERATIONS),
+        vol.Optional('host'):str,vol.Optional('port'):vol.All(vol.Coerce(int),vol.Range(min=1,max=65535))}))

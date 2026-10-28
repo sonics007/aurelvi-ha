@@ -144,6 +144,9 @@
       },
       "cancel_timer": {
         "name": "Zrušiť časovač"
+      },
+      "adb_reboot": {
+        "name": "Reštartovať (ADB)"
       }
     },
     "number": {

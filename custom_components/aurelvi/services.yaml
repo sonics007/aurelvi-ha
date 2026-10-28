@@ -123,3 +123,31 @@ notify:
       description: ding, alarm_beep, alarm, alarmo, siren, or a sound URL.
       selector:
         text: {}
+adb_command:
+  name: ADB command
+  description: Run a safe ADB command on the panel over the LAN. Works while the panel is offline in MQTT. Requires network debugging and a prior authorization (Studio Setup / Update).
+  fields:
+    panel_id:
+      name: Panel ID
+      required: true
+      example: nspanel-7tmv73
+      selector:
+        text: {}
+    operation:
+      name: Operation
+      required: true
+      selector:
+        select:
+          options: [wake, power, back, home, launch, reboot, connect]
+    host:
+      name: Panel IP (optional)
+      description: Overrides the stored address or the IP reported by the panel.
+      selector:
+        text: {}
+    port:
+      name: ADB port (optional)
+      selector:
+        number:
+          min: 1
+          max: 65535
+          mode: box

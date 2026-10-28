@@ -72,6 +72,14 @@ APK 0.3.4 adds four alarm tones, preview, volume and optional fade-in. Its bird 
 
 APK: [public signed releases](https://github.com/sonics007/aurelvi-apk/releases/latest).
 
+## Automatický reštart panelu (watchdog)
+
+Aurelvi can reboot a panel that has dropped off MQTT. ADB goes straight from HA to the panel over the LAN, so it still works when the panel's MQTT link is down. Enable network debugging on the panel and run **Connect / test ADB** once in Studio (Setup / Update), accepting the authorization prompt; HA then remembers the panel's ADB address (falling back to the IP the panel reports, port 5555).
+
+- Service `aurelvi.adb_command` with `panel_id` and `operation` (`wake`, `power`, `back`, `home`, `launch`, `reboot`, `connect`); optional `host`/`port` override the stored address. APK install, text input and Home changes stay Studio-only.
+- Each panel also gets a **Reštartovať (ADB)** button that stays available while the panel is offline in MQTT, as long as an ADB address is known.
+- [examples/panel-watchdog.yaml](examples/panel-watchdog.yaml) reboots the panel when its connectivity sensor has been off for 5 minutes, with a guard against reboot loops (at most one per 30 minutes).
+
 ## Moving from compatibility mode
 
 Install APK 0.3.2 with `adb install -r` and keep the same device ID. In the panel settings, select **Aurelvi**, save and reconnect. Switching mode with the same ID now preserves the local layout cache. In Studio, add the discovered panel. Public GitHub settings seed empty HA update settings; existing HA choices and later Studio edits are preserved. Passwords, HA tokens, Music Assistant tokens and broker credentials are not imported.

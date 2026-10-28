@@ -24,6 +24,7 @@ COMMANDS = {
     "reboot": "reboot",
     "connect": "getprop ro.product.model",
 }
+SERVICE_OPERATIONS = ("wake", "power", "back", "home", "launch", "reboot", "connect")
 MAX_APK = 64 * 1024 * 1024
 
 
@@ -39,6 +40,49 @@ def endpoint(data):
     except (ValueError, TypeError):
         raise ValueError("Enter the panel's local IP address and a valid ADB port.") from None
     return host, port
+
+
+def resolve_endpoint(hub, pid, data=None):
+    """Return a validated (host, port): explicit data, then stored, then the MQTT-reported IP."""
+    data = data or {}
+    stored = hub.panels.get(pid, {}).get("adb") or {}
+    reported = hub.status.get(pid, {}).get("info", {}).get("ip")
+    host = data.get("host") or stored.get("host") or reported
+    port = data.get("port") or stored.get("port") or 5555
+    if not host:
+        raise ValueError("No ADB address is known for this panel. Run Setup / Update in Studio once or pass host.")
+    return endpoint({"host": host, "port": port})
+
+
+def has_endpoint(hub, pid):
+    try:
+        resolve_endpoint(hub, pid)
+    except ValueError:
+        return False
+    return True
+
+
+async def remember_endpoint(hub, pid, data):
+    """Persist the endpoint of a panel after a successful ADB operation."""
+    host, port = endpoint(data)
+    panel = hub.panels.get(pid)
+    if panel is not None and panel.get("adb") != {"host": host, "port": port}:
+        panel["adb"] = {"host": host, "port": port}
+        await hub.persist()
+
+
+async def async_service(hub, data):
+    """Service entry point: only non-destructive operations, endpoint resolved per panel."""
+    pid = data.get("panel_id")
+    operation = data.get("operation")
+    if operation not in SERVICE_OPERATIONS:
+        raise ValueError("Operation is not allowed from services: " + str(operation))
+    if pid not in hub.panels:
+        raise ValueError("Unknown panel.")
+    host, port = resolve_endpoint(hub, pid, data)
+    result = await async_command(hub, {"operation": operation, "host": host, "port": port})
+    await remember_endpoint(hub, pid, {"host": host, "port": port})
+    return result
 
 
 def text_command(text):
