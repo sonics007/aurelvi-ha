@@ -27,6 +27,7 @@ class Store:
  def __init__(self,*a):self.saved={}
  async def async_load(self):return copy.deepcopy(self.saved)
  async def async_save(self,data):self.saved=copy.deepcopy(data)
+ def async_delay_save(self,fn,delay=0):self.delayed=delay;self.saved=copy.deepcopy(fn())
 sys.modules['homeassistant.helpers.storage'].Store=Store
 package=module('aurelvi_test');package.__path__=[str(PKG)]
 from aurelvi_test.models import validate_config,fan_page,mirror,validate_device,entities
@@ -71,6 +72,17 @@ class Integration(unittest.IsolatedAsyncioTestCase):
  async def event(self,button,value=None,event_id='e1',retain=False):
   await self.hub.receive(types.SimpleNamespace(topic='aurelvi/panel/test/event',payload=json.dumps({'page':'fan','button':button,'action':'press','value':value,'eventId':event_id}),retain=retain))
  def call_data(self):return self.hass.calls[-1][:3]
+ async def test_unrelated_state_change_is_ignored_without_walking_config(self):
+  from unittest.mock import patch
+  self.hub.refresh_entities();created=[]
+  self.hass.async_create_task=lambda coro:(created.append(1),coro.close())
+  with patch('aurelvi_test.hub.entities',side_effect=AssertionError('entities() called')):
+   self.hub.state_changed(types.SimpleNamespace(data={'entity_id':'sensor.unrelated'}));self.assertEqual(created,[])
+   self.hub.state_changed(types.SimpleNamespace(data={'entity_id':'fan.ceiling'}));self.assertEqual(created,[1])
+ async def test_panel_scoped_signal_and_delayed_persist(self):
+  sent=[];sys.modules['aurelvi_test.hub'].async_dispatcher_send=lambda *a:sent.append(a[1:])
+  self.hub.changed('test');self.hub.changed();self.assertEqual(sent,[('aurelvi_changed','test'),('aurelvi_changed',None)])
+  self.hub.schedule_persist();self.assertEqual(self.hub.store.delayed,2)
  async def test_startup_and_updates_with_nullable_light_attributes(self):
   self.hass.values['light.ceiling']=State('light.ceiling','off',brightness=None,color_temp_kelvin=None,color_temp=None)
   self.hub.store.saved={'panels':copy.deepcopy(self.hub.panels)}

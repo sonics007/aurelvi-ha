@@ -28,10 +28,19 @@ class Hub:
     def __init__(self,hass,entry):
         self.hass=hass;self.entry=entry;self.store=Store(hass,1,DOMAIN+'.studio')
         self.panels={};self.status={};self.timers={};self.settings={};self.latest={};self.logs=[]
-        self.unsubs=[];self.timer_jobs={};self.event_ids={};self.lock=asyncio.Lock();self.closed=False;self.notify_bindings={};self.weather_at={}
+        self.unsubs=[];self.timer_jobs={};self.event_ids={};self.lock=asyncio.Lock();self.closed=False;self.notify_bindings={};self.weather_at={};self.panel_entities={};self.warned={}
+    def refresh_entities(self,pid=None):
+        """Rebuild the cached set of entities referenced by panel configs."""
+        for key in [pid] if pid is not None else list(self.panels):
+            p=self.panels.get(key)
+            if p is None:self.panel_entities.pop(key,None)
+            else:self.panel_entities[key]=frozenset(entities(p.get('config') or {}))
+    def entities_of(self,pid):
+        if pid not in self.panel_entities:self.refresh_entities(pid)
+        return self.panel_entities.get(pid,frozenset())
     async def start(self):
         saved=await self.store.async_load() or {}
-        self.panels=saved.get('panels',{});self.timers=saved.get('timers',{});self.settings=saved.get('settings',{})
+        self.panels=saved.get('panels',{});self.timers=saved.get('timers',{});self.settings=saved.get('settings',{});self.refresh_entities()
         self.unsubs.append(await mqtt.async_subscribe(self.hass,PREFIX+'/+/avail',self.receive,1))
         self.unsubs.append(await mqtt.async_subscribe(self.hass,PREFIX+'/+/sys/+',self.receive,1))
         self.unsubs.append(await mqtt.async_subscribe(self.hass,PREFIX+'/+/event',self.receive,1))
@@ -51,12 +60,19 @@ class Hub:
         for cancel in self.timer_jobs.values():cancel()
         self.timer_jobs.clear()
         await self.persist()
+    def _data_to_save(self):
+        return {'panels':self.panels,'timers':self.timers,'settings':self.settings}
     async def persist(self):
-        await self.store.async_save({'panels':self.panels,'timers':self.timers,'settings':self.settings})
+        """Save immediately (durability matters: user edits, shutdown)."""
+        await self.store.async_save(self._data_to_save())
     @callback
-    def changed(self):async_dispatcher_send(self.hass,SIGNAL)
+    def schedule_persist(self,delay=2):
+        """Coalesce frequent small changes into one delayed disk write."""
+        self.store.async_delay_save(self._data_to_save,delay)
+    @callback
+    def changed(self,pid=None):async_dispatcher_send(self.hass,SIGNAL,pid or None)
     def log(self,pid,message,level='info'):
-        self.logs.append({'panel':pid,'message':message,'level':level,'ts':int(time.time()*1000)});self.logs=self.logs[-100:];self.changed()
+        self.logs.append({'panel':pid,'message':message,'level':level,'ts':int(time.time()*1000)});self.logs=self.logs[-100:];self.changed(pid)
     async def publish(self,pid,suffix,data,retain=False):
         if not mqtt.is_connected(self.hass):return
         payload=data if isinstance(data,str) else json.dumps(data,separators=(',',':'),ensure_ascii=False)
@@ -74,12 +90,12 @@ class Hub:
                     if pid not in self.panels:
                         self.panels[pid]={'name':pid,'paired':False,'config':default_config(),'device':{},'revision':0,'history':[]}
                         self.status[pid]={'online':False,'info':{},'sys':{}}
-                        await self.persist()
-                self.changed()
+                        self.schedule_persist()
+                self.changed(pid)
             status=self.status.setdefault(pid,{'online':False,'info':{},'sys':{}})
             status['lastSeen']=int(time.time()*1000)
             if suffix=='avail':
-                status['online']=msg.payload=='online';self.changed()
+                status['online']=msg.payload=='online';self.changed(pid)
                 if status['online']:
                     await self.publish(pid,'cmd/info',{})
                     if self.panels[pid].get('paired') and self.panels[pid].get('configSource')!='pending':await self.push(pid)
@@ -113,9 +129,14 @@ class Hub:
                     if key in self.event_ids:return
                     self.event_ids[key]=time.monotonic()
                 await self.handle_event(pid,data)
-            self.changed()
+            self.changed(pid)
         except Exception as e:
-            _LOGGER.debug('Aurelvi message rejected: %s',e)
+            topic=str(getattr(msg,'topic',''));key='/'.join(topic.split('/')[3:]) or topic
+            now=time.monotonic()
+            if now-self.warned.get(key,-60)>=60:
+                self.warned[key]=now
+                _LOGGER.warning('Aurelvi message rejected on topic %s: %s',topic,e)
+            _LOGGER.debug('Aurelvi message rejected: %s (%s)',topic,e,exc_info=True)
     def register_device(self,pid):
         info=self.status.get(pid,{}).get('info',{})
         dr.async_get(self.hass).async_get_or_create(config_entry_id=self.entry.entry_id,identifiers={(DOMAIN,pid)},name=self.panels[pid]['name'],manufacturer='Aurelvi',model=info.get('model','NSPanel Pro'),sw_version=info.get('version',VERSION))
@@ -125,6 +146,7 @@ class Hub:
             p=self.panels.setdefault(pid,{'config':default_config(),'device':{},'revision':0,'history':[]})
             p['name']=str(name or pid)[:80];p['paired']=True
             self.status.setdefault(pid,{'online':False,'info':{},'sys':{}})
+            self.refresh_entities(pid)
             await self.persist()
         self.register_device(pid)
         local=p.get('localSettings',{})
@@ -134,16 +156,16 @@ class Hub:
             p['configSource']='pending';await self.persist()
         await self.publish(pid,'cmd/info',{})
         if p.get('configSource')!='pending':await self.push(pid)
-        self.changed()
+        self.changed(pid)
     async def rename(self,pid,name):
         panel_id(pid)
         if not isinstance(name,str) or not name.strip() or len(name.strip())>80:
             raise ValueError('Názov panela musí mať 1 až 80 znakov')
         async with self.lock:
             self.panels[pid]['name']=name.strip()
-            await self.persist()
+            self.schedule_persist()
         if self.panels[pid].get('paired'):self.register_device(pid)
-        self.changed()
+        self.changed(pid)
     async def save(self,pid,config,device,expected):
         config=validate_config(config);device=validate_device(device,len(config['pages']))
         if not isinstance(device,dict) or len(json.dumps(device))>262144:raise ValueError('Neplatné nastavenia panela')
@@ -154,8 +176,9 @@ class Hub:
             if p['revision']!=expected:raise ValueError('Konfiguráciu medzitým zmenil iný editor. Obnov stránku.')
             p['history']=(p.get('history',[])+[{'config':p['config'],'device':p['device']}])[-5:]
             p['config']=config;p['device']=copy.deepcopy(device);p['revision']+=1;p['configSource']='studio'
+            self.refresh_entities(pid)
             await self.persist()
-        await self.push(pid);self.changed();return p['revision']
+        await self.push(pid);self.changed(pid);return p['revision']
     async def restore(self,pid,expected):
         p=self.panels[pid]
         if not p.get('history'):raise ValueError('Nie je dostupná predchádzajúca konfigurácia')
@@ -169,7 +192,7 @@ class Hub:
         app=public_settings(self.settings)
         if app:device['appSettings']=app
         await self.publish(pid,'config/device',device,True)
-        for entity in entities(p['config']):await self.publish_state(pid,entity)
+        for entity in sorted(self.entities_of(pid)):await self.publish_state(pid,entity)
         for page in p['config']['pages']:
             if page['type']=='weather':self.weather_at.pop(pid+':'+page.get('weather',{}).get('entity',''),None);await self.weather(pid,page)
         await self.publish_timer(pid)
@@ -183,7 +206,7 @@ class Hub:
         if initial:
             if data.get('config') is not None:
                 config=normalize_panel_config(data['config'])
-                p['config']=config
+                p['config']=config;self.refresh_entities(pid)
                 p['device']=public_device(data.get('device',{}),len(config['pages']))
             p['configSource']='panel'
         # Global update configuration is seeded once. Later panels cannot overwrite it.
@@ -191,11 +214,11 @@ class Hub:
         if p.get('paired') and not self.settings.get('githubRepo') and safe.get('githubRepo') and not self.settings.get('configured'):
             self.settings.update({k:safe[k] for k in ['githubRepo','githubAsset','haUrl'] if k in safe})
             seeded=True
-        await self.persist()
+        self.schedule_persist()
         if p.get('paired'):
             if seeded:await self.check_releases()
             if initial or seeded:await self.push(pid)
-        self.changed()
+        self.changed(pid)
     async def publish_state(self,pid,entity):
         state=self.hass.states.get(entity);doc=mirror(state)
         if entity.startswith('camera.') and state:
@@ -221,7 +244,7 @@ class Hub:
     def state_changed(self,event):
         entity=event.data.get('entity_id')
         for pid,p in self.panels.items():
-            if p.get('paired') and entity in entities(p['config']):self.hass.async_create_task(self.publish_state(pid,entity))
+            if p.get('paired') and entity in self.entities_of(pid):self.hass.async_create_task(self.publish_state(pid,entity))
     async def execute(self,spec):
         for action in actions(spec):
             if action.get('noop') is True:continue
@@ -322,7 +345,7 @@ class Hub:
         entity_id(entity);number(seconds,5,86400)
         await self.cancel_timer(pid)
         self.timers[pid]={'entity':entity,'deadline':time.time()+seconds,'title':'Vypnutie ventilátora','active':True}
-        await self.persist();self.schedule_timer(pid);await self.publish_timer(pid);self.changed()
+        self.schedule_persist();self.schedule_timer(pid);await self.publish_timer(pid);self.changed(pid)
     def schedule_timer(self,key):
         if key in self.timer_jobs:self.timer_jobs.pop(key)()
         delay=max(0,self.timers[key]['deadline']-time.time())
@@ -332,11 +355,11 @@ class Hub:
             try:await self.call(timer['entity'].split('.')[0]+'.turn_off',timer['entity'])
             except Exception as e:self.log(key,'Časovač nemohol vypnúť zariadenie: '+str(e),'error')
             finally:
-                self.timers.pop(key,None);self.timer_jobs.pop(key,None);await self.persist();await self.publish_timer(key);self.changed()
+                self.timers.pop(key,None);self.timer_jobs.pop(key,None);self.schedule_persist();await self.publish_timer(key);self.changed(key)
         self.timer_jobs[key]=async_call_later(self.hass,delay,run)
     async def cancel_timer(self,pid):
         if pid in self.timer_jobs:self.timer_jobs.pop(pid)()
-        self.timers.pop(pid,None);await self.persist();await self.publish_timer(pid);self.changed()
+        self.timers.pop(pid,None);self.schedule_persist();await self.publish_timer(pid);self.changed(pid)
     async def publish_timer(self,pid):
         timer=copy.deepcopy(self.timers.get(pid,{'active':False}))
         if timer.get('active'):timer['remainingS']=max(0,round(timer['deadline']-time.time()));timer['deadline']=round(timer['deadline']*1000)
@@ -349,7 +372,7 @@ class Hub:
             if pid in self.timers:await self.publish_timer(pid)
             for page in p['config']['pages']:
                 if page['type']=='weather':await self.weather(pid,page)
-            self.changed()
+            self.changed(pid)
     async def weather(self,pid,page):
         entity=page.get('weather',{}).get('entity')
         if not entity:return
