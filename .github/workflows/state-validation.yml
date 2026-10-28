@@ -16,6 +16,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - name: Install test dependencies
+        run: pip install -r tests/requirements.txt
       - name: Nullable device state regression
         run: python tests/state-projection.test.py
       - name: Bridge, startup and state updates
@@ -24,3 +26,7 @@ jobs:
         run: python tests/settings.test.py
       - name: Health and diagnostics
         run: python tests/health.test.py
+      - name: ADB key and signing
+        run: python tests/adb.test.py
+      - name: Lifecycle
+        run: python tests/lifecycle.test.py
