@@ -31,7 +31,7 @@ const studio=w.document.createElement('aurelvi-studio');studio.hass={language:'e
   const frontend=__dirname+'/../custom_components/aurelvi/frontend/';
   const panel=new JSDOM(fs.readFileSync(frontend+'index.html','utf8'),{url:'https://panel.test/?demo=1',runScripts:'outside-only',pretendToBeVisual:true}),pw=panel.window;
   pw.TextEncoder=TextEncoder;pw.TextDecoder=TextDecoder;pw.matchMedia=()=>({matches:false,addEventListener(){},addListener(){}});
-  for(const file of ['protocol.js','icons.js','skins.js','features.js','aurelvi.js','licence.js','app.js'])pw.eval(fs.readFileSync(frontend+file,'utf8'));
+  for(const file of ['i18n.js','protocol.js','icons.js','skins.js','features.js','aurelvi.js','licence.js','app.js'])pw.eval(fs.readFileSync(frontend+file,'utf8'));
   const modePage={id:'settings',type:'grid',title:'Settings',grid:{columns:2,rows:2},tiles:[{...modes[0],row:1,col:1},{...oscillation,row:2,col:1}]};
   const mirrors={fan_ceiling:{available:true,on:true,value:'on'},aurelvi_attr_fan_ceiling_preset_mode:{available:true,value:'natural'},aurelvi_attr_fan_ceiling_oscillating:{available:true,value:false}};
   pw.OpenPanelDemo.set({pages:[modePage]},mirrors);

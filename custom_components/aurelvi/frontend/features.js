@@ -7,10 +7,27 @@
     if (text !== undefined) n.textContent = text;
     return n;
   }
+  function tr(key, vars) {
+    return root.AurelviI18n ? root.AurelviI18n.t(key, vars) : key;
+  }
+  function uiLocale() {
+    return (root.AurelviI18n && root.AurelviI18n.getLanguage()) || "sk-SK";
+  }
+  /* Static text: kept in sync by AurelviI18n.apply() through data-i18n. */
+  function tnode(tag, className, key) {
+    var n = node(tag, className, tr(key));
+    n.setAttribute("data-i18n", key);
+    return n;
+  }
   function button(text, fn, className) {
     var n = node("button", className || "feature-button", text);
     n.type = "button";
     n.addEventListener("click", fn);
+    return n;
+  }
+  function tbutton(key, fn, className) {
+    var n = button(tr(key), fn, className);
+    n.setAttribute("data-i18n", key);
     return n;
   }
   function httpUrl(value) {
@@ -161,7 +178,7 @@
     }
     function backendRequest(path, method, body, callback) {
       if (!N || !N.haRequest) {
-        callback(null, "Home Assistant nie je pripojený");
+        callback(null, tr("panel.weather.ha_not_connected"));
         return;
       }
       var id = "ha-" + ++requestId;
@@ -169,7 +186,7 @@
         var item = requests[id];
         if (item) {
           delete requests[id];
-          item.callback(null, "Home Assistant neodpovedá");
+          item.callback(null, tr("panel.weather.ha_no_response"));
         }
       }, 15000);
       requests[id] = { callback: callback, timer: timer };
@@ -239,21 +256,10 @@
         },
       );
     }
-    var conditions = {
-      sunny: "Slnečno",
-      "clear-night": "Jasná noc",
-      cloudy: "Zamračené",
-      partlycloudy: "Polooblačno",
-      rainy: "Dážď",
-      pouring: "Silný dážď",
-      snowy: "Sneženie",
-      "snowy-rainy": "Dážď so snehom",
-      fog: "Hmla",
-      windy: "Veterno",
-      lightning: "Búrka",
-      "lightning-rainy": "Búrka s dažďom",
-      exceptional: "Neobvyklé počasie",
-    };
+    function conditionLabel(condition) {
+      var key = "panel.weather.condition_" + String(condition).replace(/-/g, "_");
+      return root.AurelviI18n && root.AurelviI18n.has(key) ? tr(key) : undefined;
+    }
     function renderWeather(surface) {
       var entity = weatherEntity();
       if (weatherByEntity[entity]) weather = weatherByEntity[entity];
@@ -267,17 +273,17 @@
           node(
             "h2",
             "",
-            (weather && weather.error) || "Počasie nie je nastavené",
+            (weather && weather.error) || tr("panel.weather.not_configured"),
           ),
         );
         box.appendChild(
           node(
             "p",
             "hint",
-            "V nastaveniach panela zadaj adresu a token Home Assistanta a entitu weather.…, alebo použi MQTT prepojenie z balíka.",
+            tr("panel.weather.not_configured_hint"),
           ),
         );
-        box.appendChild(button("Nastavenia", ctx.openSettings));
+        box.appendChild(button(tr("common.settings"), ctx.openSettings));
         refreshWeather(false);
         return;
       }
@@ -298,15 +304,15 @@
         node(
           "h2",
           "weather-condition",
-          conditions[weather.condition] || weather.condition || "Počasie",
+          conditionLabel(weather.condition) || weather.condition || tr("panel.weather.title"),
         ),
       );
       var details = [];
       if (a.humidity !== undefined)
-        details.push("Vlhkosť " + a.humidity + " %");
+        details.push(tr("panel.weather.humidity", { value: a.humidity }));
       if (a.wind_speed !== undefined)
         details.push(
-          "Vietor " + a.wind_speed + " " + (a.wind_speed_unit || ""),
+          tr("panel.weather.wind", { speed: a.wind_speed, unit: a.wind_speed_unit || "" }),
         );
       box.appendChild(node("p", "hint", details.join(" · ")));
       var forecast = node("div", "forecast-row");
@@ -319,7 +325,7 @@
             "",
             isNaN(date.getTime())
               ? ""
-              : date.toLocaleDateString("sk-SK", { weekday: "short" }),
+              : date.toLocaleDateString(uiLocale(), { weekday: "short" }),
           ),
         );
         card.appendChild(ctx.glyph("weather"));
@@ -337,7 +343,7 @@
         forecast.appendChild(card);
       });
       box.appendChild(forecast);
-      var refresh = button("Obnoviť", function () {
+      var refresh = button(tr("panel.weather.refresh"), function () {
         refreshWeather(true);
       });
       box.appendChild(refresh);
@@ -345,11 +351,12 @@
         node(
           "small",
           "hint",
-          "Aktualizované " +
-            new Date(weather.ts || Date.now()).toLocaleTimeString("sk-SK", {
+          tr("panel.weather.updated", {
+            time: new Date(weather.ts || Date.now()).toLocaleTimeString(uiLocale(), {
               hour: "2-digit",
               minute: "2-digit",
             }),
+          }),
         ),
       );
       refreshWeather(false);
@@ -462,11 +469,13 @@
       box.appendChild(
         button(
           clockAlarm.enabled
-            ? "Budík " +
-                String(clockAlarm.hour).padStart(2, "0") +
-                ":" +
-                String(clockAlarm.minute).padStart(2, "0")
-            : "Nastaviť budík",
+            ? tr("panel.clock.alarm_at", {
+                time:
+                  String(clockAlarm.hour).padStart(2, "0") +
+                  ":" +
+                  String(clockAlarm.minute).padStart(2, "0"),
+              })
+            : tr("panel.clock.set_alarm"),
           openAlarmEditor,
           "feature-button clock-alarm-button",
         ),
@@ -485,34 +494,34 @@
       box.id = "clock-alarm-editor";
       box.setAttribute("role", "dialog");
       box.setAttribute("aria-modal", "true");
-      box.setAttribute("aria-label", "Budík");
-      box.appendChild(node("h1", "", "Budík"));
+      box.setAttribute("aria-label", tr("common.alarm"));
+      box.appendChild(node("h1", "", tr("common.alarm")));
       var time = node("input");time.type = "time";time.id = "alarm-editor-time";
       time.value = String(clockAlarm.hour === undefined ? 7 : clockAlarm.hour).padStart(2,"0")+":"+String(clockAlarm.minute || 0).padStart(2,"0");
-      time.setAttribute("aria-label", "Čas budíka");box.appendChild(time);
+      time.setAttribute("aria-label", tr("panel.clock.alarm_time"));box.appendChild(time);
       var label = node("label", "alarm-enabled"), enabled = node("input");
       enabled.type = "checkbox";enabled.checked = !!clockAlarm.enabled;enabled.id="alarm-editor-enabled";
-      label.appendChild(enabled);label.appendChild(node("span", "", "Budík zapnutý"));box.appendChild(label);
-      var toneLabel=node("label","", "Tón budíka"),tone=node("select","feature-input");tone.id="alarm-editor-tone";
-      [["birds","Ranné vtáčiky"],["dawn","Pokojné ráno"],["chimes","Jemné zvončeky"],["classic","Klasické pípanie"]].forEach(function(item){var option=node("option","",item[1]);option.value=item[0];tone.appendChild(option);});
+      label.appendChild(enabled);label.appendChild(node("span", "", tr("panel.clock.alarm_enabled")));box.appendChild(label);
+      var toneLabel=node("label","", tr("panel.clock.tone")),tone=node("select","feature-input");tone.id="alarm-editor-tone";
+      ["birds","dawn","chimes","classic"].forEach(function(id){var item=[id,tr("panel.clock.tone_"+id)];var option=node("option","",item[1]);option.value=item[0];tone.appendChild(option);});
       tone.value=clockAlarm.tone || "classic";toneLabel.appendChild(tone);box.appendChild(toneLabel);
-      var volumeLabel=node("label","", "Hlasitosť tónu"),volume=node("input");volume.type="range";volume.min="0";volume.max="100";volume.id="alarm-editor-volume";volume.value=clockAlarm.volume===undefined?80:clockAlarm.volume;
+      var volumeLabel=node("label","", tr("panel.clock.volume")),volume=node("input");volume.type="range";volume.min="0";volume.max="100";volume.id="alarm-editor-volume";volume.value=clockAlarm.volume===undefined?80:clockAlarm.volume;
       var volumeValue=node("span","",volume.value+" %");volumeLabel.appendChild(volumeValue);volumeLabel.appendChild(volume);volume.addEventListener("input",function(){volumeValue.textContent=volume.value+" %";});box.appendChild(volumeLabel);
-      var fadeLabel=node("label","alarm-enabled"),fade=node("input");fade.type="checkbox";fade.id="alarm-editor-fade";fade.checked=!!clockAlarm.fadeIn;fadeLabel.appendChild(fade);fadeLabel.appendChild(node("span","","Postupné zosilnenie (30 s)"));box.appendChild(fadeLabel);
+      var fadeLabel=node("label","alarm-enabled"),fade=node("input");fade.type="checkbox";fade.id="alarm-editor-fade";fade.checked=!!clockAlarm.fadeIn;fadeLabel.appendChild(fade);fadeLabel.appendChild(node("span","",tr("panel.clock.fade_in")));box.appendChild(fadeLabel);
       var previewRow=node("div","row");
-      previewRow.appendChild(button("Vypočuť tón",function(){stopAlarmPreview();if(N && N.previewAlarm)N.previewAlarm(tone.value,Number(volume.value));else{var file={birds:"alarm-birds.wav",dawn:"alarm-dawn.wav",chimes:"alarm-chimes.wav",classic:"alarm_beep.wav"}[tone.value];alarmPreviewAudio=new Audio("sounds/"+file);alarmPreviewAudio.volume=Number(volume.value)/100;var result=alarmPreviewAudio.play();if(result && result.catch)result.catch(function(){ctx.toast("Ukážku sa nepodarilo prehrať");});}}));
-      previewRow.appendChild(button("Zastaviť ukážku",stopAlarmPreview));box.appendChild(previewRow);
+      previewRow.appendChild(button(tr("panel.clock.preview"),function(){stopAlarmPreview();if(N && N.previewAlarm)N.previewAlarm(tone.value,Number(volume.value));else{var file={birds:"alarm-birds.wav",dawn:"alarm-dawn.wav",chimes:"alarm-chimes.wav",classic:"alarm_beep.wav"}[tone.value];alarmPreviewAudio=new Audio("sounds/"+file);alarmPreviewAudio.volume=Number(volume.value)/100;var result=alarmPreviewAudio.play();if(result && result.catch)result.catch(function(){ctx.toast(tr("panel.clock.preview_failed"));});}}));
+      previewRow.appendChild(button(tr("panel.clock.preview_stop"),stopAlarmPreview));box.appendChild(previewRow);
       tone.addEventListener("change",stopAlarmPreview);
       var row = node("div", "row");
-      row.appendChild(button("Späť", function(){stopAlarmPreview();box.remove();}));
-      row.appendChild(button("Uložiť budík", function(){
-        if (!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time.value)) {ctx.toast("Zadaj platný čas");return;}
+      row.appendChild(button(tr("common.back"), function(){stopAlarmPreview();box.remove();}));
+      row.appendChild(button(tr("panel.clock.save"), function(){
+        if (!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time.value)) {ctx.toast(tr("panel.clock.invalid_time"));return;}
         var parts=time.value.split(":"), cfg={enabled:enabled.checked,hour:Number(parts[0]),minute:Number(parts[1]),tone:tone.value,volume:Number(volume.value),fadeIn:fade.checked};
         if (N && N.setAlarmClock) {
           var result=N.setAlarmClock(JSON.stringify(cfg));
           if(result!=="OK"){ctx.toast(result);return;}
         }
-        stopAlarmPreview();clockAlarm=cfg;publish("sys/alarm",cfg,true);box.remove();ctx.render();ctx.toast("Budík uložený");
+        stopAlarmPreview();clockAlarm=cfg;publish("sys/alarm",cfg,true);box.remove();ctx.render();ctx.toast(tr("panel.clock.saved"));
       }));
       box.appendChild(row);document.body.appendChild(box);
     }
@@ -551,7 +560,7 @@
         box = node("div", "camera-page");
       surface.appendChild(box);
       if (!cam) {
-        box.appendChild(node("p", "", "Pridaj kameru v editore."));
+        box.appendChild(node("p", "", tr("panel.camera.add_camera")));
         return;
       }
       var select = node("select", "feature-input");
@@ -573,7 +582,7 @@
       image.addEventListener("error", function () {
         stage.classList.add("camera-failed");
       });
-      var fallback = node("div", "camera-fallback", "Čakám na stream kamery…");
+      var fallback = node("div", "camera-fallback", tr("panel.camera.waiting"));
       stage.appendChild(image);
       stage.appendChild(fallback);
       image.addEventListener("load", function () {
@@ -601,7 +610,7 @@
           },
           "feature-button ptz-" + dir,
         );
-        b.setAttribute("aria-label", dir);
+        b.setAttribute("aria-label", tr("panel.camera." + dir));
         b.disabled = !ctx.online() || !(cam.ptz || {})[dir];
         var repeat = Number(
           cfg.holdRepeatMs === undefined ? 400 : cfg.holdRepeatMs,
@@ -633,23 +642,16 @@
         alarmStates[alarmConfig(page).stateTopic || "alarmo/state"] || "unknown"
       );
     }
-    var alarmLabels = {
-      disarmed: "Vypnutý",
-      armed_home: "Stráženie doma",
-      armed_away: "Stráženie mimo domu",
-      armed_night: "Nočný režim",
-      arming: "Zapína sa",
-      pending: "Čas na vypnutie",
-      triggered: "POPLACH",
-      unavailable: "Nedostupný",
-      unknown: "Čakám na stav",
-    };
+    function alarmLabel(state) {
+      var key = "panel.alarm." + state;
+      return root.AurelviI18n && root.AurelviI18n.has(key) ? tr(key) : undefined;
+    }
     function syncAlarmDisplay() {
       var page = renderedAlarmPage || ctx.page(),
         state = page && page.type === "alarm" ? alarmState(page) : "unknown";
       var label = document.getElementById("alarm-state");
       if (label) {
-        label.textContent = alarmLabels[state] || state;
+        label.textContent = alarmLabel(state) || state;
         label.classList.toggle("alarm-triggered", state === "triggered");
       }
       var pin = document.getElementById("alarm-pin");
@@ -657,7 +659,7 @@
     }
     function alarmAction(page, action) {
       if (!ctx.online()) {
-        ctx.toast("MQTT je odpojené");
+        ctx.toast(tr("panel.status.mqtt_offline_toast"));
         return;
       }
       var cfg = alarmConfig(page),
@@ -665,7 +667,7 @@
       if (!cmdTopic) return;
       var requires = action === "disarm" || cfg.codeArmRequired !== false;
       if (requires && !alarmPin) {
-        ctx.toast("Zadaj PIN");
+        ctx.toast(tr("panel.alarm.pin_required"));
         return;
       }
       var body = { command: action };
@@ -685,7 +687,7 @@
       pin.id = "alarm-pin";
       pin.type = "password";
       pin.readOnly = true;
-      pin.setAttribute("aria-label", "PIN alarmu");
+      pin.setAttribute("aria-label", tr("panel.alarm.pin_label"));
       pin.autocomplete = "off";
       box.appendChild(pin);
       var keypad = node("div", "alarm-keypad");
@@ -711,8 +713,9 @@
         (page.alarm && page.alarm.actions) || ["arm_home", "arm_away", "disarm"]
       ).forEach(function (action) {
         var b = button(
-          { arm_home: "Doma", arm_away: "Odísť", disarm: "Vypnúť" }[action] ||
-            action,
+          ({ arm_home: 1, arm_away: 1, disarm: 1 }[action]
+            ? tr("panel.alarm.action_" + action)
+            : action),
           function () {
             alarmAction(page, action);
           },
@@ -799,7 +802,7 @@
       overlay.id = "notification-overlay";
       overlay.dataset.level = ["info","success","warning","error"].indexOf(doc.level)>=0 ? doc.level : "info";
       overlay.setAttribute("role", "dialog");
-      overlay.setAttribute("aria-label", doc.title || "Oznámenie");
+      overlay.setAttribute("aria-label", doc.title || tr("common.notification"));
       var close = button(
         "×",
         function () {
@@ -809,7 +812,7 @@
       );
       overlay.appendChild(close);
       overlay.appendChild(ctx.glyph(doc.icon || "bell"));
-      overlay.appendChild(node("h2", "", doc.title || "Oznámenie"));
+      overlay.appendChild(node("h2", "", doc.title || tr("common.notification")));
       var imageUrl = httpUrl(doc.image || "");
       if (imageUrl) {
         var image = node("img", "notification-image");
@@ -830,7 +833,7 @@
       });
       if (!actions.children.length)
         actions.appendChild(
-          button("Zavrieť", function () {
+          button(tr("panel.notification.close"), function () {
             closeNotification("dismissed");
           }),
         );
@@ -845,7 +848,7 @@
           action: "play",
           url: httpUrl(doc.sound) || undefined,
           asset: httpUrl(doc.sound) ? undefined : doc.sound,
-          title: doc.title || "Oznámenie",
+          title: doc.title || tr("common.notification"),
         });
       var timeout = doc.timeoutS === undefined ? 30 : Number(doc.timeoutS);
       if (timeout > 0)
@@ -858,7 +861,7 @@
     }
     function playMedia(cmd) {
       if (N && N.mediaCommand) N.mediaCommand(JSON.stringify(cmd));
-      else ctx.toast("Natívny zvuk je dostupný na paneli");
+      else ctx.toast(tr("panel.media.native_only"));
     }
     function clockAlarmFired() {
       ringing = true;
@@ -870,16 +873,16 @@
       box.id = "clock-alarm-overlay";
       box.setAttribute("role", "dialog");
       box.appendChild(ctx.glyph("clock"));
-      box.appendChild(node("h1", "", "Budík"));
+      box.appendChild(node("h1", "", tr("common.alarm")));
       box.appendChild(
-        button("Odložiť o 5 minút", function () {
+        button(tr("panel.clock.snooze"), function () {
           ringing = false;
           if (N && N.snoozeAlarm) N.snoozeAlarm();
           box.remove();
         }),
       );
       box.appendChild(
-        button("Vypnúť", function () {
+        button(tr("panel.clock.dismiss"), function () {
           ringing = false;
           if (N && N.dismissAlarm) N.dismissAlarm();
           box.remove();
@@ -889,7 +892,7 @@
     }
     function requestMA(command, args, callback) {
       if (!maSocket || maSocket.readyState !== 1) {
-        if (callback) callback(null, "Music Assistant nie je pripojený");
+        if (callback) callback(null, tr("panel.music.not_connected"));
         return;
       }
       var id = "ma-" + ++maSerial,
@@ -897,7 +900,7 @@
           var item = maPending[id];
           if (item) {
             delete maPending[id];
-            item.callback(null, "Music Assistant neodpovedá");
+            item.callback(null, tr("panel.music.no_response"));
           }
         }, 12000);
       maPending[id] = { callback: callback || function () {}, timer: timer };
@@ -1034,7 +1037,7 @@
           if (data.error_code !== undefined || data.error)
             item.callback(
               null,
-              data.details || data.error || "Chyba Music Assistanta",
+              data.details || data.error || tr("panel.music.error"),
             );
           else item.callback(data.result === undefined ? data : data.result);
         } else if (data.event && ctx.page() && ctx.page().type === "music") {
@@ -1048,7 +1051,7 @@
         }
       };
       maSocket.onerror = function () {
-        maError = "Spojenie s Music Assistantom zlyhalo";
+        maError = tr("panel.music.connection_failed");
         maConnecting = false;
       };
       maSocket.onclose = function () {
@@ -1101,7 +1104,7 @@
     }
     function queueCommand(command, args) {
       if (!maPlayer) {
-        ctx.toast("Vyber prehrávač");
+        ctx.toast(tr("panel.music.select_player"));
         return;
       }
       requestMA(
@@ -1117,7 +1120,7 @@
         current = maPlayers.filter(function (p) {
           return p.player_id === maPlayer;
         })[0],
-        name = media.title || media.asset || "Žiadna skladba";
+        name = media.title || media.asset || tr("panel.music.no_track");
       if (current && current.current_media)
         name =
           current.current_media.title || current.current_media.name || name;
@@ -1125,12 +1128,9 @@
       var state = document.getElementById("media-state");
       if (state)
         state.textContent =
-          {
-            playing: "Prehráva sa",
-            paused: "Pozastavené",
-            buffering: "Načítava sa",
-            idle: "Zastavené",
-          }[media.state] || media.state;
+          ({ playing: 1, paused: 1, buffering: 1, idle: 1 }[media.state]
+            ? tr("panel.music.state_" + media.state)
+            : media.state);
     }
     function renderMusic(surface) {
       var box = node("div", "music-page");
@@ -1183,7 +1183,7 @@
       volume.value = String(
         Math.round((media.volume === undefined ? 1 : media.volume) * 100),
       );
-      volume.setAttribute("aria-label", "Hlasitosť");
+      volume.setAttribute("aria-label", tr("panel.music.volume"));
       volume.addEventListener("change", function () {
         if (maReady && maPlayer)
           requestMA(
@@ -1221,27 +1221,27 @@
           node(
             "p",
             "hint",
-            "Pre knižnicu nastav Music Assistant server a token. Zvuk a TTS z Home Assistanta fungujú aj bez neho.",
+            tr("panel.music.setup_hint"),
           ),
         );
-        box.appendChild(button("Nastavenia", ctx.openSettings));
+        box.appendChild(button(tr("common.settings"), ctx.openSettings));
         updateMediaLabels();
         return;
       }
       box.appendChild(
-        button("Zapnúť reproduktor panela", function () {
+        button(tr("panel.music.enable_speaker"), function () {
           if (sendspin && sendspin.unlock)
             Promise.resolve(sendspin.unlock()).catch(function () {
-              ctx.toast("Zvuk sa nepodarilo odomknúť");
+              ctx.toast(tr("panel.music.unlock_failed"));
             });
           else {
             startSendspin(maConfig());
-            ctx.toast("Pripájam reproduktor; po pripojení stlač znova");
+            ctx.toast(tr("panel.music.speaker_connecting"));
           }
         }),
       );
       var search = node("input", "feature-input");
-      search.placeholder = "Hľadať skladbu, album alebo rádio";
+      search.placeholder = tr("panel.music.search_placeholder");
       search.value = maQuery;
       var debounce;
       search.addEventListener("input", function () {
@@ -1252,11 +1252,11 @@
       box.appendChild(search);
       var tabs = node("div", "music-tabs");
       [
-        ["tracks", "Skladby"],
-        ["albums", "Albumy"],
-        ["playlists", "Playlisty"],
-        ["radio", "Rádiá"],
-        ["browse", "Zdroje"],
+        ["tracks", tr("panel.music.tab_tracks")],
+        ["albums", tr("panel.music.tab_albums")],
+        ["playlists", tr("panel.music.tab_playlists")],
+        ["radio", tr("panel.music.tab_radio")],
+        ["browse", tr("panel.music.tab_browse")],
       ].forEach(function (item) {
         tabs.appendChild(
           button(
@@ -1275,7 +1275,7 @@
       var list = node("div", "music-list");
       maItems.slice(0, 40).forEach(function (item) {
         var b = button(
-          item.name || item.title || item.uri || "Položka",
+          item.name || item.title || item.uri || tr("panel.music.item"),
           function () {
             if (item.media_type === "folder" || item.path) {
               maCategory = "browse";
@@ -1286,7 +1286,7 @@
               queueCommand("player_queues/play_media", {
                 media: item.uri || item,
               });
-            else ctx.toast("Vyber prehrávač");
+            else ctx.toast(tr("panel.music.select_player"));
           },
           "music-item",
         );
@@ -1300,8 +1300,8 @@
             "small",
             "hint",
             maConnecting
-              ? "Pripájam Music Assistant…"
-              : "Čakám na Music Assistant",
+              ? tr("panel.music.connecting")
+              : tr("panel.music.waiting"),
           ),
         );
       updateMediaLabels();
@@ -1314,7 +1314,7 @@
       if (!root.SendspinSdk) {
         if (sendspinLoading) return;
         if (!root.AudioContext || !root.BigInt) {
-          ctx.toast("Sendspin vyžaduje novší Android WebView");
+          ctx.toast(tr("panel.sendspin.requires_webview"));
           return;
         }
         sendspinLoading = true;
@@ -1326,7 +1326,7 @@
         };
         script.onerror = function () {
           sendspinLoading = false;
-          ctx.toast("Sendspin sa nepodarilo načítať");
+          ctx.toast(tr("panel.sendspin.load_failed"));
         };
         document.head.appendChild(script);
         return;
@@ -1383,7 +1383,7 @@
           ) {
             ws.close();
             sendspinSocket = null;
-            ctx.toast("Sendspin: overenie zlyhalo");
+            ctx.toast(tr("panel.sendspin.auth_failed"));
             return;
           }
           ws.onmessage = null;
@@ -1396,7 +1396,7 @@
             requiredLeadTimeMs: 300,
           });
           Promise.resolve(sendspin.connect()).catch(function () {
-            ctx.toast("Sendspin sa nepripojil");
+            ctx.toast(tr("panel.sendspin.connect_failed"));
             sendspin = null;
             ws.close();
             sendspinSocket = null;
@@ -1404,7 +1404,7 @@
         };
         ws.onerror = function () {
           clearTimeout(timeout);
-          ctx.toast("Sendspin nie je dostupný");
+          ctx.toast(tr("panel.sendspin.unavailable"));
         };
         ws.onclose = function () {
           clearTimeout(timeout);
@@ -1414,7 +1414,7 @@
       } catch (e) {
         sendspin = null;
         sendspinSocket = null;
-        ctx.toast("Sendspin nie je podporovaný týmto WebView");
+        ctx.toast(tr("panel.sendspin.unsupported"));
       }
     }
     var githubRelease = null,
@@ -1428,7 +1428,7 @@
         !/^[A-Za-z0-9][A-Za-z0-9-]{0,38}\/[A-Za-z0-9_.-]{1,100}$/.test(value) ||
         /\/\.\.?$/.test(value)
       )
-        throw Error("GitHub repozitár má mať tvar vlastnik/repozitar");
+        throw Error(tr("panel.advanced.github_repo_format"));
       return value;
     }
     function checkGitHub(force) {
@@ -1448,14 +1448,13 @@
       if (!label || !download) return;
       label.textContent = githubRelease
         ? githubRelease.available
-          ? "Vydanie " +
-            githubRelease.tag +
-            " · " +
-            githubRelease.asset +
-            " · nainštalované " +
-            githubRelease.current
-          : "Nainštalovaná verzia je aktuálna alebo novšia"
-        : "Zadaj verejný GitHub repozitár a skontroluj vydania.";
+          ? tr("panel.advanced.github_release", {
+              tag: githubRelease.tag,
+              asset: githubRelease.asset,
+              current: githubRelease.current,
+            })
+          : tr("panel.advanced.github_up_to_date")
+        : tr("panel.advanced.github_enter_repo");
       download.disabled = !githubRelease || !githubRelease.available;
     }
     function settingsFields() {
@@ -1463,12 +1462,13 @@
         before = parent.querySelector(".row"),
         group = node("div", "advanced-settings");
       group.id = "advanced-settings";
-      function input(id, label, type, placeholder) {
-        group.appendChild(node("label", "", label));
+      function input(id, label, type, placeholder, placeholderKey) {
+        group.appendChild(tnode("label", "", label));
         var n = node("input");
         n.id = id;
         n.type = type || "text";
-        n.placeholder = placeholder || "";
+        n.placeholder = placeholderKey ? tr(placeholderKey) : placeholder || "";
+        if (placeholderKey) n.setAttribute("data-i18n-attr", "placeholder=" + placeholderKey);
         n.autocomplete = "off";
         group.appendChild(n);
         return n;
@@ -1476,31 +1476,33 @@
       group.appendChild(node("h2", "", "Home Assistant"));
       input(
         "ha-url",
-        "Adresa Home Assistanta",
+        "panel.advanced.ha_url",
         "url",
-        "http://IP_HOME_ASSISTANTA:8123",
+        "",
+        "panel.advanced.ha_url_placeholder",
       );
-      input("ha-token", "Dlhodobý prístupový token", "password");
+      input("ha-token", "panel.advanced.ha_token", "password");
       input(
         "weather-entity",
-        "Entita počasia",
+        "panel.advanced.weather_entity",
         "text",
         "weather.forecast_home",
       );
       group.appendChild(node("h2", "", "Music Assistant"));
       input(
         "ma-url",
-        "Music Assistant server",
+        "panel.advanced.ma_server",
         "url",
-        "http://IP_MUSIC_ASSISTANTA:8095",
+        "",
+        "panel.advanced.ma_url_placeholder",
       );
-      input("ma-token", "Music Assistant token", "password");
-      group.appendChild(node("h2", "", "Budík"));
-      var enabled = input("clock-alarm-enabled", "Budík zapnutý", "checkbox");
+      input("ma-token", "panel.advanced.ma_token", "password");
+      group.appendChild(tnode("h2", "", "common.alarm"));
+      var enabled = input("clock-alarm-enabled", "panel.clock.alarm_enabled", "checkbox");
       enabled.className = "native-checkbox";
-      input("clock-alarm-time", "Čas budíka", "time");
+      input("clock-alarm-time", "panel.clock.alarm_time", "time");
       group.appendChild(
-        button("Uložiť budík", function () {
+        tbutton("panel.clock.save", function () {
           var time = ctx.$("clock-alarm-time").value.split(":"),
             cfg = Object.assign({},clockAlarm,{
               enabled: ctx.$("clock-alarm-enabled").checked,
@@ -1513,37 +1515,38 @@
             if (result !== "OK") ctx.toast(result);
           }
           publish("sys/alarm", cfg, true);
-          ctx.toast("Budík uložený");
+          ctx.toast(tr("panel.clock.saved"));
         }),
       );
-      group.appendChild(button("Tón a hlasitosť budíka",openAlarmEditor));
+      group.appendChild(tbutton("panel.clock.tone_settings",openAlarmEditor));
       if (N && N.openDateSettings)
         group.appendChild(
-          button("Systémový dátum a čas", function () {
+          tbutton("panel.clock.system_date_time", function () {
             N.openDateSettings();
           }),
         );
-      group.appendChild(node("h2", "", "Aktualizácia z GitHubu"));
+      group.appendChild(tnode("h2", "", "panel.advanced.github_title"));
       input(
         "github-repo",
-        "Verejný GitHub repozitár",
+        "panel.advanced.github_repo",
         "text",
-        "vlastnik/repozitar",
+        "",
+        "panel.advanced.github_repo_placeholder",
       );
-      input("github-asset", "Názov APK (voliteľné)", "text", "OpenPanel.apk");
+      input("github-asset", "panel.advanced.github_asset", "text", "OpenPanel.apk");
       input(
         "github-auto-check",
-        "Automaticky kontrolovať každých 6 hodín",
+        "panel.advanced.github_auto_check",
         "checkbox",
       ).className = "native-checkbox";
       var ghStatus = node("p", "hint");
       ghStatus.id = "github-status";
       group.appendChild(ghStatus);
       group.appendChild(
-        button("Skontrolovať GitHub", function () {
+        tbutton("panel.advanced.github_check", function () {
           try {
             if (!N || !N.checkGitHub) {
-              ctx.toast("Kontrola je dostupná na paneli");
+              ctx.toast(tr("panel.advanced.github_check_unavailable"));
               return;
             }
             githubRelease = null;
@@ -1558,7 +1561,7 @@
           }
         }),
       );
-      var ghDownload = button("Stiahnuť z GitHubu", function () {
+      var ghDownload = tbutton("panel.advanced.github_download", function () {
         if (githubRelease && githubRelease.available && N && N.installUpdate)
           N.installUpdate(githubRelease.url);
       });
@@ -1566,24 +1569,20 @@
       ghDownload.disabled = true;
       group.appendChild(ghDownload);
       group.appendChild(
-        node(
-          "p",
-          "hint",
-          "Ulož nastavenia pre automatickú kontrolu. Inštaláciu potvrdíš v Androide. Súkromné repozitáre nie sú podporované.",
-        ),
+        tnode("p", "hint", "panel.advanced.github_hint"),
       );
-      group.appendChild(node("h2", "", "Vlastná adresa APK"));
+      group.appendChild(tnode("h2", "", "panel.advanced.custom_apk_title"));
       input(
         "update-url",
-        "HTTPS adresa nového podpísaného APK",
+        "panel.advanced.custom_apk_url",
         "url",
         "https://…/OpenPanel.apk",
       );
       group.appendChild(
-        button("Stiahnuť aktualizáciu", function () {
+        tbutton("panel.advanced.download_update", function () {
           var url = ctx.$("update-url").value;
           if (N && N.installUpdate) N.installUpdate(url);
-          else ctx.toast("Aktualizáciu nainštaluj cez ADB");
+          else ctx.toast(tr("panel.advanced.install_via_adb"));
         }),
       );
       var capabilities = node("p", "hint");
@@ -1620,11 +1619,15 @@
         String(clockAlarm.hour || 0).padStart(2, "0") +
         ":" +
         String(clockAlarm.minute || 0).padStart(2, "0");
-      ctx.$("sensor-capabilities").textContent =
-        "Senzor svetla: " +
-        (sensorData.hasLight ? "dostupný" : "nehlásený") +
-        " · Senzor priblíženia: " +
-        (sensorData.hasProximity ? "dostupný" : "nehlásený");
+      paintSensorCapabilities();
+    }
+    function paintSensorCapabilities() {
+      var label = ctx.$("sensor-capabilities");
+      if (!label || !label.textContent) return;
+      label.textContent = tr("panel.advanced.sensors", {
+        light: tr(sensorData.hasLight ? "panel.advanced.sensor_available" : "panel.advanced.sensor_missing"),
+        proximity: tr(sensorData.hasProximity ? "panel.advanced.sensor_available" : "panel.advanced.sensor_missing"),
+      });
     }
     function addSettings(doc) {
       [
@@ -1638,15 +1641,15 @@
         doc[item[0]] = ctx.$(item[1]).value.trim();
       });
       if (doc.haUrl && !httpUrl(doc.haUrl))
-        throw Error("Neplatná adresa Home Assistanta");
+        throw Error(tr("panel.advanced.invalid_ha_url"));
       if (doc.maUrl && !httpUrl(doc.maUrl))
-        throw Error("Neplatná adresa Music Assistanta");
+        throw Error(tr("panel.advanced.invalid_ma_url"));
       doc.githubRepo = ctx.$("github-repo").value.trim()
         ? githubRepo(ctx.$("github-repo").value)
         : "";
       doc.githubAsset = ctx.$("github-asset").value.trim();
       if (doc.githubAsset && !/^[^\/\\]+\.apk$/i.test(doc.githubAsset))
-        throw Error("Názov súboru musí končiť .apk");
+        throw Error(tr("panel.advanced.apk_extension"));
       doc.githubAutoCheck = ctx.$("github-auto-check").checked;
       return doc;
     }
@@ -1751,7 +1754,7 @@
             data.ok ? data.data : null,
             data.ok
               ? null
-              : "Home Assistant: " + (data.status || "spojenie zlyhalo"),
+              : tr("panel.ha.error", { status: data.status || tr("panel.ha.connection_failed") }),
           );
         }
       } else if (type === "speech" && data.error) ctx.toast(data.error);
@@ -1760,7 +1763,7 @@
         media = data;
         publish("sys/media", data, true);
         updateMediaLabels();
-        if (data.error) ctx.toast("Prehrávanie zvuku zlyhalo");
+        if (data.error) ctx.toast(tr("panel.media.playback_failed"));
       } else if (type === "screenshot") publish("sys/screenshot", data, false);
       else if (type === "clockAlarm") {
         clockAlarm = data;
@@ -1770,18 +1773,18 @@
         githubRelease = data;
         updateGitHubStatus();
         if (data.available)
-          ctx.toast(
-            "Dostupné vydanie " +
-              data.tag +
-              " · otvor Nastavenia → Aktualizácia",
-          );
+          ctx.toast(tr("panel.advanced.release_available", { tag: data.tag }));
       } else if (type === "update") {
-        ctx.toast(data.message || "Aktualizácia");
+        ctx.toast(data.message || tr("panel.advanced.update_default"));
         if (ctx.$("github-status") && data.message)
           ctx.$("github-status").textContent = data.message;
       }
     }
     settingsFields();
+    document.addEventListener("aurelvi-language-changed", function () {
+      updateGitHubStatus();
+      paintSensorCapabilities();
+    });
     githubTimer = setInterval(function () {
       checkGitHub(false);
     }, 21600000);
@@ -1890,7 +1893,7 @@
               event.event === "INVALID_CODE_PROVIDED" ||
               event.event === "NO_CODE_PROVIDED"
             )
-              ctx.toast("Alarmo: nesprávny alebo chýbajúci PIN");
+              ctx.toast(tr("panel.alarm.wrong_pin"));
             handled = true;
           }
         });

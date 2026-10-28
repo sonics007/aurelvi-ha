@@ -1,7 +1,8 @@
 /* Own renderer and kiosk controls; uses only the integration's public protocol. */
 (function () {
   "use strict";
-  function uiText(en,legacy){return window.AurelviI18n?window.AurelviI18n.t(en):legacy;}
+  function tr(key,vars){return window.AurelviI18n?window.AurelviI18n.t(key,vars):key;}
+  function uiLocale(){return (window.AurelviI18n&&window.AurelviI18n.getLanguage())||"sk-SK";}
   var P = window.OpenPanelProtocol,
     N = window.OpenPanelNative,
     $ = function (id) {
@@ -149,7 +150,7 @@
   }
   function sendEvent(id, action, value, state) {
     if (!online || !client) {
-      toast(uiText("Panel is not connected to MQTT","Panel nie je pripojený k MQTT"));
+      toast(tr("panel.status.not_connected"));
       return;
     }
     var page = config && config.pages[pageIndex];
@@ -315,7 +316,7 @@
       label(cover,tile.label || tile.entity);
       [ ["↑","open"], ["■","stop"], ["↓","close"] ].forEach(function(item){
         var control=document.createElement("button");control.type="button";control.textContent=item[0];
-        control.className="aur-control";control.setAttribute("aria-label",item[1]);
+        control.className="aur-control";control.setAttribute("aria-label",tr("panel.cover."+item[1]));
         control.disabled=!online || stateOf(tile).available===false;
         control.addEventListener("click",function(){sendEvent(tile.id,item[1]);});cover.appendChild(control);
       });
@@ -353,7 +354,7 @@
     input.max = "100";
     input.step = String(tile.step || 1);
     input.value = String(Math.round((stateOf(tile).brightness || 0) * 100));
-    input.setAttribute("aria-label", tile.label || "Jas");
+    input.setAttribute("aria-label", tile.label || tr("panel.tile.brightness"));
     input.disabled = !online;
     var value = document.createElement("span");
     value.className = "hint";
@@ -368,7 +369,7 @@
         held = false;
       b.type = "button";
       b.disabled = !online;
-      b.setAttribute("aria-label", delta < 0 ? uiText("Decrease brightness","Znížiť jas") : uiText("Increase brightness","Zvýšiť jas"));
+      b.setAttribute("aria-label", delta < 0 ? tr("panel.tile.decrease_brightness") : tr("panel.tile.increase_brightness"));
       b.appendChild(
         glyph(delta < 0 ? tile.iconLow || "minus" : tile.icon || "plus"),
       );
@@ -438,7 +439,7 @@
     box.className = "empty";
     var time = document.createElement("div");
     time.className = "clock-time";
-    time.textContent = now.toLocaleTimeString("sk-SK", {
+    time.textContent = now.toLocaleTimeString(uiLocale(), {
       hour: "2-digit",
       minute: "2-digit",
       hour12: deviceCfg.clockFormat24h === false,
@@ -446,7 +447,7 @@
     box.appendChild(time);
     var date = document.createElement("div");
     date.className = "clock-date";
-    date.textContent = now.toLocaleDateString("sk-SK", {
+    date.textContent = now.toLocaleDateString(uiLocale(), {
       weekday: "long",
       day: "numeric",
       month: "long",
@@ -474,10 +475,8 @@
       if(window.AurelviLicence)window.AurelviLicence.setPage("");
       $("title").textContent = "OpenPanel";
       empty(
-        uiText("Ready to connect","Pripravené na pripojenie"),
-        "V Aurelvi Studio pridaj panel " +
-          settings.deviceId +
-          uiText(" and save its page."," a ulož jeho stránku."),
+        tr("panel.tile.ready_title"),
+        tr("panel.tile.ready_hint", { device: settings.deviceId }),
         "generic",
       );
       return;
@@ -495,8 +494,8 @@
       if (!page.tiles.length) {
         surface.style.display = "block";
         empty(
-          uiText("Empty page","Prázdna stránka"),
-          uiText("Add a control in Aurelvi Studio and save the configuration.","Pridaj tlačidlo v editore NSPanel Pro a ulož konfiguráciu."),
+          tr("panel.tile.empty_title"),
+          tr("panel.tile.empty_hint"),
           "generic",
         );
         return;
@@ -519,7 +518,7 @@
         if (!node) {
           node = document.createElement("div");
           node.className = "tile unsupported";
-          node.textContent = uiText("Unsupported control: ","Nepodporovaný prvok: ") + tile.type;
+          node.textContent = tr("panel.tile.unsupported", { type: tile.type });
         }
         node.style.gridColumn = tile.col + " / span " + (tile.colSpan || 1);
         node.style.gridRow = tile.row + " / span " + (tile.rowSpan || 1);
@@ -538,8 +537,8 @@
     else if (page.type === "clock") clock(surface);
     else
       empty(
-        uiText("Page ","Stránka ") + page.type,
-        uiText("Unknown page type.","Neznámy typ stránky."),
+        tr("panel.tile.page_title", { type: page.type }),
+        tr("panel.tile.unknown_page"),
         page.type === "weather" ? "weather" : "generic",
       );
   }
@@ -653,9 +652,10 @@
           pageIndex = deviceCfg.defaultPage;
         if (F) F.onConfig();
         applyDevice(deviceCfg);
-        $("summary").textContent = uiText("Pages received: ","Prijatých stránok: ") + config.pages.length;
+        summaryCount = config.pages.length;
+        paintSummary();
       } catch (e) {
-        toast(uiText("Configuration error: ","Chyba konfigurácie: ") + e.message);
+        toast(tr("panel.settings.config_error", { message: e.message }));
       }
       return;
     }
@@ -722,18 +722,42 @@
       publishInfo();
     }
   }
+  var connState = "",
+    connDetail = "",
+    summaryCount = null,
+    shownLanguage = null;
+  function paintConnection() {
+    $("status").setAttribute(
+      "aria-label",
+      online ? tr("panel.status.mqtt_connected") : tr("panel.status.mqtt_disconnected"),
+    );
+    $("connection-detail").textContent = online
+      ? tr("panel.status.mqtt_connected")
+      : connState === "connecting"
+        ? tr("panel.status.connecting")
+        : connDetail ||
+          (connState
+            ? tr("panel.status.mqtt_disconnected")
+            : tr("panel.status.mqtt_not_configured"));
+  }
+  function paintSummary() {
+    if (summaryCount !== null)
+      $("summary").textContent = tr("panel.settings.pages_received", { count: summaryCount });
+  }
+  document.addEventListener("aurelvi-language-changed", function () {
+    var language = window.AurelviI18n.getLanguage();
+    if (language === shownLanguage) return;
+    shownLanguage = language;
+    paintConnection();
+    paintSummary();
+    if (!sleeping) render();
+  });
   function status(value, detail) {
     online = value === "online";
     $("status").className = online ? "online" : "";
-    $("status").setAttribute(
-      "aria-label",
-      online ? uiText("MQTT connected","MQTT pripojené") : uiText("MQTT disconnected","MQTT odpojené"),
-    );
-    $("connection-detail").textContent = online
-      ? uiText("MQTT connected","MQTT pripojené")
-      : value === "connecting"
-        ? uiText("Connecting…","Pripájam sa…")
-        : detail || uiText("MQTT disconnected","MQTT odpojené");
+    connState = value;
+    connDetail = detail || "";
+    paintConnection();
     if (detail) toast(detail);
     if (!sleeping) render();
   }
@@ -789,7 +813,7 @@
         parsed.username ||
         parsed.password
       )
-        throw Error(uiText("Use ws:// or wss:// without a password in the URL","Použi ws:// alebo wss:// bez hesla v adrese"));
+        throw Error(tr("panel.settings.invalid_broker_url"));
       next = {
         namespace: $("namespace").value,
         url: url,
@@ -810,11 +834,11 @@
     try {
       if (N) {
         if (N.saveSettings(JSON.stringify(settings)) !== "OK")
-          throw Error(uiText("Save failed","Uloženie zlyhalo"));
+          throw Error(tr("panel.settings.save_failed"));
       } else
         localStorage.setItem("openpanel-settings", JSON.stringify(settings));
     } catch (e) {
-      toast(uiText("Could not save settings","Nastavenie sa nepodarilo uložiť"));
+      toast(tr("panel.settings.save_error"));
       return;
     }
     if (oldId !== id) {
@@ -972,6 +996,7 @@
   try {
     if (cached) config = P.validateConfig(cached);
   } catch (e) {}
+  paintConnection();
   applyDevice(read("device", {}));
   if (
     location.search.indexOf("demo=1") >= 0 ||
