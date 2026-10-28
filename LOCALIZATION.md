@@ -33,6 +33,7 @@ Use `{name}`: `"studio.panel.saved": "Uložené na panel {panel}"`. Every transl
 
 - `t(key, vars?, lang?)` returns the text in the current language.
 - `has(key)` checks whether a key exists.
+- `message(text, lang?)` translates an encoded backend message (`key|{json}`), including messages nested in its parameters. Anything else is returned unchanged. Backend keys are shipped to both Studio and the panel.
 - `load(baseUrl, lang)` returns a promise that fetches `<baseUrl>/<lang>.json` plus English and Slovak. Studio uses it with `/aurelvi-static/locale`.
 - `setLanguage(code)`, `getLanguage()`, `normalize(code)`, `names`.
 - `apply(root)` fills elements marked with `data-i18n="key"` and `data-i18n-attr="title=key;aria-label=key"`. The panel re-applies this automatically on DOM changes and language change.
@@ -40,4 +41,4 @@ Use `{name}`: `"studio.panel.saved": "Uložené na panel {panel}"`. Every transl
 
 ## Backend messages
 
-Python code raises `ValueError(msg("backend.some_key", panel="x"))` using `custom_components/aurelvi/i18n.py`. `msg()` encodes the message as `backend.some_key` or `backend.some_key|{"panel":"x"}`. Studio splits at the first `|`, parses the JSON parameters and shows `t(key, params)`. A message that is not a known key is shown unchanged.
+Python code raises `ValueError(msg("backend.some_key", panel="x"))` using `custom_components/aurelvi/i18n.py`. `msg()` encodes the message as `backend.some_key` or `backend.some_key|{"panel":"x"}`. Studio and the panel show it with `AurelviI18n.message(text)`. A message that is not a known key is shown unchanged.

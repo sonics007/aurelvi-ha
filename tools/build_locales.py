@@ -9,7 +9,7 @@ generated files are current, --strict to also require complete languages.
 Key prefixes decide where a string is shipped:
   language.*            language name, shipped everywhere
   common.*              shared labels, shipped everywhere
-  panel.*               wall panel UI          -> frontend/i18n.js (embedded, offline)
+  panel.*, backend.*    wall panel UI          -> frontend/i18n.js (embedded, offline)
   studio.*, backend.*   Aurelvi Studio in HA   -> frontend/locale/<code>.json (fetched)
   web.*                 public website         -> website/assets/i18n.js
   ha.*                  HA integration strings -> translations/<code>.json, strings.json
@@ -105,8 +105,8 @@ def dump(obj):
 def outputs(data):
     files = {}
     shared = ("language.", "common.")
-    files[FRONTEND / "i18n.js"] = runtime(data, shared + ("panel.",))
-    files[ROOT / "website" / "assets" / "i18n.js"] = runtime(data, shared + ("web.",))
+    files[FRONTEND / "i18n.js"] = runtime(data, shared + ("panel.", "backend."))
+    files[ROOT / "website" / "assets" / "i18n.js"] = runtime(data, shared + ("web.",), mount=False)
     for code, table in pick(data, shared + ("studio.", "backend.")).items():
         files[FRONTEND / "locale" / f"{code}.json"] = dump(table)
     studio = FRONTEND / "studio.js"
