@@ -1,5 +1,7 @@
 import re
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.components.update import UpdateEntity,UpdateEntityFeature
+from .const import DOMAIN
 from .entity import AurelviEntity,add_dynamic
 class PanelUpdate(AurelviEntity,UpdateEntity):
     _attr_supported_features=UpdateEntityFeature.INSTALL|UpdateEntityFeature.RELEASE_NOTES
@@ -16,6 +18,6 @@ class PanelUpdate(AurelviEntity,UpdateEntity):
     def release_url(self):return self.hub.latest.get('release_url')
     async def async_release_notes(self):return self.hub.latest.get('summary','')
     async def async_install(self,version=None,backup=False,**kwargs):
-        if not self.hub.latest.get('url'):raise ValueError('Najprv nastav GitHub v Aurelvi Studio')
+        if not self.hub.latest.get('url'):raise HomeAssistantError(translation_domain=DOMAIN,translation_key='github_not_configured')
         await self.hub.command(self.pid,'update',{'url':self.hub.latest['url']})
 async def async_setup_entry(hass,entry,async_add_entities):await add_dynamic(hass,entry,async_add_entities,lambda h,p:[PanelUpdate(h,p)])

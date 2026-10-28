@@ -13,8 +13,9 @@ from unittest.mock import patch
 from adb_shell.auth.keygen import keygen
 from adb_shell.auth.sign_pythonrsa import PythonRSASigner
 
-spec=importlib.util.spec_from_file_location('aurelvi_adb',Path(__file__).resolve().parents[1]/'custom_components/aurelvi/adb.py')
-adb=importlib.util.module_from_spec(spec);spec.loader.exec_module(adb)
+_pkg=types.ModuleType('aurelvi_pkg');_pkg.__path__=[str(Path(__file__).resolve().parents[1]/'custom_components/aurelvi')];sys.modules['aurelvi_pkg']=_pkg
+spec=importlib.util.spec_from_file_location('aurelvi_pkg.adb',Path(__file__).resolve().parents[1]/'custom_components/aurelvi/adb.py')
+adb=importlib.util.module_from_spec(spec);sys.modules['aurelvi_pkg.adb']=adb;spec.loader.exec_module(adb)
 
 class Device:
     instances=[]
@@ -68,13 +69,13 @@ class Tests(unittest.TestCase):
             replies=iter([json.dumps({'assets':[asset]}).encode(),blob])
             with patch.object(adb,'urlopen',lambda *a,**kw:io.BytesIO(next(replies))):return adb.download_apk(str(Path(self.tmp.name)/'file.apk'))
         self.assertEqual(run(payload),asset['name'])
-        with self.assertRaisesRegex(ValueError,'checksum'):run(b'BAD')
+        with self.assertRaisesRegex(ValueError,'apk_mismatch'):run(b'BAD')
     def test_unknown_operation_does_not_connect(self):
         with self.assertRaises(ValueError):asyncio.run(adb.async_command(None,{'operation':'shell','host':'192.168.1.2'}))
     def test_busy_lock_rejects_concurrent_commands(self):
         async def run():
             hub=types.SimpleNamespace(adb_lock=asyncio.Lock());await hub.adb_lock.acquire()
-            with self.assertRaisesRegex(ValueError,'running'):await adb.async_command(hub,{'operation':'connect','host':'192.168.1.2'})
+            with self.assertRaisesRegex(ValueError,'adb.busy'):await adb.async_command(hub,{'operation':'connect','host':'192.168.1.2'})
         asyncio.run(run())
 
     def hub(self,**kw):
@@ -99,8 +100,8 @@ class Tests(unittest.TestCase):
     def test_service_rejects_disallowed_operations(self):
         h=self.hub();h.panels['p1']['adb']={'host':'192.168.1.9','port':5555}
         for op in ['install','text','set_home','unset_home','memory','notifications','shell',None]:
-            with self.subTest(op=op),self.assertRaisesRegex(ValueError,'not allowed'):asyncio.run(adb.async_service(h,{'panel_id':'p1','operation':op}))
-        with self.assertRaisesRegex(ValueError,'Unknown panel'):asyncio.run(adb.async_service(h,{'panel_id':'zz','operation':'reboot'}))
+            with self.subTest(op=op),self.assertRaisesRegex(ValueError,'operation_not_allowed'):asyncio.run(adb.async_service(h,{'panel_id':'p1','operation':op}))
+        with self.assertRaisesRegex(ValueError,'unknown_panel'):asyncio.run(adb.async_service(h,{'panel_id':'zz','operation':'reboot'}))
     def test_service_runs_reboot_with_resolved_endpoint(self):
         h=self.hub();h.status['p1']={'info':{'ip':'192.168.1.50'}};seen=[]
         async def fake(hub,data):seen.append(data);return {'output':'OK'}

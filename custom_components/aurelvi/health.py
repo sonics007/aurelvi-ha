@@ -4,6 +4,7 @@ import time
 from collections import Counter
 from homeassistant.components import mqtt
 from .const import VERSION
+from .i18n import msg
 from .models import entities
 
 
@@ -14,11 +15,11 @@ def panel_health(hub, pid):
     connected = mqtt.is_connected(hub.hass)
     issues = []
     if not connected:
-        issues.append({'code': 'mqtt_disconnected', 'level': 'error', 'message': 'Home Assistant nie je pripojený k MQTT.', 'hint': 'Skontroluj MQTT integráciu a dostupnosť brokera.'})
+        issues.append({'code': 'mqtt_disconnected', 'level': 'error', 'message': msg('backend.health.mqtt_disconnected'), 'hint': msg('backend.health.mqtt_disconnected_hint')})
     if not panel.get('paired'):
-        issues.append({'code': 'not_paired', 'level': 'warning', 'message': 'Panel čaká na pridanie.', 'hint': 'V Studio zvoľ Pridať tento panel.'})
+        issues.append({'code': 'not_paired', 'level': 'warning', 'message': msg('backend.health.not_paired'), 'hint': msg('backend.health.not_paired_hint')})
     elif not status.get('online'):
-        issues.append({'code': 'panel_offline', 'level': 'error', 'message': 'Panel je odpojený.', 'hint': 'Na paneli skontroluj Wi-Fi, MQTT WebSocket adresu a režim Aurelvi.'})
+        issues.append({'code': 'panel_offline', 'level': 'error', 'message': msg('backend.health.panel_offline'), 'hint': msg('backend.health.panel_offline_hint')})
     referenced = sorted(entities(panel.get('config', {})))
     missing, unavailable = [], []
     for entity in referenced:
@@ -27,14 +28,9 @@ def panel_health(hub, pid):
             missing.append(entity)
         elif state.state in {'unavailable', 'unknown'}:
             unavailable.append(entity)
-    for code, values, message in [('missing_entities', missing, 'Niektoré entity neexistujú.'), ('unavailable_entities', unavailable, 'Niektoré entity nemajú dostupný stav.')]:
+    for code, values, message in [('missing_entities', missing, msg('backend.health.missing_entities')), ('unavailable_entities', unavailable, msg('backend.health.unavailable_entities'))]:
         if values:
-            issues.append({'code': code, 'level': 'warning', 'message': message, 'entities': values, 'hint': 'Skontroluj priradenie v Stránky a stav entít v HA.'})
-    if not str(getattr(getattr(hub.hass,'config',None),'language','en')).startswith('sk'):
-        translations={'Home Assistant nie je pripojený k MQTT.': 'Home Assistant is not connected to MQTT.', 'Skontroluj MQTT integráciu a dostupnosť brokera.': 'Check the MQTT integration and broker availability.', 'Panel čaká na pridanie.': 'The panel is waiting to be added.', 'V Studio zvoľ Pridať tento panel.': 'Select Add this panel in Studio.', 'Panel je odpojený.': 'The panel is offline.', 'Na paneli skontroluj Wi-Fi, MQTT WebSocket adresu a režim Aurelvi.': 'Check the panel Wi-Fi, MQTT WebSocket URL and Aurelvi mode.', 'Niektoré entity neexistujú.': 'Some entities do not exist.', 'Niektoré entity nemajú dostupný stav.': 'Some entities are unavailable.', 'Skontroluj priradenie v Stránky a stav entít v HA.': 'Check the assignments in Pages and entity states in Home Assistant.'}
-        for issue in issues:
-            for key in ['message','hint']:
-                issue[key]=translations.get(issue.get(key),issue.get(key))
+            issues.append({'code': code, 'level': 'warning', 'message': message, 'entities': values, 'hint': msg('backend.health.entities_hint')})
     return {'mqttConnected': connected, 'panelOnline': bool(status.get('online')), 'paired': bool(panel.get('paired')), 'lastSeen': status.get('lastSeen'), 'entityCount': len(referenced), 'missingCount': len(missing), 'unavailableCount': len(unavailable), 'ok': not issues, 'issues': issues}
 
 

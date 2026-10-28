@@ -27,7 +27,7 @@ COMPONENT = ROOT / "custom_components" / "aurelvi"
 FRONTEND = COMPONENT / "frontend"
 RUNTIME = ROOT / "tools" / "i18n-runtime.js"
 MASTER = "sk"
-KEY = re.compile(r"[a-z][a-z0-9_]*(\.[a-z0-9_]+)+")
+KEY = re.compile(r"[a-z][a-z0-9_]*(\.[a-z0-9_]+)+|ha(\.[A-Za-z0-9_]+)+")  # ha.* mirrors HA ids such as timeoutS
 PLACEHOLDER = re.compile(r"\{([a-zA-Z0-9_]+)\}")
 BEGIN, END = "/*@i18n-runtime-begin*/", "/*@i18n-runtime-end*/"
 

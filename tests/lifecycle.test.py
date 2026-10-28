@@ -12,7 +12,9 @@ frontend=module('homeassistant.components.frontend');panel=module('homeassistant
 const.Platform=Enum('Platform',{name.upper():name for name in ['sensor','binary_sensor','button','number','switch','media_player','update','notify']})
 http.StaticPathConfig=lambda *args:args
 exceptions=module('homeassistant.exceptions')
-class HomeAssistantError(Exception):pass
+class HomeAssistantError(Exception):
+    def __init__(self,*args,translation_domain=None,translation_key=None,translation_placeholders=None):
+        super().__init__(*args);self.translation_domain=translation_domain;self.translation_key=translation_key;self.translation_placeholders=translation_placeholders
 exceptions.HomeAssistantError=HomeAssistantError
 for name in ['require_admin','async_response']:setattr(websocket,name,lambda fn:fn)
 websocket.websocket_command=lambda schema:lambda fn:fn

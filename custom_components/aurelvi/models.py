@@ -4,6 +4,7 @@ import copy
 import json
 import math
 import re
+from .i18n import msg
 
 ID = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 ENTITY = re.compile(r"^[a-z_][a-z0-9_]*\.[a-z0-9_]+$")
@@ -16,12 +17,12 @@ def attribute_key(entity, attribute):
 
 def panel_id(value):
     if not isinstance(value, str) or not ID.fullmatch(value) or value == "discover":
-        raise ValueError("Neplatné ID panela")
+        raise ValueError(msg('backend.models.invalid_panel_id'))
     return value
 
 def entity_id(value, domain=None):
     if not isinstance(value,str) or not ENTITY.fullmatch(value) or domain and value.split('.')[0] != domain:
-        raise ValueError("Neplatná entita")
+        raise ValueError(msg('backend.models.invalid_entity'))
     return value
 
 def entity_key(value):
@@ -29,71 +30,71 @@ def entity_key(value):
 
 def number(value, low, high):
     if isinstance(value,bool) or not isinstance(value,(int,float)) or not math.isfinite(value) or not low <= value <= high:
-        raise ValueError("Číslo je mimo povoleného rozsahu")
+        raise ValueError(msg('backend.models.number_out_of_range'))
     return value
 
 def actions(value):
     if isinstance(value,dict): value=[value]
-    if not isinstance(value,list) or not value or len(value)>10: raise ValueError("Priraď 1 až 10 akcií")
+    if not isinstance(value,list) or not value or len(value)>10: raise ValueError(msg('backend.models.actions_count'))
     for action in value:
         if isinstance(action,dict) and action=={'noop':True}:continue
-        if not isinstance(action,dict) or not SERVICE.fullmatch(action.get('service','')): raise ValueError("Akcia má mať service: doména.akcia")
+        if not isinstance(action,dict) or not SERVICE.fullmatch(action.get('service','')): raise ValueError(msg('backend.models.action_service'))
         target=action.get('target',{})
-        if not isinstance(target,dict) or set(target)-{'entity_id','area_id','device_id','label_id'}: raise ValueError("Neplatný cieľ akcie")
+        if not isinstance(target,dict) or set(target)-{'entity_id','area_id','device_id','label_id'}: raise ValueError(msg('backend.models.invalid_target'))
         ids=target.get('entity_id',action.get('entity_id',[]))
         for item in [ids] if isinstance(ids,str) else ids: entity_id(item)
-        if not isinstance(action.get('data',{}),dict): raise ValueError("Dáta akcie musia byť objekt")
+        if not isinstance(action.get('data',{}),dict): raise ValueError(msg('backend.models.action_data_object'))
     return value
 
 def validate_config(doc):
-    if not isinstance(doc,dict) or len(json.dumps(doc))>262144: raise ValueError("Konfigurácia je príliš veľká")
+    if not isinstance(doc,dict) or len(json.dumps(doc))>262144: raise ValueError(msg('backend.models.config_too_large'))
     doc=copy.deepcopy(doc)
     pages=doc.get('pages')
-    if not isinstance(pages,list) or not 1<=len(pages)<=30: raise ValueError("Pridaj 1 až 30 stránok")
+    if not isinstance(pages,list) or not 1<=len(pages)<=30: raise ValueError(msg('backend.models.pages_count'))
     page_ids=set(); tile_ids=set()
     for page in pages:
         pid=panel_id(page.get('id'))
-        if pid in page_ids: raise ValueError("Duplicitná stránka")
+        if pid in page_ids: raise ValueError(msg('backend.models.duplicate_page'))
         page_ids.add(pid)
-        if page.get('type') not in TYPES: raise ValueError("Nepodporovaný typ stránky")
+        if page.get('type') not in TYPES: raise ValueError(msg('backend.models.unsupported_page_type'))
         if page.get('type')=='fan':
             fan=page.get('fan',{}); entity_id(fan.get('fanEntity'),'fan')
             if fan.get('lightEntity'): entity_id(fan['lightEntity'],'light')
             speeds=fan.get('speeds',[])
-            if not isinstance(speeds,list) or not 1<=len(speeds)<=6: raise ValueError("Počet rýchlostí je 1 až 6")
+            if not isinstance(speeds,list) or not 1<=len(speeds)<=6: raise ValueError(msg('backend.models.speeds_count'))
             for speed in speeds:
                 if speed.get('actions'): actions(speed['actions'])
                 elif 'percentage' in speed: number(speed['percentage'],1,100)
-                elif not isinstance(speed.get('preset_mode'),str) or not speed['preset_mode']: raise ValueError("Rýchlosti priraď percentá, režim alebo vlastnú akciu")
+                elif not isinstance(speed.get('preset_mode'),str) or not speed['preset_mode']: raise ValueError(msg('backend.models.speed_assign'))
             for extra in fan.get('extras',[]):
                 eid=panel_id(extra.get('id'))
-                if pid+'.'+eid in tile_ids: raise ValueError("Duplicitná akcia")
+                if pid+'.'+eid in tile_ids: raise ValueError(msg('backend.models.duplicate_action'))
                 tile_ids.add(pid+'.'+eid);actions(extra.get('actions'))
-            if len(fan.get('extras',[]))>8:raise ValueError("Najviac 8 vlastných tlačidiel")
+            if len(fan.get('extras',[]))>8:raise ValueError(msg('backend.models.extras_max'))
         if page.get('type')=='grid':
             grid=page.get('grid',{});cols=number(grid.get('columns'),1,12);rows=number(grid.get('rows'),1,12)
-            if int(cols)!=cols or int(rows)!=rows: raise ValueError("Rozmery mriežky musia byť celé")
+            if int(cols)!=cols or int(rows)!=rows: raise ValueError(msg('backend.models.grid_integers'))
             tiles=page.get('tiles',[])
-            if not isinstance(tiles,list) or len(tiles)>100:raise ValueError("Príliš veľa tlačidiel")
+            if not isinstance(tiles,list) or len(tiles)>100:raise ValueError(msg('backend.models.too_many_tiles'))
             occupied=set()
             for tile in tiles:
                 tid=panel_id(tile.get('id'))
-                if tid in tile_ids:raise ValueError("Duplicitné tlačidlo")
+                if tid in tile_ids:raise ValueError(msg('backend.models.duplicate_tile'))
                 tile_ids.add(tid)
-                if tile.get('type') not in {'button','dimmer','switcher','split','rocker','readout'}:raise ValueError("Nepodporovaný ovládač")
+                if tile.get('type') not in {'button','dimmer','switcher','split','rocker','readout'}:raise ValueError(msg('backend.models.unsupported_control'))
                 for name in ['row','col','rowSpan','colSpan']:
                     value=tile.get(name,1);number(value,1,12)
-                    if int(value)!=value:raise ValueError("Pozícia musí byť celé číslo")
+                    if int(value)!=value:raise ValueError(msg('backend.models.position_integer'))
                 col=tile.get('col',1);row=tile.get('row',1);cs=tile.get('colSpan',1);rs=tile.get('rowSpan',1)
-                if col+cs-1>cols or row+rs-1>rows:raise ValueError("Tlačidlo je mimo mriežky")
+                if col+cs-1>cols or row+rs-1>rows:raise ValueError(msg('backend.models.tile_outside_grid'))
                 for c in range(col,col+cs):
                     for r in range(row,row+rs):
-                        if (c,r) in occupied:raise ValueError("Tlačidlá sa prekrývajú")
+                        if (c,r) in occupied:raise ValueError(msg('backend.models.tiles_overlap'))
                         occupied.add((c,r))
                 if tile.get('entity'):entity_id(tile['entity'])
                 if 'stateAttribute' in tile:
                     if tile['stateAttribute'] not in PROJECTED_ATTRIBUTES or not tile.get('entity') or tile.get('stateKey')!=attribute_key(tile['entity'],tile['stateAttribute']):
-                        raise ValueError('Invalid attribute projection')
+                        raise ValueError(msg('backend.models.invalid_projection'))
                 for binding in tile.get('bindings',{}).values():actions(binding)
                 for segment in tile.get('buttons',[]):
                     for binding in segment.get('bindings',{}).values():actions(binding)
@@ -153,15 +154,15 @@ def fan_page(fan='fan.stropny_ventilator',light='light.stropne_svetlo',count=6):
 def default_config():return {'v':1,'theme':'cream','pages':[{'id':'home','title':'Domov','type':'grid','grid':{'columns':2,'rows':2},'tiles':[]},{'id':'clock','title':'Hodiny','type':'clock'}]}
 
 def validate_device(device,page_count):
-    if not isinstance(device,dict) or len(json.dumps(device))>262144:raise ValueError('Neplatné nastavenie displeja')
+    if not isinstance(device,dict) or len(json.dumps(device))>262144:raise ValueError(msg('backend.models.invalid_display'))
     d=copy.deepcopy(device)
     if 'wallpaper' in d:
         wall=d['wallpaper']
-        if not isinstance(wall,dict) or wall.get('id') not in {'none','morning','forest','sea','sunset','graphite','custom'}:raise ValueError('Invalid wallpaper')
+        if not isinstance(wall,dict) or wall.get('id') not in {'none','morning','forest','sea','sunset','graphite','custom'}:raise ValueError(msg('backend.models.invalid_wallpaper'))
         if 'dim' in wall:number(wall['dim'],0,80)
         if wall.get('id')=='custom':
             image=wall.get('image','')
-            if not isinstance(image,str) or len(image)>180000 or not re.fullmatch(r'data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*',image):raise ValueError('Invalid wallpaper image')
+            if not isinstance(image,str) or len(image)>180000 or not re.fullmatch(r'data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*',image):raise ValueError(msg('backend.models.invalid_wallpaper_image'))
         elif 'image' in wall:wall.pop('image')
     for key,low,high in [('labelSize',8,32),('labelOffsetY',-40,40),('iconSize',16,96)]:
         if key in d:number(d[key],low,high)
@@ -169,7 +170,7 @@ def validate_device(device,page_count):
     if 'inactivityTimeout' in d:number(d['inactivityTimeout'],0,86400)
     for key,low,high in [('clockDateSize',8,32),('sysInfoIntervalS',10,3600)]:
         if key in d:number(d[key],low,high)
-    if 'clockLanguage' in d and d['clockLanguage'] not in {'en-GB','sk-SK','hu-HU','de-DE','cs-CZ','it-IT'}:raise ValueError('Invalid clock language')
+    if 'clockLanguage' in d and d['clockLanguage'] not in {'en-GB','sk-SK','hu-HU','de-DE','cs-CZ','it-IT'}:raise ValueError(msg('backend.models.invalid_clock_language'))
     for group in ['motion','proximity']:
         if 'on' in d.get(group,{}):number(d[group]['on'],1,100)
     if 'clearS' in d.get('motion',{}):number(d['motion']['clearS'],1,600)

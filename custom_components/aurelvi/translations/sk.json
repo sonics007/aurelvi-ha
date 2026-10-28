@@ -1,162 +1,40 @@
 {
-  "title": "Aurelvi",
   "config": {
-    "step": {
-      "user": {
-        "title": "Aurelvi – Domov na dotyk",
-        "description": "Použijeme existujúcu MQTT integráciu Home Assistanta. Panel musí používať rovnaký broker a režim Aurelvi. Stránky nastavíš v Aurelvi Studio v bočnom menu."
-      }
-    },
-    "error": {
-      "mqtt_missing": "Najprv pridaj integráciu MQTT a nastav broker.",
-      "mqtt_disconnected": "MQTT nie je pripojené. Skontroluj broker."
-    },
     "abort": {
       "single_instance_allowed": "Integrácia Aurelvi je už pridaná."
-    }
-  },
-  "services": {
-    "push_config": {
-      "name": "Odoslať konfiguráciu",
-      "description": "Znovu odošle uložené stránky a stavy na panel.",
-      "fields": {
-        "panel_id": {
-          "name": "ID panela"
-        }
-      }
     },
-    "wake": {
-      "name": "Prebudiť panel",
-      "fields": {
-        "panel_id": {
-          "name": "ID panela"
-        }
-      }
+    "error": {
+      "mqtt_disconnected": "MQTT nie je pripojené. Skontroluj broker.",
+      "mqtt_missing": "Najprv pridaj integráciu MQTT a nastav broker."
     },
-    "page": {
-      "name": "Zobraziť stránku",
-      "fields": {
-        "panel_id": {
-          "name": "ID panela"
-        },
-        "id": {
-          "name": "ID stránky zo Studia"
-        }
-      }
-    },
-    "screen": {
-      "name": "Nastaviť displej",
-      "fields": {
-        "panel_id": {
-          "name": "ID panela"
-        },
-        "action": {
-          "name": "Akcia"
-        },
-        "brightness": {
-          "name": "Jas (0.05 až 1)"
-        }
-      }
-    },
-    "start_timer": {
-      "name": "Spustiť časovač vypnutia",
-      "description": "Časovač sa ukladá v HA a obnoví sa po jeho reštarte.",
-      "fields": {
-        "panel_id": {
-          "name": "ID panela"
-        },
-        "entity_id": {
-          "name": "Zariadenie na vypnutie"
-        },
-        "seconds": {
-          "name": "Počet sekúnd"
-        }
-      }
-    },
-    "cancel_timer": {
-      "name": "Zrušiť časovač",
-      "fields": {
-        "panel_id": {
-          "name": "ID panela"
-        }
-      }
-    },
-    "notify": {
-      "name": "Oznámenie na panel",
-      "fields": {
-        "panel_id": {
-          "name": "ID panela"
-        },
-        "title": {
-          "name": "Nadpis"
-        },
-        "message": {
-          "name": "Text oznámenia"
-        },
-        "priority": {
-          "name": "Priorita"
-        },
-        "timeoutS": {
-          "name": "Čas zobrazenia v sekundách (0 = bez limitu)"
-        },
-        "sound": {
-          "name": "Zvuk alebo HTTPS/HTTP adresa",
-          "description": "ding, alarm_beep, alarm, alarmo, siren, alebo URL zvuku."
-        }
+    "step": {
+      "user": {
+        "description": "Použijeme existujúcu MQTT integráciu Home Assistanta. Panel musí používať rovnaký broker a režim Aurelvi. Stránky nastavíš v Aurelvi Studio v bočnom menu.",
+        "title": "Aurelvi – Domov na dotyk"
       }
     }
   },
   "entity": {
-    "sensor": {
-      "version": {
-        "name": "Verzia"
-      },
-      "rssi": {
-        "name": "Wi-Fi signál"
-      },
-      "freeMemMB": {
-        "name": "Voľná pamäť"
-      },
-      "uptimeS": {
-        "name": "Čas od štartu"
-      },
-      "timer": {
-        "name": "Časovač"
-      },
-      "illuminance": {
-        "name": "Osvetlenosť"
-      }
-    },
     "binary_sensor": {
-      "online": {
-        "name": "Pripojenie"
-      },
       "motion": {
         "name": "Pohyb"
+      },
+      "online": {
+        "name": "Pripojenie"
       }
     },
     "button": {
-      "wake": {
-        "name": "Prebudiť"
-      },
-      "info": {
-        "name": "Obnoviť informácie"
+      "adb_reboot": {
+        "name": "Reštartovať (ADB)"
       },
       "cancel_timer": {
         "name": "Zrušiť časovač"
       },
-      "adb_reboot": {
-        "name": "Reštartovať (ADB)"
-      }
-    },
-    "number": {
-      "brightness": {
-        "name": "Jas displeja"
-      }
-    },
-    "switch": {
-      "screen": {
-        "name": "Obrazovka"
+      "info": {
+        "name": "Obnoviť informácie"
+      },
+      "wake": {
+        "name": "Prebudiť"
       }
     },
     "media_player": {
@@ -164,15 +42,148 @@
         "name": "Reproduktor"
       }
     },
-    "update": {
-      "update": {
-        "name": "Aktualizácia aplikácie"
-      }
-    },
     "notify": {
       "notification": {
         "name": "Oznámenie"
       }
+    },
+    "number": {
+      "brightness": {
+        "name": "Jas displeja"
+      }
+    },
+    "sensor": {
+      "freeMemMB": {
+        "name": "Voľná pamäť"
+      },
+      "illuminance": {
+        "name": "Osvetlenosť"
+      },
+      "rssi": {
+        "name": "Wi-Fi signál"
+      },
+      "timer": {
+        "name": "Časovač"
+      },
+      "uptimeS": {
+        "name": "Čas od štartu"
+      },
+      "version": {
+        "name": "Verzia"
+      }
+    },
+    "switch": {
+      "screen": {
+        "name": "Obrazovka"
+      }
+    },
+    "update": {
+      "update": {
+        "name": "Aktualizácia aplikácie"
+      }
     }
-  }
+  },
+  "exceptions": {
+    "adb_failed": {
+      "message": "Operácia ADB zlyhala: {error}"
+    },
+    "github_not_configured": {
+      "message": "Najprv nastav GitHub v Aurelvi Studio"
+    },
+    "panel_command_failed": {
+      "message": "Príkaz pre panel zlyhal: {error}"
+    }
+  },
+  "services": {
+    "cancel_timer": {
+      "fields": {
+        "panel_id": {
+          "name": "ID panela"
+        }
+      },
+      "name": "Zrušiť časovač"
+    },
+    "notify": {
+      "fields": {
+        "message": {
+          "name": "Text oznámenia"
+        },
+        "panel_id": {
+          "name": "ID panela"
+        },
+        "priority": {
+          "name": "Priorita"
+        },
+        "sound": {
+          "description": "ding, alarm_beep, alarm, alarmo, siren, alebo URL zvuku.",
+          "name": "Zvuk alebo HTTPS/HTTP adresa"
+        },
+        "timeoutS": {
+          "name": "Čas zobrazenia v sekundách (0 = bez limitu)"
+        },
+        "title": {
+          "name": "Nadpis"
+        }
+      },
+      "name": "Oznámenie na panel"
+    },
+    "page": {
+      "fields": {
+        "id": {
+          "name": "ID stránky zo Studia"
+        },
+        "panel_id": {
+          "name": "ID panela"
+        }
+      },
+      "name": "Zobraziť stránku"
+    },
+    "push_config": {
+      "description": "Znovu odošle uložené stránky a stavy na panel.",
+      "fields": {
+        "panel_id": {
+          "name": "ID panela"
+        }
+      },
+      "name": "Odoslať konfiguráciu"
+    },
+    "screen": {
+      "fields": {
+        "action": {
+          "name": "Akcia"
+        },
+        "brightness": {
+          "name": "Jas (0.05 až 1)"
+        },
+        "panel_id": {
+          "name": "ID panela"
+        }
+      },
+      "name": "Nastaviť displej"
+    },
+    "start_timer": {
+      "description": "Časovač sa ukladá v HA a obnoví sa po jeho reštarte.",
+      "fields": {
+        "entity_id": {
+          "name": "Zariadenie na vypnutie"
+        },
+        "panel_id": {
+          "name": "ID panela"
+        },
+        "seconds": {
+          "name": "Počet sekúnd"
+        }
+      },
+      "name": "Spustiť časovač vypnutia"
+    },
+    "wake": {
+      "fields": {
+        "panel_id": {
+          "name": "ID panela"
+        }
+      },
+      "name": "Prebudiť panel"
+    }
+  },
+  "title": "Aurelvi"
 }

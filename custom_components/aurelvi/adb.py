@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import shlex
 import tempfile
+from .i18n import msg
 from urllib.request import Request, urlopen
 
 COMPONENT = "sk.openpanel.nspanel/.MainActivity"
@@ -38,7 +39,7 @@ def endpoint(data):
         if not 1 <= port <= 65535:
             raise ValueError()
     except (ValueError, TypeError):
-        raise ValueError("Enter the panel's local IP address and a valid ADB port.") from None
+        raise ValueError(msg('backend.adb.invalid_endpoint')) from None
     return host, port
 
 
@@ -50,7 +51,7 @@ def resolve_endpoint(hub, pid, data=None):
     host = data.get("host") or stored.get("host") or reported
     port = data.get("port") or stored.get("port") or 5555
     if not host:
-        raise ValueError("No ADB address is known for this panel. Run Setup / Update in Studio once or pass host.")
+        raise ValueError(msg('backend.adb.no_address'))
     return endpoint({"host": host, "port": port})
 
 
@@ -76,9 +77,9 @@ async def async_service(hub, data):
     pid = data.get("panel_id")
     operation = data.get("operation")
     if operation not in SERVICE_OPERATIONS:
-        raise ValueError("Operation is not allowed from services: " + str(operation))
+        raise ValueError(msg('backend.adb.operation_not_allowed', operation=operation))
     if pid not in hub.panels:
-        raise ValueError("Unknown panel.")
+        raise ValueError(msg('backend.adb.unknown_panel'))
     host, port = resolve_endpoint(hub, pid, data)
     result = await async_command(hub, {"operation": operation, "host": host, "port": port})
     await remember_endpoint(hub, pid, {"host": host, "port": port})
@@ -88,7 +89,7 @@ async def async_service(hub, data):
 def text_command(text):
     # Android input text is ASCII-only; never pass shell syntax from the UI.
     if not isinstance(text, str) or not 1 <= len(text) <= 200 or not re.fullmatch(r"[A-Za-z0-9 .,!?@_+:/=-]+", text):
-        raise ValueError("Use 1–200 basic Latin letters, numbers or simple punctuation.")
+        raise ValueError(msg('backend.adb.text_invalid'))
     return "input text " + shlex.quote(text.replace(" ", "%s"))
 
 
@@ -98,31 +99,31 @@ def download_apk(path):
     with urlopen(Request("https://api.github.com/repos/sonics007/aurelvi-apk/releases/latest", headers=headers), timeout=30) as response:
         raw = response.read(1048577)
     if len(raw) > 1048576:
-        raise ValueError("Release metadata is too large.")
+        raise ValueError(msg('backend.adb.release_too_large'))
     release = json.loads(raw)
     if release.get("draft") or release.get("prerelease"):
-        raise ValueError("No stable release is available.")
+        raise ValueError(msg('backend.adb.no_stable_release'))
     assets = [a for a in release.get("assets", []) if re.fullmatch(r"Aurelvi-[0-9]+\.[0-9]+\.[0-9]+\.apk", a.get("name", ""))]
     if len(assets) != 1:
-        raise ValueError("The release must contain exactly one Aurelvi APK.")
+        raise ValueError(msg('backend.adb.release_asset_count'))
     asset = assets[0]
     url = asset.get("browser_download_url", "")
     if not re.fullmatch(r"https://github\.com/sonics007/aurelvi-apk/releases/download/[^/]+/Aurelvi-[0-9.]+\.apk", url):
-        raise ValueError("Invalid Aurelvi download address.")
+        raise ValueError(msg('backend.adb.invalid_download_url'))
     digest = asset.get("digest", "")
     if not re.fullmatch(r"sha256:[a-f0-9]{64}", digest):
-        raise ValueError("The release has no SHA-256 checksum.")
+        raise ValueError(msg('backend.adb.no_checksum'))
     checksum = hashlib.sha256()
     size = 0
     with urlopen(Request(url, headers={"User-Agent": "Aurelvi-ADB"}), timeout=45) as response, open(path, "wb") as out:
         while chunk := response.read(65536):
             size += len(chunk)
             if size > MAX_APK:
-                raise ValueError("APK exceeds 64 MB.")
+                raise ValueError(msg('backend.adb.apk_too_large'))
             checksum.update(chunk)
             out.write(chunk)
     if not size or size != asset.get("size") or checksum.hexdigest() != digest[7:]:
-        raise ValueError("APK checksum or size does not match the release.")
+        raise ValueError(msg('backend.adb.apk_mismatch'))
     return asset["name"]
 
 
@@ -145,7 +146,7 @@ def execute(key_path, host, port, operation, data):
     device = AdbDeviceTcp(host, port, default_transport_timeout_s=15)
     try:
         if not device.connect(rsa_keys=[signer], auth_timeout_s=15, read_timeout_s=20):
-            raise ValueError("ADB authorization is pending. Accept the prompt on the panel, then connect again.")
+            raise ValueError(msg('backend.adb.auth_pending'))
         if operation == "install":
             with tempfile.TemporaryDirectory(prefix="aurelvi-apk-") as folder:
                 local = str(Path(folder) / "aurelvi.apk")
@@ -155,9 +156,9 @@ def execute(key_path, host, port, operation, data):
                     device.push(local, remote, read_timeout_s=120)
                     output = device.shell("pm install -r " + remote, read_timeout_s=120)
                     if "Success" not in output:
-                        raise ValueError("Android installation failed: " + output[:1000])
+                        raise ValueError(msg('backend.adb.install_failed', output=output[:1000]))
                     device.shell(COMMANDS["launch"], read_timeout_s=20)
-                    return {"output": name + " installed. Aurelvi launched."}
+                    return {"output": msg('backend.adb.installed', name=name)}
                 finally:
                     try:
                         device.shell("rm -f " + remote)
@@ -167,7 +168,7 @@ def execute(key_path, host, port, operation, data):
             homes = device.shell("cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME")
             candidates = [line.strip() for line in homes.splitlines() if re.fullmatch(r"[A-Za-z0-9_.]+/[A-Za-z0-9_.$]+", line.strip()) and not line.strip().startswith("sk.openpanel.nspanel/")]
             if not candidates:
-                raise ValueError("No alternate Android launcher was found. Choose the default Home app in Android settings.")
+                raise ValueError(msg('backend.adb.no_launcher'))
             command = "cmd package set-home-activity " + shlex.quote(candidates[0])
         else:
             command = text_command(data.get("text")) if operation == "text" else COMMANDS[operation]
@@ -175,10 +176,10 @@ def execute(key_path, host, port, operation, data):
             output = device.shell(command, read_timeout_s=30)
         except Exception:
             if operation == "reboot":
-                return {"output": "Reboot requested; ADB disconnected. Reconnect after the panel starts."}
+                return {"output": msg('backend.adb.reboot_requested')}
             raise
         if "Error" in output or "Exception" in output or "Unknown command" in output:
-            raise ValueError(output[:2000])
+            raise ValueError(msg('backend.adb.command_error', output=output[:2000]))
         return {"output": output[:12000] or "OK"}
     finally:
         device.close()
@@ -187,18 +188,18 @@ def execute(key_path, host, port, operation, data):
 async def async_command(hub, data):
     operation = data.get("operation", "connect")
     if operation not in COMMANDS and operation not in {"text", "install"}:
-        raise ValueError("Unsupported ADB operation.")
+        raise ValueError(msg('backend.adb.unsupported_operation'))
     host, port = endpoint(data)
     if operation == "text":
         text_command(data.get("text"))
     if not hasattr(hub, "adb_lock"):
         hub.adb_lock = asyncio.Lock()
     if hub.adb_lock.locked():
-        raise ValueError("Another ADB operation is running. Please wait.")
+        raise ValueError(msg('backend.adb.busy'))
     async with hub.adb_lock:
         try:
             return await hub.hass.async_add_executor_job(execute, hub.hass.config.path(".storage", "aurelvi_adbkey"), host, port, operation, data)
         except ValueError:
             raise
         except Exception as err:
-            raise ValueError("ADB connection failed. Check the IP, enable network debugging and accept the authorization prompt on the panel. " + type(err).__name__) from err
+            raise ValueError(msg('backend.adb.connection_failed', error=type(err).__name__)) from err
