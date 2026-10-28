@@ -26,6 +26,8 @@ jobs:
         run: python tests/settings.test.py
       - name: Health and diagnostics
         run: python tests/health.test.py
+      - name: MQTT security hardening
+        run: python tests/security.test.py
       - name: ADB key and signing
         run: python tests/adb.test.py
       - name: Lifecycle

@@ -11,6 +11,9 @@ def module(name):return ad.module(name)
 frontend=module('homeassistant.components.frontend');panel=module('homeassistant.components.panel_custom');websocket=module('homeassistant.components.websocket_api');http=module('homeassistant.components.http');const=module('homeassistant.const');ce=module('homeassistant.config_entries')
 const.Platform=Enum('Platform',{name.upper():name for name in ['sensor','binary_sensor','button','number','switch','media_player','update','notify']})
 http.StaticPathConfig=lambda *args:args
+exceptions=module('homeassistant.exceptions')
+class HomeAssistantError(Exception):pass
+exceptions.HomeAssistantError=HomeAssistantError
 for name in ['require_admin','async_response']:setattr(websocket,name,lambda fn:fn)
 websocket.websocket_command=lambda schema:lambda fn:fn
 websocket.async_register_command=lambda *args:None
